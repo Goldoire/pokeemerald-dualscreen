@@ -25,9 +25,28 @@ rm -f "$WORK/META-INF"/*.SF "$WORK/META-INF"/*.MF "$WORK/META-INF"/*.RSA 2>/dev/
 (cd "$WORK" && zip -qr ../repacked.apk . -x resources.arsc \
             && zip -q -0 ../repacked.apk resources.arsc)
 "$BUILD_TOOLS/zipalign" -f 4 "$WORK/../repacked.apk" "$WORK/../aligned.apk"
-"$BUILD_TOOLS/apksigner" sign --ks ~/.android/debug.keystore \
-    --ks-pass pass:android --key-pass pass:android \
-    --out "$OUT" "$WORK/../aligned.apk"
+
+# Sign with the release key when it is configured, else the debug key. Android
+# refuses an update signed by a different key than the installed APK, so every
+# published release has to carry the same signature: set these and keep the
+# keystore backed up, because losing it strands everyone on their install.
+#   DUALSCREEN_KEYSTORE       path to the keystore
+#   DUALSCREEN_KEYSTORE_PASS  store password (key password defaults to it)
+#   DUALSCREEN_KEY_ALIAS      key alias (default: dualscreen)
+if [ -n "$DUALSCREEN_KEYSTORE" ]; then
+    [ -f "$DUALSCREEN_KEYSTORE" ] || { echo "keystore not found: $DUALSCREEN_KEYSTORE"; exit 1; }
+    echo "signing with release key: $DUALSCREEN_KEYSTORE"
+    "$BUILD_TOOLS/apksigner" sign --ks "$DUALSCREEN_KEYSTORE" \
+        --ks-pass "pass:$DUALSCREEN_KEYSTORE_PASS" \
+        --key-pass "pass:${DUALSCREEN_KEY_PASS:-$DUALSCREEN_KEYSTORE_PASS}" \
+        --ks-key-alias "${DUALSCREEN_KEY_ALIAS:-dualscreen}" \
+        --out "$OUT" "$WORK/../aligned.apk"
+else
+    echo "warning: DUALSCREEN_KEYSTORE unset, signing with the debug key"
+    "$BUILD_TOOLS/apksigner" sign --ks ~/.android/debug.keystore \
+        --ks-pass pass:android --key-pass pass:android \
+        --out "$OUT" "$WORK/../aligned.apk"
+fi
 rm -rf "$WORK" "$WORK/../repacked.apk" "$WORK/../aligned.apk"
 echo "release APK -> $OUT"
 unzip -l "$OUT" | grep -E "libmain|manifest"

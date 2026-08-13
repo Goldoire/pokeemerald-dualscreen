@@ -14,17 +14,28 @@ shows is decoded at runtime from the game's own data.
 ## Instructions
 
 1. Install the APK from the [releases page](https://github.com/Goldoire/pokeemerald-dualscreen/releases).
-   It is debug-signed, so Android will warn about an unknown developer.
+   Android will warn about an unknown developer.
 2. Launch the app and tap "Select ROM" when asked, then pick your
    Pokémon Emerald (USA/Europe) ROM. It is checked against SHA-1
    `f3ae088181bf583e55daf962a92bb46f4f1d07b7`.
-   (You can also drop the ROM at `Android/data/com.pokeemerald.experimental/files/baserom.gba`
+   (You can also drop the ROM at `Android/data/com.pokeemerald.dualscreen/files/baserom.gba`
    beforehand to skip the picker.)
 3. That's it. The app restores the game data once and boots straight into
    the game. Later launches go right to it.
 
 The APK ships with every asset byte zeroed out, and your own copy of the
 game fills them back in at boot. Nothing is written back to your ROM.
+
+## Saves
+
+You can bring an existing save with you. This is an ordinary 128 KB GBA flash
+save, the same file an emulator or a cart dumper writes, kept next to the ROM
+at `Android/data/com.pokeemerald.dualscreen/files/pokeemerald.sav`. Copy yours
+there and it loads on the next launch, or copy it out to play elsewhere.
+Savestates are not saves; it has to be the `.sav`.
+
+Reach that folder over USB or with the device's own file manager. Copy your
+save out before uninstalling, since Android deletes it along with the app.
 
 ## Features
 
