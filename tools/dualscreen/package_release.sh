@@ -20,9 +20,10 @@ python3 tools/dualscreen/make_asset_holes.py build \
     "$WORK/lib/armeabi-v7a/libmain.so" "$WORK/lib/armeabi-v7a/libmain.so" \
     "$WORK/assets/asset_manifest.bin"
 
-# Repack; the manifest must not be compressed oddly, plain deflate is fine.
+# Repack. resources.arsc must be STORED (uncompressed) for API 30+.
 rm -f "$WORK/META-INF"/*.SF "$WORK/META-INF"/*.MF "$WORK/META-INF"/*.RSA 2>/dev/null || true
-(cd "$WORK" && zip -qr ../repacked.apk .)
+(cd "$WORK" && zip -qr ../repacked.apk . -x resources.arsc \
+            && zip -q -0 ../repacked.apk resources.arsc)
 "$BUILD_TOOLS/zipalign" -f 4 "$WORK/../repacked.apk" "$WORK/../aligned.apk"
 "$BUILD_TOOLS/apksigner" sign --ks ~/.android/debug.keystore \
     --ks-pass pass:android --key-pass pass:android \
