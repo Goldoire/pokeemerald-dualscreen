@@ -90,7 +90,7 @@ LDFLAGS = -Map ../../$(MAP)
 PLATFORM_INCLUDES := 
 
 ifeq ($(NATIVE_LINUX),1)
-PLATFORM_INCLUDES += $(shell pkg-config --libs sdl2 SDL2_image) -lm
+PLATFORM_INCLUDES += $(shell pkg-config --libs sdl2 SDL2_image) -lm -lGL -lGLU
 else
 # Windows only
 ifneq ($(NO_STD_LIB),1)
@@ -267,7 +267,7 @@ $(C_BUILDDIR)/%.o: c_dep = $(shell [[ -f $(C_SUBDIR)/$*.c ]] && $(SCANINC) -I in
 endif
 
 ifeq ($(DINFO),1)
-override CFLAGS += -g -O0
+override CFLAGS += -g3 -O0 -fno-omit-frame-pointer 
 else
 override CFLAGS += -O3
 endif
@@ -364,7 +364,7 @@ $(ELF): $(OBJ_DIR)/ld_script.ld $(OBJS)
 
 $(ROM): $(OBJS) $(WINDOWS_BORDER)
 ifeq ($(NATIVE_LINUX),1)
-	$(CC) $(CFLAGS) -no-pie -Wl,--demangle $(OBJS) $(PLATFORM_INCLUDES) -o $@
+	$(CC) $(CFLAGS) -no-pie -Wl,--demangle  $(OBJS) $(PLATFORM_INCLUDES) -o $@
 else
 	$(CC) $(CFLAGS) -Wl,--demangle $(OBJS) -static-libgcc -L$(SDL_DIR)/lib $(PLATFORM_INCLUDES) -lwinmm -lxinput -o $@
 endif

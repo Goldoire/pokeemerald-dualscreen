@@ -37,6 +37,8 @@
 #include "title_screen.h"
 #include "window.h"
 #include "mystery_gift_menu.h"
+#include "new_game.h"
+#include "load_save.h"
 
 /*
  * Main menu state machine
@@ -1295,6 +1297,73 @@ static void Task_NewGameBirchSpeech_Init(u8 taskId)
     ShowBg(1);
 }
 
+void CB2_NewGameBirchSpeech_ReturnFromTxRandomizerChallengesOptions(void)
+{
+    u8 taskId;
+    u8 spriteId;
+
+    ResetBgsAndClearDma3BusyFlags(0);
+    SetGpuReg(REG_OFFSET_DISPCNT, 0);
+    SetGpuReg(REG_OFFSET_DISPCNT, DISPCNT_OBJ_ON | DISPCNT_OBJ_1D_MAP);
+    InitBgsFromTemplates(0, sMainMenuBgTemplates, ARRAY_COUNT(sMainMenuBgTemplates));
+    InitBgFromTemplate(&sBirchBgTemplate);
+    SetVBlankCallback(NULL);
+    SetGpuReg(REG_OFFSET_BG2CNT, 0);
+    SetGpuReg(REG_OFFSET_BG1CNT, 0);
+    SetGpuReg(REG_OFFSET_BG0CNT, 0);
+    SetGpuReg(REG_OFFSET_BG2HOFS, 0);
+    SetGpuReg(REG_OFFSET_BG2VOFS, 0);
+    SetGpuReg(REG_OFFSET_BG1HOFS, 0);
+    SetGpuReg(REG_OFFSET_BG1VOFS, 0);
+    SetGpuReg(REG_OFFSET_BG0HOFS, 0);
+    SetGpuReg(REG_OFFSET_BG0VOFS, 0);
+    DmaFill16(3, 0, (void *)(uintptr_t)VRAM, VRAM_SIZE);
+    DmaFill32(3, 0, OAM, OAM_SIZE);
+    DmaFill16(3, 0, PLTT, PLTT_SIZE);
+    ResetPaletteFade();
+    LZ77UnCompVram(sBirchSpeechShadowGfx, (u8 *)VRAM);
+    LZ77UnCompVram(sBirchSpeechBgMap, (u8 *)(BG_SCREEN_ADDR(7)));
+    LoadPalette(sBirchSpeechBgPals, BG_PLTT_ID(0), 2 * PLTT_SIZE_4BPP);
+    LoadPalette(&sBirchSpeechBgGradientPal[1], BG_PLTT_ID(0) + 1, PLTT_SIZEOF(8));
+    ResetTasks();
+    taskId = CreateTask(Task_NewGameBirchSpeech_WhatsYourName, 0);
+    gTasks[taskId].tTimer = 5;
+    gTasks[taskId].tBG1HOFS = -60;
+    ScanlineEffect_Stop();
+    ResetSpriteData();
+    FreeAllSpritePalettes();
+    ResetAllPicSprites();
+    AddBirchSpeechObjects(taskId);
+    if (gSaveBlock2Ptr->playerGender != MALE)
+    {
+        gTasks[taskId].tPlayerGender = FEMALE;
+        spriteId = gTasks[taskId].tMaySpriteId;
+    }
+    else
+    {
+        gTasks[taskId].tPlayerGender = MALE;
+        spriteId = gTasks[taskId].tBrendanSpriteId;
+    }
+    gSprites[spriteId].x = 180;
+    gSprites[spriteId].y = 60;
+    gSprites[spriteId].invisible = FALSE;
+    gTasks[taskId].tPlayerSpriteId = spriteId;
+    SetGpuReg(REG_OFFSET_BG1HOFS, -60);
+    BeginNormalPaletteFade(PALETTES_ALL, 0, 16, 0, RGB_BLACK);
+    SetVBlankCallback(VBlankCB_MainMenu);
+    SetMainCallback2(CB2_MainMenu);
+    InitWindows(sNewGameBirchSpeechTextWindows);
+    LoadMainMenuWindowFrameTiles(0, 0xF3);
+    LoadMessageBoxGfx(0, BIRCH_DLG_BASE_TILE_NUM, BG_PLTT_ID(15));
+    NewGameBirchSpeech_ShowDialogueWindow(0, 1);
+    PutWindowTilemap(0);
+    CopyWindowToVram(0, COPYWIN_GFX);
+    PlayBGM(MUS_ROUTE122);
+    ShowBg(0);
+    ShowBg(1);
+}
+
+
 static void Task_NewGameBirchSpeech_WaitToShowBirch(u8 taskId)
 {
     u8 spriteId;
@@ -1509,13 +1578,52 @@ static void Task_NewGameBirchSpeech_ChooseGender(u8 taskId)
             PlaySE(SE_SELECT);
             gSaveBlock2Ptr->playerGender = gender;
             NewGameBirchSpeech_ClearGenderWindow(1, 1);
-            gTasks[taskId].func = Task_NewGameBirchSpeech_WhatsYourName;
+            {
+                extern const char *gActiveModSelector;
+                if (gActiveModSelector != NULL && strcmp(gActiveModSelector, "modern_emerald") == 0) {
+                    extern void CB2_NewGameBirchSpeech_ReturnFromTxRandomizerChallengesOptions(void);
+                    extern void CB2_InitTxRandomizerChallengesMenu(void);
+                    // Point gSaveBlock1Ptr at the save block (offset 0, same pattern
+                    // as InitMainCallbacks uses for gSaveBlock2Ptr) so that
+                    // DrawChoices can call FlagSet/FlagClear without crashing.
+                    // Do NOT call SetSaveBlocksPointers() here — that moves
+                    // gSaveBlock2Ptr to a random offset and would corrupt the
+                    // playerGender we just wrote.  Full NewGameInitData() still
+                    // runs in CB2_NewGame after the player names themselves.
+                    if (gSaveBlock1Ptr == NULL) {
+                        gSaveBlock1Ptr = &gSaveblock1.block;
+                        InitEventData();
+                    }
+                    gMain.savedCallback = CB2_NewGameBirchSpeech_ReturnFromTxRandomizerChallengesOptions;
+                    SetMainCallback2(CB2_InitTxRandomizerChallengesMenu);
+                    DestroyTask(taskId);
+                    return;
+                } else {
+                    gTasks[taskId].func = Task_NewGameBirchSpeech_WhatsYourName;
+                }
+            }
             break;
         case FEMALE:
             PlaySE(SE_SELECT);
             gSaveBlock2Ptr->playerGender = gender;
             NewGameBirchSpeech_ClearGenderWindow(1, 1);
-            gTasks[taskId].func = Task_NewGameBirchSpeech_WhatsYourName;
+            {
+                extern const char *gActiveModSelector;
+                if (gActiveModSelector != NULL && strcmp(gActiveModSelector, "modern_emerald") == 0) {
+                    extern void CB2_NewGameBirchSpeech_ReturnFromTxRandomizerChallengesOptions(void);
+                    extern void CB2_InitTxRandomizerChallengesMenu(void);
+                    if (gSaveBlock1Ptr == NULL) {
+                        gSaveBlock1Ptr = &gSaveblock1.block;
+                        InitEventData();
+                    }
+                    gMain.savedCallback = CB2_NewGameBirchSpeech_ReturnFromTxRandomizerChallengesOptions;
+                    SetMainCallback2(CB2_InitTxRandomizerChallengesMenu);
+                    DestroyTask(taskId);
+                    return;
+                } else {
+                    gTasks[taskId].func = Task_NewGameBirchSpeech_WhatsYourName;
+                }
+            }
             break;
     }
     gender2 = Menu_GetCursorPos();

@@ -1,7 +1,7 @@
 {
   "wild_encounter_groups": [
     {
-      "label": "gWildMonHeaders",
+      "label": "gWildMonHeaders_ROM",
       "for_maps": true,
       "fields": [
         {

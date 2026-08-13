@@ -24,6 +24,7 @@
 #include "strings.h"
 #include "trainer_hill.h"
 #include "secret_base.h"
+#include "platform/mods/mod_manager.h"
 #include "string_util.h"
 #include "overworld.h"
 #include "field_weather.h"
@@ -910,6 +911,7 @@ u8 GetSpecialBattleTransition(s32 id)
 
 void ChooseStarter(void)
 {
+    printf("[StarterChoose] ChooseStarter called\n"); fflush(stdout);
     SetMainCallback2(CB2_ChooseStarter);
     gMain.savedCallback = CB2_GiveStarter;
 }
@@ -920,7 +922,7 @@ static void CB2_GiveStarter(void)
 
     *GetVarPointer(VAR_STARTER_MON) = gSpecialVar_Result;
     starterMon = GetStarterPokemon(gSpecialVar_Result);
-    ScriptGiveMon(starterMon, 5, ITEM_NONE, 0, 0, 0);
+    ScriptGiveMon(starterMon, ModManager_GetStarterLevel(gSpecialVar_Result, 5), ITEM_NONE, 0, 0, 0);
     ResetTasks();
     PlayBattleBGM();
     SetMainCallback2(CB2_StartFirstBattle);

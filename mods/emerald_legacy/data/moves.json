@@ -1,0 +1,622 @@
+{
+  "moves": [
+    {
+      "power": 20,
+      "accuracy": 100,
+      "pp": 35,
+      "id": 3
+    },
+    {
+      "power": 25,
+      "accuracy": 100,
+      "pp": 25,
+      "id": 4
+    },
+    {
+      "power": 90,
+      "accuracy": 95,
+      "id": 5
+    },
+    {
+      "power": 60,
+      "id": 6
+    },
+    {
+      "effect": 0,
+      "secondaryEffectChance": 20,
+      "id": 11
+    },
+    {
+      "effect": 0,
+      "power": 35,
+      "type": 0,
+      "pp": 15,
+      "secondaryEffectChance": 100,
+      "id": 13
+    },
+    {
+      "effect": 0,
+      "power": 55,
+      "type": 0,
+      "id": 15
+    },
+    {
+      "accuracy": 100,
+      "id": 19
+    },
+    {
+      "power": 35,
+      "accuracy": 100,
+      "id": 20
+    },
+    {
+      "accuracy": 100,
+      "id": 21
+    },
+    {
+      "power": 40,
+      "pp": 25,
+      "id": 22
+    },
+    {
+      "accuracy": 85,
+      "pp": 10,
+      "id": 25
+    },
+    {
+      "power": 90,
+      "id": 26
+    },
+    {
+      "power": 70,
+      "accuracy": 100,
+      "pp": 25,
+      "id": 27
+    },
+    {
+      "power": 18,
+      "accuracy": 100,
+      "id": 31
+    },
+    {
+      "accuracy": 100,
+      "id": 33
+    },
+    {
+      "power": 30,
+      "accuracy": 100,
+      "id": 35
+    },
+    {
+      "power": 95,
+      "accuracy": 100,
+      "id": 36
+    },
+    {
+      "power": 100,
+      "id": 37
+    },
+    {
+      "power": 30,
+      "id": 40
+    },
+    {
+      "power": 40,
+      "id": 41
+    },
+    {
+      "power": 25,
+      "accuracy": 100,
+      "pp": 30,
+      "id": 42
+    },
+    {
+      "accuracy": 70,
+      "id": 48
+    },
+    {
+      "accuracy": 100,
+      "id": 49
+    },
+    {
+      "accuracy": 85,
+      "id": 50
+    },
+    {
+      "accuracy": 85,
+      "id": 56
+    },
+    {
+      "pp": 15,
+      "id": 58
+    },
+    {
+      "effect": 0,
+      "id": 59
+    },
+    {
+      "power": 90,
+      "accuracy": 100,
+      "id": 66
+    },
+    {
+      "power": 30,
+      "pp": 25,
+      "id": 71
+    },
+    {
+      "power": 50,
+      "pp": 25,
+      "id": 72
+    },
+    {
+      "accuracy": 85,
+      "id": 77
+    },
+    {
+      "power": 100,
+      "id": 80
+    },
+    {
+      "power": 35,
+      "accuracy": 100,
+      "id": 83
+    },
+    {
+      "accuracy": 95,
+      "pp": 25,
+      "id": 88
+    },
+    {
+      "power": 70,
+      "pp": 20,
+      "id": 91
+    },
+    {
+      "pp": 15,
+      "id": 94
+    },
+    {
+      "pp": 5,
+      "id": 105
+    },
+    {
+      "type": 0,
+      "accuracy": 90,
+      "pp": 15,
+      "id": 121
+    },
+    {
+      "power": 40,
+      "id": 122
+    },
+    {
+      "accuracy": 100,
+      "id": 123
+    },
+    {
+      "accuracy": 100,
+      "pp": 25,
+      "id": 125
+    },
+    {
+      "effect": 0,
+      "power": 70,
+      "secondaryEffectChance": 30,
+      "id": 127
+    },
+    {
+      "accuracy": 100,
+      "id": 128
+    },
+    {
+      "power": 130,
+      "id": 130
+    },
+    {
+      "power": 30,
+      "type": 0,
+      "id": 131
+    },
+    {
+      "power": 40,
+      "secondaryEffectChance": 30,
+      "id": 132
+    },
+    {
+      "pp": 5,
+      "id": 135
+    },
+    {
+      "power": 120,
+      "id": 136
+    },
+    {
+      "accuracy": 90,
+      "id": 137
+    },
+    {
+      "accuracy": 70,
+      "id": 139
+    },
+    {
+      "power": 20,
+      "accuracy": 100,
+      "id": 140
+    },
+    {
+      "power": 40,
+      "pp": 25,
+      "id": 141
+    },
+    {
+      "power": 120,
+      "accuracy": 85,
+      "id": 143
+    },
+    {
+      "power": 30,
+      "id": 145
+    },
+    {
+      "pp": 15,
+      "id": 146
+    },
+    {
+      "accuracy": 100,
+      "id": 148
+    },
+    {
+      "accuracy": 95,
+      "id": 149
+    },
+    {
+      "power": 110,
+      "accuracy": 100,
+      "id": 152
+    },
+    {
+      "power": 20,
+      "accuracy": 100,
+      "pp": 20,
+      "id": 154
+    },
+    {
+      "pp": 20,
+      "id": 155
+    },
+    {
+      "power": 80,
+      "accuracy": 95,
+      "pp": 15,
+      "id": 157
+    },
+    {
+      "power": 85,
+      "pp": 15,
+      "id": 161
+    },
+    {
+      "power": 30,
+      "accuracy": 100,
+      "pp": 15,
+      "id": 167
+    },
+    {
+      "power": 60,
+      "pp": 15,
+      "id": 168
+    },
+    {
+      "power": 65,
+      "id": 172
+    },
+    {
+      "power": 60,
+      "pp": 20,
+      "id": 173
+    },
+    {
+      "pp": 10,
+      "id": 177
+    },
+    {
+      "power": 70,
+      "id": 185
+    },
+    {
+      "power": 95,
+      "pp": 15,
+      "id": 188
+    },
+    {
+      "power": 30,
+      "pp": 15,
+      "id": 189
+    },
+    {
+      "power": 70,
+      "accuracy": 100,
+      "pp": 15,
+      "id": 190
+    },
+    {
+      "accuracy": 70,
+      "pp": 10,
+      "id": 192
+    },
+    {
+      "pp": 20,
+      "id": 196
+    },
+    {
+      "accuracy": 100,
+      "pp": 20,
+      "id": 198
+    },
+    {
+      "power": 110,
+      "id": 200
+    },
+    {
+      "power": 75,
+      "pp": 15,
+      "id": 202
+    },
+    {
+      "pp": 5,
+      "id": 208
+    },
+    {
+      "accuracy": 95,
+      "id": 211
+    },
+    {
+      "pp": 10,
+      "id": 221
+    },
+    {
+      "accuracy": 70,
+      "pp": 10,
+      "id": 223
+    },
+    {
+      "power": 70,
+      "id": 225
+    },
+    {
+      "accuracy": 90,
+      "secondaryEffectChance": 20,
+      "id": 231
+    },
+    {
+      "power": 60,
+      "secondaryEffectChance": 20,
+      "id": 232
+    },
+    {
+      "pp": 20,
+      "id": 233
+    },
+    {
+      "accuracy": 90,
+      "pp": 10,
+      "id": 238
+    },
+    {
+      "power": 50,
+      "id": 239
+    },
+    {
+      "pp": 10,
+      "id": 240
+    },
+    {
+      "pp": 10,
+      "id": 241
+    },
+    {
+      "effect": 0,
+      "id": 242
+    },
+    {
+      "pp": 15,
+      "id": 245
+    },
+    {
+      "pp": 10,
+      "id": 246
+    },
+    {
+      "power": 120,
+      "accuracy": 100,
+      "id": 248
+    },
+    {
+      "power": 60,
+      "secondaryEffectChance": 20,
+      "id": 249
+    },
+    {
+      "power": 35,
+      "accuracy": 100,
+      "id": 250
+    },
+    {
+      "power": 20,
+      "id": 251
+    },
+    {
+      "power": 65,
+      "pp": 25,
+      "id": 253
+    },
+    {
+      "accuracy": 100,
+      "id": 257
+    },
+    {
+      "accuracy": 85,
+      "id": 261
+    },
+    {
+      "power": 75,
+      "pp": 15,
+      "id": 265
+    },
+    {
+      "power": 50,
+      "id": 282
+    },
+    {
+      "power": 80,
+      "pp": 15,
+      "id": 291
+    },
+    {
+      "power": 18,
+      "id": 292
+    },
+    {
+      "pp": 15,
+      "id": 295
+    },
+    {
+      "pp": 15,
+      "id": 296
+    },
+    {
+      "power": 80,
+      "accuracy": 100,
+      "pp": 15,
+      "secondaryEffectChance": 20,
+      "id": 299
+    },
+    {
+      "effect": 0,
+      "power": 80,
+      "id": 302
+    },
+    {
+      "effect": 0,
+      "power": 100,
+      "secondaryEffectChance": 30,
+      "id": 304
+    },
+    {
+      "power": 60,
+      "id": 305
+    },
+    {
+      "power": 80,
+      "pp": 15,
+      "id": 306
+    },
+    {
+      "accuracy": 90,
+      "id": 309
+    },
+    {
+      "effect": 0,
+      "power": 50,
+      "id": 310
+    },
+    {
+      "pp": 30,
+      "id": 311
+    },
+    {
+      "power": 65,
+      "id": 314
+    },
+    {
+      "flags": 0,
+      "id": 315
+    },
+    {
+      "accuracy": 95,
+      "pp": 25,
+      "id": 317
+    },
+    {
+      "pp": 10,
+      "id": 318
+    },
+    {
+      "accuracy": 75,
+      "id": 320
+    },
+    {
+      "power": 85,
+      "id": 324
+    },
+    {
+      "power": 80,
+      "id": 325
+    },
+    {
+      "effect": 0,
+      "id": 326
+    },
+    {
+      "power": 90,
+      "accuracy": 95,
+      "id": 327
+    },
+    {
+      "power": 35,
+      "accuracy": 100,
+      "id": 328
+    },
+    {
+      "effect": 0,
+      "power": 85,
+      "accuracy": 95,
+      "pp": 15,
+      "secondaryEffectChance": 50,
+      "id": 330
+    },
+    {
+      "power": 15,
+      "id": 331
+    },
+    {
+      "power": 25,
+      "pp": 25,
+      "id": 333
+    },
+    {
+      "power": 90,
+      "id": 337
+    },
+    {
+      "accuracy": 90,
+      "pp": 15,
+      "id": 340
+    },
+    {
+      "power": 80,
+      "id": 342
+    },
+    {
+      "power": 60,
+      "pp": 10,
+      "id": 343
+    },
+    {
+      "effect": 0,
+      "power": 80,
+      "id": 348
+    },
+    {
+      "accuracy": 90,
+      "pp": 15,
+      "id": 350
+    },
+    {
+      "power": 150,
+      "accuracy": 100,
+      "id": 353
+    }
+  ]
+}

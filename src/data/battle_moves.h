@@ -1,4 +1,4 @@
-const struct BattleMove gBattleMoves[MOVES_COUNT] =
+const struct BattleMove gBattleMoves_ROM[MOVES_COUNT] =
 {
     [MOVE_NONE] =
     {

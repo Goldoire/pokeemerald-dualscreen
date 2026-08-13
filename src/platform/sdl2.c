@@ -17,6 +17,13 @@
 #endif
 #ifdef NATIVE_LINUX
 #include <SDL2/SDL_image.h>
+#include "voxel/voxel_renderer.h"
+#endif
+#include "mods/mod_manager.h"
+#ifdef PLATFORM_SDL2
+#ifdef NATIVE_LINUX
+bool gVoxelModeEnabled = false;
+#endif
 #endif
 
 #include "global.h"
@@ -99,11 +106,26 @@ int main(int argc, char **argv)
     freopen( "CON", "w", stdout ) ;
 #endif
 
+#ifdef NATIVE_LINUX
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--voxel") == 0 || strcmp(argv[i], "--renderer=voxel") == 0)
+            gVoxelModeEnabled = true;
+        if (strcmp(argv[i], "--mods") == 0)
+            gModsEnabled = true;
+        if (strcmp(argv[i], "--mod") == 0 && i + 1 < argc) {
+            gModsEnabled = true;
+            gActiveModSelector = argv[i+1];
+            i++;
+        }
+    }
+#endif
+
 #ifdef __ANDROID__
     SDL_setenv("SDL_AUDIODRIVER", "openslES", 1);
     SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
     SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
 #endif
+    ModManager_Init();
     if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO
 #ifdef __ANDROID__
                 | SDL_INIT_GAMECONTROLLER
@@ -138,7 +160,17 @@ int main(int argc, char **argv)
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 #endif
 #if defined(NATIVE_LINUX) || defined(_WIN32)
-    sdlWindow = SDL_CreateWindow("Pokemon Emerald", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    Uint32 windowFlags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
+#ifdef NATIVE_LINUX
+    if (gVoxelModeEnabled) {
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+        windowFlags |= SDL_WINDOW_OPENGL;
+    }
+#endif
+    sdlWindow = SDL_CreateWindow("Pokemon Emerald", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, windowFlags);
 #else
     sdlWindow = SDL_CreateWindow("pokeemerald", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, DISPLAY_WIDTH * videoScale, DISPLAY_HEIGHT * videoScale, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 #endif
@@ -148,6 +180,24 @@ int main(int argc, char **argv)
         return 1;
     }
 
+#ifdef NATIVE_LINUX
+    SDL_GLContext glContext = NULL;
+    if (gVoxelModeEnabled) {
+        glContext = SDL_GL_CreateContext(sdlWindow);
+        if (glContext == NULL) {
+            printf("[Voxel] Failed to create OpenGL context: %s\n", SDL_GetError());
+            gVoxelModeEnabled = false;
+        } else if (!VoxelRenderer_Init()) {
+            printf("[Voxel] Renderer init failed, falling back to classic\n");
+            gVoxelModeEnabled = false;
+        }
+    }
+#endif
+
+#ifdef NATIVE_LINUX
+    if (!gVoxelModeEnabled)
+    {
+#endif
 #ifdef __ANDROID__
     sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED);
 #else
@@ -158,10 +208,16 @@ int main(int argc, char **argv)
         DBGPRINTF("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
+#ifdef NATIVE_LINUX
+    } // end if (!gVoxelModeEnabled)
+#endif
 
-    SDL_SetRenderDrawColor(sdlRenderer, 0, 0, 0, 255);
-    SDL_RenderClear(sdlRenderer);
+    if (sdlRenderer != NULL) {
+        SDL_SetRenderDrawColor(sdlRenderer, 0, 0, 0, 255);
+        SDL_RenderClear(sdlRenderer);
+    }
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+
 
     for (int i = 1; i < 15; i++)
     {
@@ -190,65 +246,77 @@ int main(int argc, char **argv)
         StoreConfigFile();
     }
 #ifdef NATIVE_LINUX
-    SDL_RenderSetLogicalSize(sdlRenderer, 0, 0);
-    if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) == 0)
+    if (sdlRenderer != NULL)
     {
-        SDL_Log("SDL_image could not initialize: %s", IMG_GetError());
+        SDL_RenderSetLogicalSize(sdlRenderer, 0, 0);
+        if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) == 0)
+        {
+            SDL_Log("SDL_image could not initialize: %s", IMG_GetError());
+        }
+        else
+        {
+            for (int i = 0; i < sBorderBackgroundCount; i++)
+            {
+                char filename[16];
+                snprintf(filename, sizeof(filename), i == 0 ? "BG.png" : "BG%d.png", i);
+                sdlBackgroundTextures[i] = IMG_LoadTexture(sdlRenderer, filename);
+            }
+            sdlBorderTexture = IMG_LoadTexture(sdlRenderer, "Border.png");
+            if (sdlBackgroundTextures[0] == NULL)
+                SDL_Log("Background image could not be loaded: %s", IMG_GetError());
+            if (sdlBorderTexture == NULL)
+                SDL_Log("Border image could not be loaded: %s", IMG_GetError());
+        }
     }
-    else
+#elif defined(_WIN32)
+    if (sdlRenderer != NULL)
     {
+        SDL_RenderSetLogicalSize(sdlRenderer, 0, 0);
+        SDL_Surface *borderSurface = SDL_LoadBMP("Border.bmp");
         for (int i = 0; i < sBorderBackgroundCount; i++)
         {
             char filename[16];
-            snprintf(filename, sizeof(filename), i == 0 ? "BG.png" : "BG%d.png", i);
-            sdlBackgroundTextures[i] = IMG_LoadTexture(sdlRenderer, filename);
+            snprintf(filename, sizeof(filename), i == 0 ? "BG.bmp" : "BG%d.bmp", i);
+            SDL_Surface *backgroundSurface = SDL_LoadBMP(filename);
+            if (backgroundSurface == NULL)
+                continue;
+            sdlBackgroundTextures[i] = SDL_CreateTextureFromSurface(sdlRenderer, backgroundSurface);
+            SDL_FreeSurface(backgroundSurface);
         }
-        sdlBorderTexture = IMG_LoadTexture(sdlRenderer, "Border.png");
         if (sdlBackgroundTextures[0] == NULL)
-            SDL_Log("Background image could not be loaded: %s", IMG_GetError());
-        if (sdlBorderTexture == NULL)
-            SDL_Log("Border image could not be loaded: %s", IMG_GetError());
-    }
-#elif defined(_WIN32)
-    SDL_RenderSetLogicalSize(sdlRenderer, 0, 0);
-    SDL_Surface *borderSurface = SDL_LoadBMP("Border.bmp");
-    for (int i = 0; i < sBorderBackgroundCount; i++)
-    {
-        char filename[16];
-        snprintf(filename, sizeof(filename), i == 0 ? "BG.bmp" : "BG%d.bmp", i);
-        SDL_Surface *backgroundSurface = SDL_LoadBMP(filename);
-        if (backgroundSurface == NULL)
-            continue;
-        sdlBackgroundTextures[i] = SDL_CreateTextureFromSurface(sdlRenderer, backgroundSurface);
-        SDL_FreeSurface(backgroundSurface);
-    }
-    if (sdlBackgroundTextures[0] == NULL)
-        SDL_Log("Background image could not be loaded: %s", SDL_GetError());
-    if (borderSurface == NULL)
-    {
-        SDL_Log("Border image could not be loaded: %s", SDL_GetError());
-    }
-    else
-    {
-        sdlBorderTexture = SDL_CreateTextureFromSurface(sdlRenderer, borderSurface);
-        SDL_FreeSurface(borderSurface);
+            SDL_Log("Background image could not be loaded: %s", SDL_GetError());
+        if (borderSurface == NULL)
+        {
+            SDL_Log("Border image could not be loaded: %s", SDL_GetError());
+        }
+        else
+        {
+            sdlBorderTexture = SDL_CreateTextureFromSurface(sdlRenderer, borderSurface);
+            SDL_FreeSurface(borderSurface);
+        }
     }
 #else
-    SDL_RenderSetLogicalSize(sdlRenderer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    SDL_RenderSetIntegerScale(sdlRenderer, SDL_TRUE);
+    if (sdlRenderer != NULL)
+    {
+        SDL_RenderSetLogicalSize(sdlRenderer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+        SDL_RenderSetIntegerScale(sdlRenderer, SDL_TRUE);
+    }
 #endif
     ApplyPlatformSettings();
 
-    sdlTexture = SDL_CreateTexture(sdlRenderer,
-                                   SDL_PIXELFORMAT_ARGB8888,
-                                   SDL_TEXTUREACCESS_STREAMING,
-                                   DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    if (sdlTexture == NULL)
-    {
-        DBGPRINTF("Texture could not be created! SDL_Error: %s\n", SDL_GetError());
-        return 1;
+    if (sdlRenderer != NULL) {
+        sdlTexture = SDL_CreateTexture(sdlRenderer,
+                                       SDL_PIXELFORMAT_ARGB8888,
+                                       SDL_TEXTUREACCESS_STREAMING,
+                                       DISPLAY_WIDTH, DISPLAY_HEIGHT);
+        if (sdlTexture == NULL)
+        {
+            DBGPRINTF("Texture could not be created! SDL_Error: %s\n", SDL_GetError());
+            return 1;
+        }
+        SDL_SetTextureBlendMode(sdlTexture, SDL_BLENDMODE_NONE);
     }
-    SDL_SetTextureBlendMode(sdlTexture, SDL_BLENDMODE_NONE);
+
 
     simTime = curGameTime = lastGameTime = SDL_GetPerformanceCounter();
 
@@ -275,7 +343,12 @@ int main(int argc, char **argv)
         SDL_PauseAudioDevice(sdlAudioDevice, 0);
     }
 #ifndef __ANDROID__
-    VDraw(sdlTexture);
+    if (sdlTexture != NULL)
+        VDraw(sdlTexture);
+#ifdef NATIVE_LINUX
+    else if (gVoxelModeEnabled)
+        REG_VCOUNT = 161;
+#endif
 #endif
     mainLoopThread = SDL_CreateThread(DoMain, "AgbMain", NULL);
 
@@ -305,68 +378,75 @@ int main(int argc, char **argv)
             {
                 if (SDL_AtomicGet(&isFrameAvailable))
                 {
-                    VDraw(sdlTexture);
-                    SDL_RenderClear(sdlRenderer);
-#if defined(NATIVE_LINUX) || defined(_WIN32)
-                    u8 backgroundOption = Platform_GetBorderBackground();
-                    if (backgroundOption < sBorderBackgroundCount
-                     && sdlBackgroundTextures[backgroundOption] != NULL)
-                        SDL_RenderCopy(sdlRenderer, sdlBackgroundTextures[backgroundOption], NULL, NULL);
-                    int outputWidth;
-                    int outputHeight;
-                    SDL_GetRendererOutputSize(sdlRenderer, &outputWidth, &outputHeight);
-                    int gameHeight;
-                    int gameWidth;
-                    if (sPlatformSettings[PLATFORM_SETTING_INTEGER_SCALE])
-                    {
-                        int scale = outputWidth / DISPLAY_WIDTH;
-                        if (outputHeight / DISPLAY_HEIGHT < scale)
-                            scale = outputHeight / DISPLAY_HEIGHT;
-                        if (scale < 1)
-                            scale = 1;
-                        gameWidth = DISPLAY_WIDTH * scale;
-                        gameHeight = DISPLAY_HEIGHT * scale;
-                    }
-                    else
-                    {
-                        gameHeight = outputHeight * 8 / 9;
-                        gameWidth = gameHeight * 3 / 2;
-                    }
-                    SDL_Rect gameViewport = {(outputWidth - gameWidth) / 2,
-                                             (outputHeight - gameHeight) / 2,
-                                             gameWidth, gameHeight};
-                    SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, &gameViewport);
-                    if (sPlatformSettings[PLATFORM_SETTING_BORDER] && sdlBorderTexture != NULL)
-                    {
-                        SDL_Rect borderSource = {141, 18, 1000, 683};
-                        int innerWidth = gameViewport.w - 2;
-                        int innerHeight = gameViewport.h - 2;
-                        SDL_Rect borderViewport = {
-                            gameViewport.x + 1 - innerWidth * 19 / 961,
-                            gameViewport.y + 1 - innerHeight * 20 / 643,
-                            innerWidth * 1000 / 961,
-                            innerHeight * 683 / 643
-                        };
-                        SDL_RenderCopy(sdlRenderer, sdlBorderTexture, &borderSource, &borderViewport);
-                    }
-#else
-                    {
-                        // Widescreen stretches to the full surface; otherwise
-                        // the 240x160 logical size letterboxes to 3:2.
-                        static u8 sAppliedWidescreen = 0xFF;
-                        u8 widescreen = sPlatformSettings[PLATFORM_SETTING_WIDESCREEN];
-                        if (widescreen != sAppliedWidescreen)
-                        {
-                            SDL_RenderSetLogicalSize(sdlRenderer,
-                                    widescreen ? 0 : DISPLAY_WIDTH,
-                                    widescreen ? 0 : DISPLAY_HEIGHT);
-                            sAppliedWidescreen = widescreen;
-                        }
-                    }
-                    SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
+#ifdef NATIVE_LINUX
+                    if (gVoxelModeEnabled) {
+                        VoxelRenderer_RenderFrame();
+                    } else
 #endif
+                    {
+                        VDraw(sdlTexture);
+                        if (sdlRenderer) SDL_RenderClear(sdlRenderer);
+#if defined(NATIVE_LINUX) || defined(_WIN32)
+                        u8 backgroundOption = Platform_GetBorderBackground();
+                        if (backgroundOption < sBorderBackgroundCount
+                         && sdlBackgroundTextures[backgroundOption] != NULL)
+                            SDL_RenderCopy(sdlRenderer, sdlBackgroundTextures[backgroundOption], NULL, NULL);
+                        int outputWidth;
+                        int outputHeight;
+                        SDL_GetRendererOutputSize(sdlRenderer, &outputWidth, &outputHeight);
+                        int gameHeight;
+                        int gameWidth;
+                        if (sPlatformSettings[PLATFORM_SETTING_INTEGER_SCALE])
+                        {
+                            int scale = outputWidth / DISPLAY_WIDTH;
+                            if (outputHeight / DISPLAY_HEIGHT < scale)
+                                scale = outputHeight / DISPLAY_HEIGHT;
+                            if (scale < 1)
+                                scale = 1;
+                            gameWidth = DISPLAY_WIDTH * scale;
+                            gameHeight = DISPLAY_HEIGHT * scale;
+                        }
+                        else
+                        {
+                            gameHeight = outputHeight * 8 / 9;
+                            gameWidth = gameHeight * 3 / 2;
+                        }
+                        SDL_Rect gameViewport = {(outputWidth - gameWidth) / 2,
+                                                 (outputHeight - gameHeight) / 2,
+                                                 gameWidth, gameHeight};
+                        SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, &gameViewport);
+                        if (sPlatformSettings[PLATFORM_SETTING_BORDER] && sdlBorderTexture != NULL)
+                        {
+                            SDL_Rect borderSource = {141, 18, 1000, 683};
+                            int innerWidth = gameViewport.w - 2;
+                            int innerHeight = gameViewport.h - 2;
+                            SDL_Rect borderViewport = {
+                                gameViewport.x + 1 - innerWidth * 19 / 961,
+                                gameViewport.y + 1 - innerHeight * 20 / 643,
+                                innerWidth * 1000 / 961,
+                                innerHeight * 683 / 643
+                            };
+                            SDL_RenderCopy(sdlRenderer, sdlBorderTexture, &borderSource, &borderViewport);
+                        }
+#else
+                        {
+                            // Widescreen stretches to the full surface; otherwise
+                            // the 240x160 logical size letterboxes to 3:2.
+                            static u8 sAppliedWidescreen = 0xFF;
+                            u8 widescreen = sPlatformSettings[PLATFORM_SETTING_WIDESCREEN];
+                            if (sdlRenderer != NULL && widescreen != sAppliedWidescreen)
+                            {
+                                SDL_RenderSetLogicalSize(sdlRenderer,
+                                        widescreen ? 0 : DISPLAY_WIDTH,
+                                        widescreen ? 0 : DISPLAY_HEIGHT);
+                                sAppliedWidescreen = widescreen;
+                            }
+                        }
+                        if (sdlRenderer) SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
+#endif
+                    }
 #ifdef __ANDROID__
-                    SDL_RenderPresent(sdlRenderer);
+                    if (sdlRenderer) SDL_RenderPresent(sdlRenderer);
 #endif
                     SDL_AtomicSet(&isFrameAvailable, 0);
 
@@ -379,7 +459,22 @@ int main(int argc, char **argv)
 #else
                     if (REG_DISPSTAT & DISPSTAT_VBLANK_INTR)
 #endif
+                    {
+                        static int sVBlankPrints = 0;
+                        if (sVBlankPrints < 300) {
+                            if (sVBlankPrints % 30 == 0) printf("[DoMain] Executing VBlankIntr, REG_DISPSTAT=%04x\n", REG_DISPSTAT);
+                            sVBlankPrints++;
+                        }
                         gIntrTable[4]();
+                    }
+                    else
+                    {
+                        static int sNoVBlankPrints = 0;
+                        if (sNoVBlankPrints < 300) {
+                            if (sNoVBlankPrints % 30 == 0) printf("[DoMain] SKIPPING VBlankIntr, REG_DISPSTAT=%04x, sRegIE=%04x\n", REG_DISPSTAT, REG_IE);
+                            sNoVBlankPrints++;
+                        }
+                    }
                     REG_DISPSTAT &= ~INTR_FLAG_VBLANK;
 
                     DualScreen_FrameHook();
@@ -392,7 +487,10 @@ int main(int argc, char **argv)
         }
 
 #ifndef __ANDROID__
-        SDL_RenderPresent(sdlRenderer);
+        #ifdef NATIVE_LINUX
+        if (!gVoxelModeEnabled)
+        #endif
+        if (sdlRenderer) SDL_RenderPresent(sdlRenderer);
 #endif
     }
 
@@ -404,10 +502,16 @@ int main(int argc, char **argv)
         SDL_DestroyTexture(sdlBackgroundTextures[i]);
     SDL_DestroyTexture(sdlBorderTexture);
 #endif
+
 #ifdef NATIVE_LINUX
     IMG_Quit();
+    if (gVoxelModeEnabled) {
+        VoxelRenderer_Shutdown();
+    }
 #endif
     SDL_DestroyWindow(sdlWindow);
+    ModManager_Shutdown();
+    ModManager_Shutdown();
     SDL_Quit();
     return 0;
 }
@@ -509,6 +613,8 @@ static void StoreConfigFile(void)
 
 static void ApplyPlatformSettings(void)
 {
+    if (sdlRenderer == NULL)
+        return; // In voxel mode, no SDL renderer to configure
     SDL_RenderSetVSync(sdlRenderer, sPlatformSettings[PLATFORM_SETTING_VSYNC]);
 #if defined(NATIVE_LINUX) || defined(_WIN32)
     SDL_SetWindowFullscreen(sdlWindow, sPlatformSettings[PLATFORM_SETTING_FULLSCREEN]
@@ -607,7 +713,7 @@ u8 Platform_GetSetting(enum PlatformSetting setting)
 void Platform_SetSetting(enum PlatformSetting setting, u8 value)
 {
     sPlatformSettings[setting] = value;
-    if (setting == PLATFORM_SETTING_VSYNC)
+    if (setting == PLATFORM_SETTING_VSYNC && sdlRenderer != NULL)
         SDL_RenderSetVSync(sdlRenderer, value);
 #if defined(NATIVE_LINUX) || defined(_WIN32)
     else if (setting == PLATFORM_SETTING_FULLSCREEN)
@@ -1005,6 +1111,20 @@ void ProcessEvents(void)
                 break;
             }
             break;
+        case SDL_MOUSEMOTION:
+#ifdef NATIVE_LINUX
+            if (gVoxelModeEnabled) {
+                extern bool gVoxelFirstPersonMode;
+                if (gVoxelFirstPersonMode) {
+                    extern void VoxelCamera_FPSMouseMotion(void *cam, int dx, int dy);
+                    // We don't have direct access to sCamera here. Wait, VoxelCamera is in voxel_renderer.
+                    // We should add a function to voxel_renderer.c to handle it.
+                    extern void VoxelRenderer_HandleMouseMotion(int dx, int dy);
+                    VoxelRenderer_HandleMouseMotion(event.motion.xrel, event.motion.yrel);
+                }
+            }
+#endif
+            break;
         case SDL_KEYDOWN:
             switch (event.key.keysym.sym)
             {
@@ -1018,6 +1138,15 @@ void ProcessEvents(void)
             HANDLE_KEYDOWN(DPAD_DOWN)
             HANDLE_KEYDOWN(DPAD_LEFT)
             HANDLE_KEYDOWN(DPAD_RIGHT)
+#ifdef NATIVE_LINUX
+            case SDLK_F7:
+                if (gVoxelModeEnabled) {
+                    extern bool gVoxelFirstPersonMode;
+                    gVoxelFirstPersonMode = !gVoxelFirstPersonMode;
+                    SDL_SetRelativeMouseMode(gVoxelFirstPersonMode ? SDL_TRUE : SDL_FALSE);
+                }
+                break;
+#endif
             case SDLK_r:
                 if (event.key.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL))
                 {
@@ -1118,8 +1247,13 @@ void VDraw(SDL_Texture *texture)
     static uint16_t gbaImage[DISPLAY_WIDTH * DISPLAY_HEIGHT];
     static uint32_t image[DISPLAY_WIDTH * DISPLAY_HEIGHT];
 
+    static int sClassicFrames = 0;
+    sClassicFrames++;
     memset(gbaImage, 0, sizeof(gbaImage));
     DrawFrame(gbaImage);
+    if (sClassicFrames == 900) {
+        printf("[Classic2D] frame 900, p[100]=%04x\n", gbaImage[100]);
+    }
     for (int i = 0; i < DISPLAY_WIDTH * DISPLAY_HEIGHT; i++)
     {
         uint16_t color = gbaImage[i];

@@ -1,0 +1,4148 @@
+{
+  "trainers": [
+    {
+      "id": 15,
+      "party": [
+        {
+          "species": 284,
+          "level": 34
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "party": [
+        {
+          "species": 306,
+          "level": 14
+        },
+        {
+          "species": 415,
+          "level": 14
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "party": [
+        {
+          "species": 415,
+          "level": 14
+        },
+        {
+          "species": 306,
+          "level": 14
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "party": [
+        {
+          "species": 43,
+          "level": 24
+        },
+        {
+          "species": 307,
+          "level": 26
+        },
+        {
+          "species": 363,
+          "level": 26
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "party": [
+        {
+          "species": 307,
+          "level": 35
+        },
+        {
+          "species": 44,
+          "level": 37
+        },
+        {
+          "species": 363,
+          "level": 37
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "party": [
+        {
+          "species": 307,
+          "level": 51
+        },
+        {
+          "species": 44,
+          "level": 51
+        },
+        {
+          "species": 45,
+          "level": 51
+        },
+        {
+          "species": 443,
+          "level": 51
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "party": [
+        {
+          "species": 307,
+          "level": 64
+        },
+        {
+          "species": 45,
+          "level": 64
+        },
+        {
+          "species": 182,
+          "level": 64
+        },
+        {
+          "species": 443,
+          "level": 66
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "party": [
+        {
+          "species": 82,
+          "level": 46
+        },
+        {
+          "species": 372,
+          "level": 46
+        }
+      ]
+    },
+    {
+      "id": 55,
+      "party": [
+        {
+          "species": 82,
+          "level": 58
+        },
+        {
+          "species": 372,
+          "level": 58
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "party": [
+        {
+          "species": 183,
+          "level": 26
+        },
+        {
+          "species": 183,
+          "level": 26
+        },
+        {
+          "species": 373,
+          "level": 26
+        }
+      ]
+    },
+    {
+      "id": 61,
+      "party": [
+        {
+          "species": 183,
+          "level": 39
+        },
+        {
+          "species": 184,
+          "level": 39
+        },
+        {
+          "species": 374,
+          "level": 39
+        }
+      ]
+    },
+    {
+      "id": 62,
+      "party": [
+        {
+          "species": 373,
+          "level": 37
+        },
+        {
+          "species": 183,
+          "level": 45
+        },
+        {
+          "species": 184,
+          "level": 45
+        },
+        {
+          "species": 374,
+          "level": 45
+        }
+      ]
+    },
+    {
+      "id": 63,
+      "party": [
+        {
+          "species": 375,
+          "level": 55
+        },
+        {
+          "species": 184,
+          "level": 58
+        },
+        {
+          "species": 184,
+          "level": 58
+        },
+        {
+          "species": 374,
+          "level": 61
+        }
+      ]
+    },
+    {
+      "id": 85,
+      "party": [
+        {
+          "species": 338,
+          "level": 38
+        },
+        {
+          "species": 313,
+          "level": 39
+        },
+        {
+          "species": 336,
+          "level": 39
+        }
+      ]
+    },
+    {
+      "id": 86,
+      "party": [
+        {
+          "species": 338,
+          "level": 46
+        },
+        {
+          "species": 314,
+          "level": 47
+        },
+        {
+          "species": 336,
+          "level": 47
+        }
+      ]
+    },
+    {
+      "id": 87,
+      "party": [
+        {
+          "species": 338,
+          "level": 61
+        },
+        {
+          "species": 314,
+          "level": 62
+        },
+        {
+          "species": 336,
+          "level": 62
+        },
+        {
+          "species": 366,
+          "level": 63
+        }
+      ]
+    },
+    {
+      "id": 96,
+      "party": [
+        {
+          "species": 443,
+          "level": 45
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "party": [
+        {
+          "species": 310,
+          "level": 37
+        },
+        {
+          "species": 339,
+          "level": 37
+        },
+        {
+          "species": 363,
+          "level": 37
+        }
+      ]
+    },
+    {
+      "id": 103,
+      "party": [
+        {
+          "species": 310,
+          "level": 48
+        },
+        {
+          "species": 340,
+          "level": 48
+        },
+        {
+          "species": 363,
+          "level": 48
+        },
+        {
+          "species": 148,
+          "level": 49
+        }
+      ]
+    },
+    {
+      "id": 104,
+      "party": [
+        {
+          "species": 310,
+          "level": 61
+        },
+        {
+          "species": 340,
+          "level": 62
+        },
+        {
+          "species": 443,
+          "level": 62
+        },
+        {
+          "species": 149,
+          "level": 63
+        }
+      ]
+    },
+    {
+      "id": 110,
+      "party": [
+        {
+          "species": 322,
+          "level": 45
+        },
+        {
+          "species": 351,
+          "level": 44
+        }
+      ]
+    },
+    {
+      "id": 111,
+      "party": [
+        {
+          "species": 351,
+          "level": 55
+        },
+        {
+          "species": 322,
+          "level": 55
+        }
+      ]
+    },
+    {
+      "id": 112,
+      "party": [
+        {
+          "species": 361,
+          "level": 65
+        },
+        {
+          "species": 351,
+          "level": 65
+        },
+        {
+          "species": 322,
+          "level": 65
+        },
+        {
+          "species": 362,
+          "level": 66
+        }
+      ]
+    },
+    {
+      "id": 113,
+      "party": [
+        {
+          "species": 362,
+          "level": 72
+        },
+        {
+          "species": 322,
+          "level": 72
+        },
+        {
+          "species": 352,
+          "level": 74
+        },
+        {
+          "species": 420,
+          "level": 74
+        }
+      ]
+    },
+    {
+      "id": 119,
+      "party": [
+        {
+          "species": 443,
+          "level": 45
+        }
+      ]
+    },
+    {
+      "id": 120,
+      "party": [
+        {
+          "species": 289,
+          "level": 38
+        }
+      ]
+    },
+    {
+      "id": 121,
+      "party": [
+        {
+          "species": 289,
+          "level": 58
+        }
+      ]
+    },
+    {
+      "id": 122,
+      "party": [
+        {
+          "species": 289,
+          "level": 63
+        }
+      ]
+    },
+    {
+      "id": 134,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 135,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 140,
+      "party": [
+        {
+          "species": 289,
+          "level": 47
+        }
+      ]
+    },
+    {
+      "id": 141,
+      "party": [
+        {
+          "species": 289,
+          "level": 60
+        }
+      ]
+    },
+    {
+      "id": 148,
+      "party": [
+        {
+          "species": 383,
+          "level": 39
+        },
+        {
+          "species": 112,
+          "level": 39
+        }
+      ]
+    },
+    {
+      "id": 149,
+      "party": [
+        {
+          "species": 383,
+          "level": 49
+        },
+        {
+          "species": 112,
+          "level": 48
+        }
+      ]
+    },
+    {
+      "id": 150,
+      "party": [
+        {
+          "species": 384,
+          "level": 62
+        },
+        {
+          "species": 442,
+          "level": 62
+        }
+      ]
+    },
+    {
+      "id": 157,
+      "party": [
+        {
+          "species": 330,
+          "level": 26
+        },
+        {
+          "species": 375,
+          "level": 26
+        }
+      ]
+    },
+    {
+      "id": 175,
+      "party": [
+        {
+          "species": 331,
+          "level": 35
+        }
+      ]
+    },
+    {
+      "id": 176,
+      "party": [
+        {
+          "species": 331,
+          "level": 46
+        }
+      ]
+    },
+    {
+      "id": 177,
+      "party": [
+        {
+          "species": 120,
+          "level": 59
+        },
+        {
+          "species": 331,
+          "level": 59
+        }
+      ]
+    },
+    {
+      "id": 178,
+      "party": [
+        {
+          "species": 121,
+          "level": 68
+        },
+        {
+          "species": 331,
+          "level": 69
+        }
+      ]
+    },
+    {
+      "id": 185,
+      "party": [
+        {
+          "species": 66,
+          "level": 39
+        },
+        {
+          "species": 67,
+          "level": 39
+        }
+      ]
+    },
+    {
+      "id": 186,
+      "party": [
+        {
+          "species": 67,
+          "level": 45
+        },
+        {
+          "species": 67,
+          "level": 46
+        },
+        {
+          "species": 68,
+          "level": 46
+        }
+      ]
+    },
+    {
+      "id": 187,
+      "party": [
+        {
+          "species": 67,
+          "level": 60
+        },
+        {
+          "species": 68,
+          "level": 61
+        },
+        {
+          "species": 68,
+          "level": 61
+        },
+        {
+          "species": 68,
+          "level": 64
+        }
+      ]
+    },
+    {
+      "id": 197,
+      "party": [
+        {
+          "species": 81,
+          "level": 25
+        },
+        {
+          "species": 370,
+          "level": 25
+        },
+        {
+          "species": 172,
+          "level": 25
+        }
+      ]
+    },
+    {
+      "id": 198,
+      "party": [
+        {
+          "species": 82,
+          "level": 38
+        },
+        {
+          "species": 371,
+          "level": 38
+        },
+        {
+          "species": 25,
+          "level": 38
+        }
+      ]
+    },
+    {
+      "id": 199,
+      "party": [
+        {
+          "species": 82,
+          "level": 46
+        },
+        {
+          "species": 371,
+          "level": 46
+        },
+        {
+          "species": 26,
+          "level": 47
+        }
+      ]
+    },
+    {
+      "id": 200,
+      "party": [
+        {
+          "species": 431,
+          "level": 59
+        },
+        {
+          "species": 372,
+          "level": 60
+        },
+        {
+          "species": 26,
+          "level": 60
+        }
+      ]
+    },
+    {
+      "id": 208,
+      "party": [
+        {
+          "species": 218,
+          "level": 39
+        },
+        {
+          "species": 310,
+          "level": 39
+        },
+        {
+          "species": 227,
+          "level": 40
+        }
+      ]
+    },
+    {
+      "id": 209,
+      "party": [
+        {
+          "species": 218,
+          "level": 48
+        },
+        {
+          "species": 310,
+          "level": 49
+        },
+        {
+          "species": 227,
+          "level": 50
+        }
+      ]
+    },
+    {
+      "id": 210,
+      "party": [
+        {
+          "species": 219,
+          "level": 58
+        },
+        {
+          "species": 310,
+          "level": 58
+        },
+        {
+          "species": 227,
+          "level": 62
+        },
+        {
+          "species": 9,
+          "level": 62
+        }
+      ]
+    },
+    {
+      "id": 220,
+      "party": [
+        {
+          "species": 289,
+          "level": 38
+        },
+        {
+          "species": 305,
+          "level": 38
+        }
+      ]
+    },
+    {
+      "id": 221,
+      "party": [
+        {
+          "species": 27,
+          "level": 45
+        },
+        {
+          "species": 305,
+          "level": 46
+        },
+        {
+          "species": 289,
+          "level": 46
+        }
+      ]
+    },
+    {
+      "id": 222,
+      "party": [
+        {
+          "species": 305,
+          "level": 60
+        },
+        {
+          "species": 28,
+          "level": 60
+        },
+        {
+          "species": 289,
+          "level": 60
+        },
+        {
+          "species": 22,
+          "level": 61
+        }
+      ]
+    },
+    {
+      "id": 228,
+      "party": [
+        {
+          "species": 311,
+          "level": 35
+        },
+        {
+          "species": 311,
+          "level": 35
+        },
+        {
+          "species": 311,
+          "level": 36
+        }
+      ]
+    },
+    {
+      "id": 229,
+      "party": [
+        {
+          "species": 311,
+          "level": 47
+        },
+        {
+          "species": 311,
+          "level": 47
+        },
+        {
+          "species": 312,
+          "level": 48
+        }
+      ]
+    },
+    {
+      "id": 230,
+      "party": [
+        {
+          "species": 312,
+          "level": 58
+        },
+        {
+          "species": 290,
+          "level": 58
+        },
+        {
+          "species": 312,
+          "level": 59
+        },
+        {
+          "species": 312,
+          "level": 59
+        }
+      ]
+    },
+    {
+      "id": 231,
+      "party": [
+        {
+          "species": 312,
+          "level": 64
+        },
+        {
+          "species": 294,
+          "level": 65
+        },
+        {
+          "species": 12,
+          "level": 64
+        },
+        {
+          "species": 312,
+          "level": 65
+        },
+        {
+          "species": 292,
+          "level": 65
+        },
+        {
+          "species": 15,
+          "level": 65
+        }
+      ]
+    },
+    {
+      "id": 239,
+      "party": [
+        {
+          "species": 64,
+          "level": 39
+        },
+        {
+          "species": 349,
+          "level": 40
+        }
+      ]
+    },
+    {
+      "id": 240,
+      "party": [
+        {
+          "species": 64,
+          "level": 44
+        },
+        {
+          "species": 349,
+          "level": 46
+        }
+      ]
+    },
+    {
+      "id": 241,
+      "party": [
+        {
+          "species": 64,
+          "level": 55
+        },
+        {
+          "species": 349,
+          "level": 56
+        }
+      ]
+    },
+    {
+      "id": 242,
+      "party": [
+        {
+          "species": 349,
+          "level": 64
+        },
+        {
+          "species": 348,
+          "level": 64
+        },
+        {
+          "species": 65,
+          "level": 66
+        }
+      ]
+    },
+    {
+      "id": 250,
+      "party": [
+        {
+          "species": 64,
+          "level": 39
+        },
+        {
+          "species": 348,
+          "level": 40
+        }
+      ]
+    },
+    {
+      "id": 251,
+      "party": [
+        {
+          "species": 64,
+          "level": 48
+        },
+        {
+          "species": 348,
+          "level": 49
+        }
+      ]
+    },
+    {
+      "id": 252,
+      "party": [
+        {
+          "species": 64,
+          "level": 55
+        },
+        {
+          "species": 348,
+          "level": 57
+        }
+      ]
+    },
+    {
+      "id": 253,
+      "party": [
+        {
+          "species": 348,
+          "level": 63
+        },
+        {
+          "species": 349,
+          "level": 64
+        },
+        {
+          "species": 65,
+          "level": 66
+        }
+      ]
+    },
+    {
+      "id": 260,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 277,
+      "party": [
+        {
+          "species": 393,
+          "level": 39
+        },
+        {
+          "species": 356,
+          "level": 38
+        }
+      ]
+    },
+    {
+      "id": 278,
+      "party": [
+        {
+          "species": 393,
+          "level": 45
+        },
+        {
+          "species": 357,
+          "level": 46
+        }
+      ]
+    },
+    {
+      "id": 279,
+      "party": [
+        {
+          "species": 393,
+          "level": 58
+        },
+        {
+          "species": 378,
+          "level": 58
+        },
+        {
+          "species": 357,
+          "level": 59
+        },
+        {
+          "species": 164,
+          "level": 62
+        }
+      ]
+    },
+    {
+      "id": 283,
+      "party": [
+        {
+          "species": 306,
+          "level": 37
+        },
+        {
+          "species": 371,
+          "level": 37
+        }
+      ]
+    },
+    {
+      "id": 284,
+      "party": [
+        {
+          "species": 307,
+          "level": 44
+        },
+        {
+          "species": 371,
+          "level": 45
+        }
+      ]
+    },
+    {
+      "id": 285,
+      "party": [
+        {
+          "species": 307,
+          "level": 57
+        },
+        {
+          "species": 372,
+          "level": 58
+        },
+        {
+          "species": 192,
+          "level": 59
+        }
+      ]
+    },
+    {
+      "id": 291,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 296,
+      "party": [
+        {
+          "species": 315,
+          "level": 40
+        }
+      ]
+    },
+    {
+      "id": 297,
+      "party": [
+        {
+          "species": 316,
+          "level": 49
+        }
+      ]
+    },
+    {
+      "id": 298,
+      "party": [
+        {
+          "species": 316,
+          "level": 61
+        }
+      ]
+    },
+    {
+      "id": 304,
+      "party": [
+        {
+          "species": 353,
+          "level": 39
+        },
+        {
+          "species": 354,
+          "level": 39
+        }
+      ]
+    },
+    {
+      "id": 305,
+      "party": [
+        {
+          "species": 353,
+          "level": 45
+        },
+        {
+          "species": 354,
+          "level": 45
+        }
+      ]
+    },
+    {
+      "id": 306,
+      "party": [
+        {
+          "species": 353,
+          "level": 58
+        },
+        {
+          "species": 354,
+          "level": 58
+        },
+        {
+          "species": 354,
+          "level": 60
+        },
+        {
+          "species": 353,
+          "level": 60
+        }
+      ]
+    },
+    {
+      "id": 311,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 315,
+      "party": [
+        {
+          "species": 357,
+          "level": 43
+        },
+        {
+          "species": 336,
+          "level": 43
+        }
+      ]
+    },
+    {
+      "id": 316,
+      "party": [
+        {
+          "species": 357,
+          "level": 56
+        },
+        {
+          "species": 336,
+          "level": 56
+        }
+      ]
+    },
+    {
+      "id": 317,
+      "party": [
+        {
+          "species": 357,
+          "level": 59
+        },
+        {
+          "species": 336,
+          "level": 59
+        },
+        {
+          "species": 68,
+          "level": 60
+        }
+      ]
+    },
+    {
+      "id": 328,
+      "party": [
+        {
+          "species": 287,
+          "level": 27
+        },
+        {
+          "species": 280,
+          "level": 27
+        }
+      ]
+    },
+    {
+      "id": 329,
+      "party": [
+        {
+          "species": 305,
+          "level": 33
+        },
+        {
+          "species": 287,
+          "level": 35
+        },
+        {
+          "species": 281,
+          "level": 35
+        }
+      ]
+    },
+    {
+      "id": 330,
+      "party": [
+        {
+          "species": 305,
+          "level": 50
+        },
+        {
+          "species": 289,
+          "level": 50
+        },
+        {
+          "species": 287,
+          "level": 50
+        },
+        {
+          "species": 282,
+          "level": 50
+        }
+      ]
+    },
+    {
+      "id": 331,
+      "party": [
+        {
+          "species": 305,
+          "level": 61
+        },
+        {
+          "species": 289,
+          "level": 61
+        },
+        {
+          "species": 287,
+          "level": 61
+        },
+        {
+          "species": 282,
+          "level": 62
+        },
+        {
+          "species": 157,
+          "level": 62
+        }
+      ]
+    },
+    {
+      "id": 339,
+      "party": [
+        {
+          "species": 129,
+          "level": 10
+        },
+        {
+          "species": 72,
+          "level": 7
+        },
+        {
+          "species": 283,
+          "level": 10
+        }
+      ]
+    },
+    {
+      "id": 346,
+      "party": [
+        {
+          "species": 72,
+          "level": 24
+        },
+        {
+          "species": 130,
+          "level": 27
+        },
+        {
+          "species": 284,
+          "level": 27
+        }
+      ]
+    },
+    {
+      "id": 347,
+      "party": [
+        {
+          "species": 130,
+          "level": 39
+        },
+        {
+          "species": 330,
+          "level": 36
+        },
+        {
+          "species": 72,
+          "level": 36
+        },
+        {
+          "species": 285,
+          "level": 39
+        }
+      ]
+    },
+    {
+      "id": 348,
+      "party": [
+        {
+          "species": 130,
+          "level": 48
+        },
+        {
+          "species": 330,
+          "level": 48
+        },
+        {
+          "species": 73,
+          "level": 49
+        },
+        {
+          "species": 285,
+          "level": 50
+        }
+      ]
+    },
+    {
+      "id": 349,
+      "party": [
+        {
+          "species": 130,
+          "level": 61
+        },
+        {
+          "species": 331,
+          "level": 60
+        },
+        {
+          "species": 285,
+          "level": 60
+        },
+        {
+          "species": 73,
+          "level": 60
+        }
+      ]
+    },
+    {
+      "id": 355,
+      "party": [
+        {
+          "species": 81,
+          "level": 37
+        }
+      ]
+    },
+    {
+      "id": 356,
+      "party": [
+        {
+          "species": 82,
+          "level": 46
+        }
+      ]
+    },
+    {
+      "id": 357,
+      "party": [
+        {
+          "species": 431,
+          "level": 56
+        },
+        {
+          "species": 421,
+          "level": 56
+        }
+      ]
+    },
+    {
+      "id": 361,
+      "party": [
+        {
+          "species": 81,
+          "level": 38
+        }
+      ]
+    },
+    {
+      "id": 362,
+      "party": [
+        {
+          "species": 82,
+          "level": 46
+        }
+      ]
+    },
+    {
+      "id": 363,
+      "party": [
+        {
+          "species": 431,
+          "level": 55
+        },
+        {
+          "species": 181,
+          "level": 55
+        }
+      ]
+    },
+    {
+      "id": 366,
+      "party": [
+        {
+          "species": 84,
+          "level": 39
+        }
+      ]
+    },
+    {
+      "id": 367,
+      "party": [
+        {
+          "species": 85,
+          "level": 47
+        }
+      ]
+    },
+    {
+      "id": 368,
+      "party": [
+        {
+          "species": 85,
+          "level": 52
+        },
+        {
+          "species": 115,
+          "level": 52
+        }
+      ]
+    },
+    {
+      "id": 371,
+      "party": [
+        {
+          "species": 84,
+          "level": 38
+        }
+      ]
+    },
+    {
+      "id": 372,
+      "party": [
+        {
+          "species": 85,
+          "level": 47
+        }
+      ]
+    },
+    {
+      "id": 373,
+      "party": [
+        {
+          "species": 85,
+          "level": 55
+        },
+        {
+          "species": 338,
+          "level": 55
+        },
+        {
+          "species": 22,
+          "level": 55
+        }
+      ]
+    },
+    {
+      "id": 379,
+      "party": [
+        {
+          "species": 120,
+          "level": 42
+        }
+      ]
+    },
+    {
+      "id": 380,
+      "party": [
+        {
+          "species": 121,
+          "level": 56
+        }
+      ]
+    },
+    {
+      "id": 381,
+      "party": [
+        {
+          "species": 121,
+          "level": 60
+        }
+      ]
+    },
+    {
+      "id": 382,
+      "party": [
+        {
+          "species": 121,
+          "level": 65
+        },
+        {
+          "species": 226,
+          "level": 55
+        },
+        {
+          "species": 222,
+          "level": 56
+        }
+      ]
+    },
+    {
+      "id": 388,
+      "party": [
+        {
+          "species": 373,
+          "level": 45
+        },
+        {
+          "species": 120,
+          "level": 44
+        },
+        {
+          "species": 309,
+          "level": 44
+        }
+      ]
+    },
+    {
+      "id": 389,
+      "party": [
+        {
+          "species": 373,
+          "level": 50
+        },
+        {
+          "species": 375,
+          "level": 51
+        },
+        {
+          "species": 121,
+          "level": 51
+        },
+        {
+          "species": 310,
+          "level": 51
+        }
+      ]
+    },
+    {
+      "id": 390,
+      "party": [
+        {
+          "species": 374,
+          "level": 58
+        },
+        {
+          "species": 375,
+          "level": 58
+        },
+        {
+          "species": 121,
+          "level": 59
+        },
+        {
+          "species": 310,
+          "level": 59
+        },
+        {
+          "species": 224,
+          "level": 59
+        }
+      ]
+    },
+    {
+      "id": 391,
+      "party": [
+        {
+          "species": 373,
+          "level": 66
+        },
+        {
+          "species": 375,
+          "level": 66
+        },
+        {
+          "species": 121,
+          "level": 66
+        },
+        {
+          "species": 310,
+          "level": 66
+        },
+        {
+          "species": 224,
+          "level": 66
+        },
+        {
+          "species": 160,
+          "level": 67
+        }
+      ]
+    },
+    {
+      "id": 393,
+      "party": [
+        {
+          "species": 359,
+          "level": 46
+        },
+        {
+          "species": 359,
+          "level": 47
+        }
+      ]
+    },
+    {
+      "id": 394,
+      "party": [
+        {
+          "species": 359,
+          "level": 55
+        },
+        {
+          "species": 359,
+          "level": 56
+        }
+      ]
+    },
+    {
+      "id": 395,
+      "party": [
+        {
+          "species": 396,
+          "level": 61
+        },
+        {
+          "species": 359,
+          "level": 61
+        },
+        {
+          "species": 359,
+          "level": 62
+        }
+      ]
+    },
+    {
+      "id": 396,
+      "party": [
+        {
+          "species": 359,
+          "level": 70
+        },
+        {
+          "species": 359,
+          "level": 70
+        },
+        {
+          "species": 397,
+          "level": 70
+        },
+        {
+          "species": 333,
+          "level": 70
+        }
+      ]
+    },
+    {
+      "id": 409,
+      "party": [
+        {
+          "species": 177,
+          "level": 34
+        },
+        {
+          "species": 358,
+          "level": 34
+        }
+      ]
+    },
+    {
+      "id": 410,
+      "party": [
+        {
+          "species": 178,
+          "level": 44
+        },
+        {
+          "species": 359,
+          "level": 44
+        },
+        {
+          "species": 369,
+          "level": 44
+        }
+      ]
+    },
+    {
+      "id": 411,
+      "party": [
+        {
+          "species": 178,
+          "level": 55
+        },
+        {
+          "species": 359,
+          "level": 55
+        },
+        {
+          "species": 369,
+          "level": 55
+        }
+      ]
+    },
+    {
+      "id": 412,
+      "party": [
+        {
+          "species": 369,
+          "level": 65
+        },
+        {
+          "species": 178,
+          "level": 66
+        },
+        {
+          "species": 359,
+          "level": 66
+        }
+      ]
+    },
+    {
+      "id": 416,
+      "party": [
+        {
+          "species": 302,
+          "level": 25
+        },
+        {
+          "species": 109,
+          "level": 25
+        },
+        {
+          "species": 368,
+          "level": 26
+        }
+      ]
+    },
+    {
+      "id": 431,
+      "party": [
+        {
+          "species": 356,
+          "level": 35
+        },
+        {
+          "species": 335,
+          "level": 35
+        }
+      ]
+    },
+    {
+      "id": 432,
+      "party": [
+        {
+          "species": 357,
+          "level": 46
+        },
+        {
+          "species": 336,
+          "level": 46
+        }
+      ]
+    },
+    {
+      "id": 433,
+      "party": [
+        {
+          "species": 357,
+          "level": 55
+        },
+        {
+          "species": 336,
+          "level": 56
+        },
+        {
+          "species": 336,
+          "level": 56
+        },
+        {
+          "species": 68,
+          "level": 56
+        }
+      ]
+    },
+    {
+      "id": 446,
+      "party": [
+        {
+          "species": 116,
+          "level": 25
+        },
+        {
+          "species": 374,
+          "level": 25
+        }
+      ]
+    },
+    {
+      "id": 466,
+      "party": [
+        {
+          "species": 314,
+          "level": 41
+        }
+      ]
+    },
+    {
+      "id": 467,
+      "party": [
+        {
+          "species": 120,
+          "level": 53
+        },
+        {
+          "species": 314,
+          "level": 53
+        }
+      ]
+    },
+    {
+      "id": 468,
+      "party": [
+        {
+          "species": 121,
+          "level": 62
+        },
+        {
+          "species": 314,
+          "level": 63
+        },
+        {
+          "species": 325,
+          "level": 67
+        }
+      ]
+    },
+    {
+      "id": 478,
+      "party": [
+        {
+          "species": 307,
+          "level": 38
+        },
+        {
+          "species": 44,
+          "level": 38
+        },
+        {
+          "species": 359,
+          "level": 38
+        }
+      ]
+    },
+    {
+      "id": 479,
+      "party": [
+        {
+          "species": 307,
+          "level": 47
+        },
+        {
+          "species": 45,
+          "level": 47
+        },
+        {
+          "species": 359,
+          "level": 48
+        }
+      ]
+    },
+    {
+      "id": 480,
+      "party": [
+        {
+          "species": 307,
+          "level": 60
+        },
+        {
+          "species": 45,
+          "level": 60
+        },
+        {
+          "species": 359,
+          "level": 60
+        }
+      ]
+    },
+    {
+      "id": 482,
+      "party": [
+        {
+          "species": 353,
+          "level": 34
+        },
+        {
+          "species": 354,
+          "level": 34
+        },
+        {
+          "species": 353,
+          "level": 34
+        },
+        {
+          "species": 354,
+          "level": 34
+        }
+      ]
+    },
+    {
+      "id": 487,
+      "party": [
+        {
+          "species": 353,
+          "level": 42
+        },
+        {
+          "species": 354,
+          "level": 42
+        },
+        {
+          "species": 354,
+          "level": 44
+        },
+        {
+          "species": 353,
+          "level": 44
+        }
+      ]
+    },
+    {
+      "id": 488,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 489,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 497,
+      "party": [
+        {
+          "species": 309,
+          "level": 39
+        },
+        {
+          "species": 72,
+          "level": 39
+        },
+        {
+          "species": 67,
+          "level": 39
+        }
+      ]
+    },
+    {
+      "id": 498,
+      "party": [
+        {
+          "species": 310,
+          "level": 46
+        },
+        {
+          "species": 73,
+          "level": 47
+        },
+        {
+          "species": 68,
+          "level": 47
+        }
+      ]
+    },
+    {
+      "id": 499,
+      "party": [
+        {
+          "species": 310,
+          "level": 55
+        },
+        {
+          "species": 73,
+          "level": 55
+        },
+        {
+          "species": 68,
+          "level": 55
+        }
+      ]
+    },
+    {
+      "id": 500,
+      "party": [
+        {
+          "species": 310,
+          "level": 62
+        },
+        {
+          "species": 68,
+          "level": 63
+        },
+        {
+          "species": 73,
+          "level": 63
+        },
+        {
+          "species": 329,
+          "level": 63
+        }
+      ]
+    },
+    {
+      "id": 516,
+      "party": [
+        {
+          "species": 296,
+          "level": 37
+        },
+        {
+          "species": 299,
+          "level": 37
+        }
+      ]
+    },
+    {
+      "id": 517,
+      "party": [
+        {
+          "species": 296,
+          "level": 47
+        },
+        {
+          "species": 299,
+          "level": 47
+        }
+      ]
+    },
+    {
+      "id": 518,
+      "party": [
+        {
+          "species": 297,
+          "level": 58
+        },
+        {
+          "species": 300,
+          "level": 58
+        }
+      ]
+    },
+    {
+      "id": 520,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 523,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 526,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 529,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 532,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 535,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 541,
+      "party": [
+        {
+          "species": 371,
+          "level": 30
+        },
+        {
+          "species": 289,
+          "level": 30
+        },
+        {
+          "species": 382,
+          "level": 30
+        },
+        {
+          "species": 287,
+          "level": 31
+        },
+        {
+          "species": 305,
+          "level": 31
+        },
+        {
+          "species": 335,
+          "level": 31
+        }
+      ]
+    },
+    {
+      "id": 542,
+      "party": [
+        {
+          "species": 371,
+          "level": 40
+        },
+        {
+          "species": 289,
+          "level": 40
+        },
+        {
+          "species": 383,
+          "level": 40
+        },
+        {
+          "species": 287,
+          "level": 40
+        },
+        {
+          "species": 305,
+          "level": 40
+        },
+        {
+          "species": 336,
+          "level": 40
+        }
+      ]
+    },
+    {
+      "id": 543,
+      "party": [
+        {
+          "species": 372,
+          "level": 50
+        },
+        {
+          "species": 289,
+          "level": 50
+        },
+        {
+          "species": 383,
+          "level": 50
+        },
+        {
+          "species": 287,
+          "level": 50
+        },
+        {
+          "species": 305,
+          "level": 50
+        },
+        {
+          "species": 336,
+          "level": 50
+        }
+      ]
+    },
+    {
+      "id": 544,
+      "party": [
+        {
+          "species": 372,
+          "level": 59
+        },
+        {
+          "species": 289,
+          "level": 60
+        },
+        {
+          "species": 384,
+          "level": 60
+        },
+        {
+          "species": 287,
+          "level": 60
+        },
+        {
+          "species": 305,
+          "level": 60
+        },
+        {
+          "species": 336,
+          "level": 60
+        }
+      ]
+    },
+    {
+      "id": 545,
+      "party": [
+        {
+          "species": 309,
+          "level": 11
+        },
+        {
+          "species": 306,
+          "level": 11
+        },
+        {
+          "species": 183,
+          "level": 11
+        },
+        {
+          "species": 415,
+          "level": 11
+        },
+        {
+          "species": 315,
+          "level": 11
+        },
+        {
+          "species": 277,
+          "level": 11
+        }
+      ]
+    },
+    {
+      "id": 548,
+      "party": [
+        {
+          "species": 309,
+          "level": 29
+        },
+        {
+          "species": 306,
+          "level": 29
+        },
+        {
+          "species": 183,
+          "level": 29
+        },
+        {
+          "species": 363,
+          "level": 29
+        },
+        {
+          "species": 315,
+          "level": 29
+        },
+        {
+          "species": 278,
+          "level": 29
+        }
+      ]
+    },
+    {
+      "id": 549,
+      "party": [
+        {
+          "species": 310,
+          "level": 34
+        },
+        {
+          "species": 307,
+          "level": 34
+        },
+        {
+          "species": 183,
+          "level": 34
+        },
+        {
+          "species": 363,
+          "level": 34
+        },
+        {
+          "species": 316,
+          "level": 34
+        },
+        {
+          "species": 278,
+          "level": 34
+        }
+      ]
+    },
+    {
+      "id": 550,
+      "party": [
+        {
+          "species": 310,
+          "level": 48
+        },
+        {
+          "species": 307,
+          "level": 48
+        },
+        {
+          "species": 183,
+          "level": 48
+        },
+        {
+          "species": 363,
+          "level": 48
+        },
+        {
+          "species": 316,
+          "level": 48
+        },
+        {
+          "species": 279,
+          "level": 49
+        }
+      ]
+    },
+    {
+      "id": 551,
+      "party": [
+        {
+          "species": 310,
+          "level": 60
+        },
+        {
+          "species": 307,
+          "level": 60
+        },
+        {
+          "species": 184,
+          "level": 60
+        },
+        {
+          "species": 443,
+          "level": 60
+        },
+        {
+          "species": 316,
+          "level": 60
+        },
+        {
+          "species": 279,
+          "level": 61
+        }
+      ]
+    },
+    {
+      "id": 555,
+      "party": [
+        {
+          "species": 307,
+          "level": 34
+        }
+      ]
+    },
+    {
+      "id": 556,
+      "party": [
+        {
+          "species": 307,
+          "level": 43
+        }
+      ]
+    },
+    {
+      "id": 557,
+      "party": [
+        {
+          "species": 307,
+          "level": 54
+        }
+      ]
+    },
+    {
+      "id": 558,
+      "party": [
+        {
+          "species": 317,
+          "level": 61
+        },
+        {
+          "species": 307,
+          "level": 61
+        }
+      ]
+    },
+    {
+      "id": 562,
+      "party": [
+        {
+          "species": 44,
+          "level": 33
+        },
+        {
+          "species": 363,
+          "level": 33
+        }
+      ]
+    },
+    {
+      "id": 563,
+      "party": [
+        {
+          "species": 44,
+          "level": 45
+        },
+        {
+          "species": 363,
+          "level": 45
+        }
+      ]
+    },
+    {
+      "id": 564,
+      "party": [
+        {
+          "species": 182,
+          "level": 53
+        },
+        {
+          "species": 363,
+          "level": 54
+        }
+      ]
+    },
+    {
+      "id": 565,
+      "party": [
+        {
+          "species": 182,
+          "level": 60
+        },
+        {
+          "species": 443,
+          "level": 60
+        }
+      ]
+    },
+    {
+      "id": 608,
+      "party": [
+        {
+          "species": 296,
+          "level": 35
+        },
+        {
+          "species": 307,
+          "level": 35
+        }
+      ]
+    },
+    {
+      "id": 609,
+      "party": [
+        {
+          "species": 296,
+          "level": 44
+        },
+        {
+          "species": 307,
+          "level": 44
+        }
+      ]
+    },
+    {
+      "id": 610,
+      "party": [
+        {
+          "species": 305,
+          "level": 58
+        },
+        {
+          "species": 296,
+          "level": 58
+        },
+        {
+          "species": 307,
+          "level": 58
+        }
+      ]
+    },
+    {
+      "id": 622,
+      "party": [
+        {
+          "species": 302,
+          "level": 27
+        },
+        {
+          "species": 303,
+          "level": 27
+        }
+      ]
+    },
+    {
+      "id": 623,
+      "party": [
+        {
+          "species": 294,
+          "level": 39
+        },
+        {
+          "species": 302,
+          "level": 39
+        },
+        {
+          "species": 303,
+          "level": 39
+        }
+      ]
+    },
+    {
+      "id": 624,
+      "party": [
+        {
+          "species": 311,
+          "level": 47
+        },
+        {
+          "species": 294,
+          "level": 47
+        },
+        {
+          "species": 302,
+          "level": 47
+        },
+        {
+          "species": 303,
+          "level": 48
+        }
+      ]
+    },
+    {
+      "id": 625,
+      "party": [
+        {
+          "species": 312,
+          "level": 53
+        },
+        {
+          "species": 302,
+          "level": 53
+        },
+        {
+          "species": 294,
+          "level": 53
+        },
+        {
+          "species": 302,
+          "level": 53
+        },
+        {
+          "species": 303,
+          "level": 54
+        }
+      ]
+    },
+    {
+      "id": 637,
+      "party": [
+        {
+          "species": 74,
+          "level": 37
+        },
+        {
+          "species": 74,
+          "level": 37
+        },
+        {
+          "species": 75,
+          "level": 37
+        },
+        {
+          "species": 75,
+          "level": 37
+        }
+      ]
+    },
+    {
+      "id": 638,
+      "party": [
+        {
+          "species": 74,
+          "level": 48
+        },
+        {
+          "species": 75,
+          "level": 48
+        },
+        {
+          "species": 75,
+          "level": 48
+        },
+        {
+          "species": 76,
+          "level": 48
+        }
+      ]
+    },
+    {
+      "id": 639,
+      "party": [
+        {
+          "species": 75,
+          "level": 59
+        },
+        {
+          "species": 75,
+          "level": 59
+        },
+        {
+          "species": 76,
+          "level": 59
+        },
+        {
+          "species": 76,
+          "level": 60
+        }
+      ]
+    },
+    {
+      "id": 643,
+      "party": [
+        {
+          "species": 386,
+          "level": 35
+        },
+        {
+          "species": 387,
+          "level": 35
+        }
+      ]
+    },
+    {
+      "id": 644,
+      "party": [
+        {
+          "species": 386,
+          "level": 46
+        },
+        {
+          "species": 387,
+          "level": 46
+        }
+      ]
+    },
+    {
+      "id": 645,
+      "party": [
+        {
+          "species": 386,
+          "level": 55
+        },
+        {
+          "species": 387,
+          "level": 55
+        }
+      ]
+    },
+    {
+      "id": 646,
+      "party": [
+        {
+          "species": 386,
+          "level": 61
+        },
+        {
+          "species": 387,
+          "level": 61
+        }
+      ]
+    },
+    {
+      "id": 660,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 661,
+      "party": [
+        {
+          "species": 369,
+          "level": 33
+        },
+        {
+          "species": 219,
+          "level": 34
+        },
+        {
+          "species": 310,
+          "level": 34
+        },
+        {
+          "species": 279,
+          "level": 36
+        }
+      ]
+    },
+    {
+      "id": 662,
+      "party": [
+        {
+          "species": 369,
+          "level": 33
+        },
+        {
+          "species": 310,
+          "level": 34
+        },
+        {
+          "species": 297,
+          "level": 34
+        },
+        {
+          "species": 282,
+          "level": 36
+        }
+      ]
+    },
+    {
+      "id": 663,
+      "party": [
+        {
+          "species": 369,
+          "level": 33
+        },
+        {
+          "species": 297,
+          "level": 34
+        },
+        {
+          "species": 219,
+          "level": 34
+        },
+        {
+          "species": 285,
+          "level": 36
+        }
+      ]
+    },
+    {
+      "id": 664,
+      "party": [
+        {
+          "species": 369,
+          "level": 33
+        },
+        {
+          "species": 219,
+          "level": 34
+        },
+        {
+          "species": 310,
+          "level": 34
+        },
+        {
+          "species": 279,
+          "level": 36
+        }
+      ]
+    },
+    {
+      "id": 665,
+      "party": [
+        {
+          "species": 369,
+          "level": 33
+        },
+        {
+          "species": 310,
+          "level": 34
+        },
+        {
+          "species": 297,
+          "level": 34
+        },
+        {
+          "species": 282,
+          "level": 36
+        }
+      ]
+    },
+    {
+      "id": 666,
+      "party": [
+        {
+          "species": 369,
+          "level": 33
+        },
+        {
+          "species": 297,
+          "level": 34
+        },
+        {
+          "species": 219,
+          "level": 34
+        },
+        {
+          "species": 285,
+          "level": 36
+        }
+      ]
+    },
+    {
+      "id": 689,
+      "party": [
+        {
+          "species": 171,
+          "level": 51
+        },
+        {
+          "species": 330,
+          "level": 51
+        }
+      ]
+    },
+    {
+      "id": 691,
+      "party": [
+        {
+          "species": 171,
+          "level": 56
+        },
+        {
+          "species": 331,
+          "level": 58
+        },
+        {
+          "species": 130,
+          "level": 59
+        },
+        {
+          "species": 329,
+          "level": 59
+        }
+      ]
+    },
+    {
+      "id": 705,
+      "party": [
+        {
+          "species": 415,
+          "level": 18
+        }
+      ]
+    },
+    {
+      "id": 735,
+      "party": [
+        {
+          "species": 72,
+          "level": 22
+        }
+      ]
+    },
+    {
+      "id": 736,
+      "party": [
+        {
+          "species": 183,
+          "level": 22
+        }
+      ]
+    },
+    {
+      "id": 737,
+      "party": [
+        {
+          "species": 231,
+          "level": 24
+        },
+        {
+          "species": 27,
+          "level": 25
+        }
+      ]
+    },
+    {
+      "id": 758,
+      "party": [
+        {
+          "species": 443,
+          "level": 33
+        },
+        {
+          "species": 357,
+          "level": 33
+        }
+      ]
+    },
+    {
+      "id": 769,
+      "party": [
+        {
+          "species": 218,
+          "level": 13
+        },
+        {
+          "species": 283,
+          "level": 15
+        }
+      ]
+    },
+    {
+      "id": 770,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 771,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 772,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 774,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 775,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 776,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 778,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 779,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 780,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 782,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 783,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 786,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 787,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 788,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 790,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 794,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 798,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 799,
+      "party": [
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        },
+        {
+          "species": 0,
+          "level": 0
+        }
+      ]
+    },
+    {
+      "id": 812,
+      "party": [
+        {
+          "species": 27,
+          "level": 31
+        },
+        {
+          "species": 232,
+          "level": 31
+        }
+      ]
+    },
+    {
+      "id": 813,
+      "party": [
+        {
+          "species": 320,
+          "level": 43
+        },
+        {
+          "species": 27,
+          "level": 43
+        },
+        {
+          "species": 232,
+          "level": 43
+        }
+      ]
+    },
+    {
+      "id": 814,
+      "party": [
+        {
+          "species": 438,
+          "level": 55
+        },
+        {
+          "species": 28,
+          "level": 55
+        },
+        {
+          "species": 232,
+          "level": 55
+        }
+      ]
+    },
+    {
+      "id": 815,
+      "party": [
+        {
+          "species": 438,
+          "level": 62
+        },
+        {
+          "species": 28,
+          "level": 62
+        },
+        {
+          "species": 232,
+          "level": 63
+        }
+      ]
+    },
+    {
+      "id": 817,
+      "party": [
+        {
+          "species": 310,
+          "level": 40
+        },
+        {
+          "species": 67,
+          "level": 40
+        },
+        {
+          "species": 73,
+          "level": 40
+        }
+      ]
+    },
+    {
+      "id": 818,
+      "party": [
+        {
+          "species": 310,
+          "level": 54
+        },
+        {
+          "species": 67,
+          "level": 54
+        },
+        {
+          "species": 73,
+          "level": 54
+        }
+      ]
+    },
+    {
+      "id": 819,
+      "party": [
+        {
+          "species": 310,
+          "level": 64
+        },
+        {
+          "species": 68,
+          "level": 64
+        },
+        {
+          "species": 73,
+          "level": 64
+        },
+        {
+          "species": 226,
+          "level": 66
+        }
+      ]
+    },
+    {
+      "id": 821,
+      "party": [
+        {
+          "species": 309,
+          "level": 49
+        },
+        {
+          "species": 120,
+          "level": 49
+        },
+        {
+          "species": 121,
+          "level": 49
+        }
+      ]
+    },
+    {
+      "id": 822,
+      "party": [
+        {
+          "species": 310,
+          "level": 53
+        },
+        {
+          "species": 121,
+          "level": 53
+        },
+        {
+          "species": 121,
+          "level": 53
+        }
+      ]
+    },
+    {
+      "id": 823,
+      "party": [
+        {
+          "species": 310,
+          "level": 61
+        },
+        {
+          "species": 121,
+          "level": 62
+        },
+        {
+          "species": 121,
+          "level": 63
+        },
+        {
+          "species": 211,
+          "level": 63
+        }
+      ]
+    },
+    {
+      "id": 825,
+      "party": [
+        {
+          "species": 335,
+          "level": 47
+        },
+        {
+          "species": 67,
+          "level": 49
+        },
+        {
+          "species": 67,
+          "level": 48
+        }
+      ]
+    },
+    {
+      "id": 826,
+      "party": [
+        {
+          "species": 336,
+          "level": 55
+        },
+        {
+          "species": 67,
+          "level": 55
+        },
+        {
+          "species": 67,
+          "level": 56
+        }
+      ]
+    },
+    {
+      "id": 827,
+      "party": [
+        {
+          "species": 336,
+          "level": 63
+        },
+        {
+          "species": 68,
+          "level": 63
+        },
+        {
+          "species": 68,
+          "level": 63
+        },
+        {
+          "species": 237,
+          "level": 63
+        }
+      ]
+    },
+    {
+      "id": 829,
+      "party": [
+        {
+          "species": 308,
+          "level": 47
+        },
+        {
+          "species": 371,
+          "level": 47
+        },
+        {
+          "species": 365,
+          "level": 47
+        }
+      ]
+    },
+    {
+      "id": 830,
+      "party": [
+        {
+          "species": 308,
+          "level": 57
+        },
+        {
+          "species": 371,
+          "level": 57
+        },
+        {
+          "species": 365,
+          "level": 59
+        }
+      ]
+    },
+    {
+      "id": 831,
+      "party": [
+        {
+          "species": 308,
+          "level": 61
+        },
+        {
+          "species": 372,
+          "level": 61
+        },
+        {
+          "species": 366,
+          "level": 61
+        },
+        {
+          "species": 128,
+          "level": 61
+        }
+      ]
+    },
+    {
+      "id": 833,
+      "party": [
+        {
+          "species": 337,
+          "level": 47
+        },
+        {
+          "species": 338,
+          "level": 47
+        },
+        {
+          "species": 371,
+          "level": 47
+        }
+      ]
+    },
+    {
+      "id": 834,
+      "party": [
+        {
+          "species": 338,
+          "level": 59
+        },
+        {
+          "species": 338,
+          "level": 59
+        },
+        {
+          "species": 371,
+          "level": 59
+        }
+      ]
+    },
+    {
+      "id": 835,
+      "party": [
+        {
+          "species": 338,
+          "level": 61
+        },
+        {
+          "species": 338,
+          "level": 61
+        },
+        {
+          "species": 372,
+          "level": 61
+        },
+        {
+          "species": 71,
+          "level": 61
+        }
+      ]
+    },
+    {
+      "id": 837,
+      "party": [
+        {
+          "species": 67,
+          "level": 38
+        },
+        {
+          "species": 340,
+          "level": 40
+        },
+        {
+          "species": 75,
+          "level": 40
+        }
+      ]
+    },
+    {
+      "id": 838,
+      "party": [
+        {
+          "species": 68,
+          "level": 50
+        },
+        {
+          "species": 340,
+          "level": 50
+        },
+        {
+          "species": 76,
+          "level": 50
+        }
+      ]
+    },
+    {
+      "id": 839,
+      "party": [
+        {
+          "species": 68,
+          "level": 61
+        },
+        {
+          "species": 340,
+          "level": 63
+        },
+        {
+          "species": 76,
+          "level": 63
+        }
+      ]
+    },
+    {
+      "id": 841,
+      "party": [
+        {
+          "species": 315,
+          "level": 43
+        },
+        {
+          "species": 287,
+          "level": 43
+        },
+        {
+          "species": 289,
+          "level": 43
+        },
+        {
+          "species": 296,
+          "level": 43
+        },
+        {
+          "species": 299,
+          "level": 43
+        },
+        {
+          "species": 304,
+          "level": 43
+        }
+      ]
+    },
+    {
+      "id": 842,
+      "party": [
+        {
+          "species": 316,
+          "level": 55
+        },
+        {
+          "species": 287,
+          "level": 55
+        },
+        {
+          "species": 289,
+          "level": 55
+        },
+        {
+          "species": 296,
+          "level": 55
+        },
+        {
+          "species": 299,
+          "level": 55
+        },
+        {
+          "species": 305,
+          "level": 55
+        }
+      ]
+    },
+    {
+      "id": 843,
+      "party": [
+        {
+          "species": 316,
+          "level": 61
+        },
+        {
+          "species": 287,
+          "level": 61
+        },
+        {
+          "species": 289,
+          "level": 61
+        },
+        {
+          "species": 297,
+          "level": 61
+        },
+        {
+          "species": 300,
+          "level": 61
+        },
+        {
+          "species": 305,
+          "level": 61
+        }
+      ]
+    },
+    {
+      "id": 845,
+      "party": [
+        {
+          "species": 325,
+          "level": 46
+        },
+        {
+          "species": 313,
+          "level": 46
+        },
+        {
+          "species": 117,
+          "level": 46
+        }
+      ]
+    },
+    {
+      "id": 846,
+      "party": [
+        {
+          "species": 325,
+          "level": 58
+        },
+        {
+          "species": 313,
+          "level": 58
+        },
+        {
+          "species": 117,
+          "level": 58
+        }
+      ]
+    },
+    {
+      "id": 847,
+      "party": [
+        {
+          "species": 325,
+          "level": 62
+        },
+        {
+          "species": 314,
+          "level": 60
+        },
+        {
+          "species": 230,
+          "level": 60
+        }
+      ]
+    }
+  ]
+}

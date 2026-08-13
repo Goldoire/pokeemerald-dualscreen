@@ -1,0 +1,6297 @@
+{
+  "summary": {
+    "maps": {
+      "changed": 0,
+      "imported": 0,
+      "unsupported": 0
+    },
+    "scripts": {
+      "changed": 0,
+      "imported": 0,
+      "unsupported": 0
+    },
+    "starters": {
+      "changed": 3,
+      "imported": 3,
+      "unsupported": 0
+    },
+    "trainers": {
+      "changed": 147,
+      "imported": 147,
+      "unsupported": 0
+    },
+    "encounters": {
+      "changed": 261,
+      "imported": 261,
+      "unsupported": 0
+    },
+    "moves": {
+      "changed": 13,
+      "imported": 13,
+      "unsupported": 0
+    },
+    "items": {
+      "changed": 12,
+      "imported": 12,
+      "unsupported": 0
+    },
+    "text": {
+      "changed": 430,
+      "imported": 430,
+      "unsupported": 0
+    }
+  },
+  "unsupported": {
+    "new_maps": [],
+    "resized_maps": [],
+    "custom_code": [
+      {
+        "name": "src/trainer_hill.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/options_plus_menu.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/trainer_card.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/starter_choose.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/play_time.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/birch_pc.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/field_effect.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_dome.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/save.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/tx_rac_viewer.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/fldeff_misc.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/graphics.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/post_battle_event_funcs.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokenav_main_menu.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/region_map.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/event_object_movement.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/anim_mon_front_pics.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_controller_safari.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/start_menu.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokemon_storage_system.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_util2.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokedex_area_screen.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokeball.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/tx_randomizer_and_challenges.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/field_specials.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/strings.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_controller_recorded_opponent.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_controller_recorded_player.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/tileset_anims.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/berry_fix_program.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_pyramid.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_gfx_sfx_util.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_controller_opponent.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/shop.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/sliding_puzzle.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/mystery_event_msg.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/field_door.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/field_region_map.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_interface.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/wild_encounter.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/trade.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/debug.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/fonts.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_controller_player_partner.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/credits.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/field_player_avatar.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/tx_rac_menu.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokenav_region_map.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_tv.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/player_pc.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/sound.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/field_control_avatar.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/menu.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokemon_summary_screen.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_controller_wally.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/party_menu.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/script.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/landmark.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokenav_menu_handler.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/text_window.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_util.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_setup.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/random.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/mauville_old_man.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_bg.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokemon_animation.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/palette.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokemon_icon.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/m4a.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokedex_area_region_map.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_tent.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/new_game.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/safari_zone.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/easy_chat.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/item_menu.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/frontier_util.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/list_menu.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/follower_helper.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/rtc.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/main.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/main_menu.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokedex.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/field_effect_helpers.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/clock.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/bug_contest.c",
+        "reason": "New engine file"
+      },
+      {
+        "name": "src/overworld.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/hall_of_fame.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/wonder_trade.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/money.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_controller_link_opponent.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_tower.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/script_pokemon_util.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_anim_smokescreen.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/egg_hatch.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/roamer.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_script_commands.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_controller_link_partner.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/script_menu.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/field_tasks.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/util.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/sound_check_menu.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/frontier_pass.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/item_use.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/bike.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/union_room_player_avatar.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokedex_plus_hgss.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/naming_screen.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/evolution_scene.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_ai_switch_items.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/berry_blender.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/berry.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_message.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/braille_puzzles.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/match_call.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/title_screen.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/map_name_popup.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/surfable.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_controller_player.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokenav_menu_handler_gfx.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/debug_pokemon_creator.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokemon.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_transition.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/librfu_intr.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/trainer_see.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/scrcmd.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_anim_throw.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/time_events.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_main.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_intro.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_anim_utility_funcs.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/script_movement.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/tv.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/metatile_behavior.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_pike.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/secret_base.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/item.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/fieldmap.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/intro.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/librfu.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/battle_main.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/rtc.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/follower_helper.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/overworld.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/rtc_include.h",
+        "reason": "New engine file"
+      },
+      {
+        "name": "include/text_window.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/script_menu.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/global.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/tx_randomizer_and_challenges.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/battle.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/pokenav.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/pokedex_area_region_map.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/battle_transition.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/list_menu.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/battle_scripts.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/fonts.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/pokeball.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/graphics.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/fieldmap.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/item_use.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/script_pokemon_util.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/event_scripts.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/pokemon.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/battle_tower.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/tilesets.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/strings.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/pokemon_storage_system.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/region_map.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/intro.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/battle_message.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/save.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/pokedex_plus_hgss.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/tileset_anims.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/event_object_movement.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/field_door.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/money.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/global.fieldmap.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/bug_contest.h",
+        "reason": "New engine file"
+      },
+      {
+        "name": "include/metatile_behavior.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/pokedex.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/gba/m4a_internal.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/tms_hms.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/battle_tent_trainers.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/map_groups.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/event_objects.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/script_menu.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/species.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/moves.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/heal_locations.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/map_types.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/battle.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/party_menu.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/battle_string_ids.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/berry.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/opponents.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/items.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/battle_frontier.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/metatile_behaviors.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/pokemon.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/battle_frontier_trainers.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/flags.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/metatile_labels.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/layouts.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/trade.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/event_object_movement.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/vars.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/songs.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/trainers.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/region_map_sections.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/pokedex.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "items.h (ITEM_OAKS_PARCEL)",
+        "reason": "CUSTOM ITEM CODE - MANUAL PORT REQUIRED"
+      }
+    ],
+    "scripts": [],
+    "maps": [
+      {
+        "name": "PetalburgCity",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SlateportCity",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MauvilleCity",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FortreeCity",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MossdeepCity",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SootopolisCity",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LittlerootTown",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "OldaleTown",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "DewfordTown",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LavaridgeTown",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FallarborTown",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "VerdanturfTown",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PacifidlogTown",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route101",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route102",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route103",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route104",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route105",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route106",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route107",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route108",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route109",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route110",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route111",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route112",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route113",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route114",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route115",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route116",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route117",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route118",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route119",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route120",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route121",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route122",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route123",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route124",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route125",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route126",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route127",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route128",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route129",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route130",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route131",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route132",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route133",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route134",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Underwater_Route124",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Underwater_Route126",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Underwater_Route127",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Underwater_Route128",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Underwater_Route129",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Underwater_Route105",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Underwater_Route125",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LittlerootTown_BrendansHouse_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LittlerootTown_BrendansHouse_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LittlerootTown_MaysHouse_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LittlerootTown_MaysHouse_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LittlerootTown_ProfessorBirchsLab",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "OldaleTown_House1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "OldaleTown_House2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "OldaleTown_PokemonCenter_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "OldaleTown_PokemonCenter_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "OldaleTown_Mart",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "OldaleTown_PokemonCenter_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "DewfordTown_House1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "DewfordTown_PokemonCenter_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "DewfordTown_PokemonCenter_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "DewfordTown_Gym",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "DewfordTown_Hall",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "DewfordTown_House2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "DewfordTown_PokemonCenter_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LavaridgeTown_HerbShop",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LavaridgeTown_Gym_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LavaridgeTown_Gym_B1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LavaridgeTown_House",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LavaridgeTown_Mart",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LavaridgeTown_PokemonCenter_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LavaridgeTown_PokemonCenter_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LavaridgeTown_PokemonCenter_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FallarborTown_Mart",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FallarborTown_BattleTentLobby",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FallarborTown_BattleTentCorridor",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FallarborTown_BattleTentBattleRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FallarborTown_PokemonCenter_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FallarborTown_PokemonCenter_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FallarborTown_CozmosHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FallarborTown_MoveRelearnersHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FallarborTown_PokemonCenter_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "VerdanturfTown_BattleTentLobby",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "VerdanturfTown_BattleTentCorridor",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "VerdanturfTown_BattleTentBattleRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "VerdanturfTown_Mart",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "VerdanturfTown_PokemonCenter_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "VerdanturfTown_PokemonCenter_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "VerdanturfTown_WandasHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "VerdanturfTown_FriendshipRatersHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "VerdanturfTown_House",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "VerdanturfTown_PokemonCenter_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PacifidlogTown_PokemonCenter_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PacifidlogTown_PokemonCenter_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PacifidlogTown_House1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PacifidlogTown_House2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PacifidlogTown_House3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PacifidlogTown_House4",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PacifidlogTown_House5",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Pacifidlog_PokemonCenter_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PetalburgCity_WallysHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PetalburgCity_Gym",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PetalburgCity_House1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PetalburgCity_House2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PetalburgCity_PokemonCenter_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PetalburgCity_PokemonCenter_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PetalburgCity_Mart",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PetalburgCity_PokemonCenter_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SlateportCity_SternsShipyard_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SlateportCity_SternsShipyard_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SlateportCity_BattleTentLobby",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SlateportCity_BattleTentCorridor",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SlateportCity_BattleTentBattleRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SlateportCity_NameRatersHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SlateportCity_PokemonFanClub",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SlateportCity_OceanicMuseum_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SlateportCity_OceanicMuseum_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SlateportCity_Harbor",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SlateportCity_House",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SlateportCity_PokemonCenter_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SlateportCity_PokemonCenter_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SlateportCity_Mart",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SlateportCity_PokemonCenter_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MauvilleCity_Gym",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MauvilleCity_BikeShop",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MauvilleCity_House1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MauvilleCity_GameCorner",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MauvilleCity_House2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MauvilleCity_PokemonCenter_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MauvilleCity_PokemonCenter_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MauvilleCity_Mart",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MauvilleCity_PokemonCenter_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_DevonCorp_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_DevonCorp_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_DevonCorp_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_Gym",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_PokemonSchool",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_PokemonCenter_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_PokemonCenter_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_Mart",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_Flat1_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_Flat1_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_House1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_CuttersHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_House2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_Flat2_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_Flat2_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_Flat2_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_House3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RustboroCity_PokemonCenter_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FortreeCity_House1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FortreeCity_Gym",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FortreeCity_PokemonCenter_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FortreeCity_PokemonCenter_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FortreeCity_Mart",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FortreeCity_House2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FortreeCity_House3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FortreeCity_House4",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FortreeCity_House5",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FortreeCity_DecorationShop",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FortreeCity_PokemonCenter_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_CoveLilyMotel_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_CoveLilyMotel_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_LilycoveMuseum_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_LilycoveMuseum_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_ContestLobby",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_ContestHall",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_PokemonCenter_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_PokemonCenter_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_UnusedMart",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_PokemonTrainerFanClub",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_Harbor",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_MoveDeletersHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_House1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_House2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_House3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_House4",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_DepartmentStore_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_DepartmentStore_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_DepartmentStore_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_DepartmentStore_4F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_DepartmentStore_5F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_DepartmentStoreRooftop",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_DepartmentStoreElevator",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "LilycoveCity_PokemonCenter_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MossdeepCity_Gym",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MossdeepCity_House1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MossdeepCity_House2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MossdeepCity_PokemonCenter_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MossdeepCity_PokemonCenter_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MossdeepCity_Mart",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MossdeepCity_House3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MossdeepCity_StevensHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MossdeepCity_House4",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MossdeepCity_SpaceCenter_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MossdeepCity_SpaceCenter_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MossdeepCity_GameCorner_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MossdeepCity_GameCorner_B1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MossdeepCity_PokemonCenter_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SootopolisCity_Gym_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SootopolisCity_Gym_B1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SootopolisCity_PokemonCenter_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SootopolisCity_PokemonCenter_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SootopolisCity_Mart",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SootopolisCity_House1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SootopolisCity_House2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SootopolisCity_House3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SootopolisCity_House4",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SootopolisCity_House5",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SootopolisCity_House6",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SootopolisCity_House7",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SootopolisCity_LotadAndSeedotHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SootopolisCity_MysteryEventsHouse_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SootopolisCity_MysteryEventsHouse_B1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SootopolisCity_PokemonCenter_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity_SidneysRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity_PhoebesRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity_GlaciasRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity_DrakesRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity_ChampionsRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity_Hall1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity_Hall2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity_Hall3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity_Hall4",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity_Hall5",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity_PokemonLeague_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity_HallOfFame",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity_PokemonCenter_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity_PokemonCenter_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity_PokemonLeague_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity_PokemonCenter_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "EverGrandeCity_PokemonLeague_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route104_MrBrineysHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route104_PrettyPetalFlowerShop",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route111_WinstrateFamilysHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route111_OldLadysRestStop",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route112_CableCarStation",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MtChimney_CableCarStation",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route114_FossilManiacsHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route114_FossilManiacsTunnel",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route114_LanettesHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route116_TunnelersRestHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route117_PokemonDayCare",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route121_SafariZoneEntrance",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MeteorFalls_1F_1R",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MeteorFalls_1F_2R",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MeteorFalls_B1F_1R",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MeteorFalls_B1F_2R",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RusturfTunnel",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Underwater_SootopolisCity",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "DesertRuins",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "GraniteCave_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "GraniteCave_B1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "GraniteCave_B2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "GraniteCave_StevensRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PetalburgWoods",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MtChimney",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "JaggedPass",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FieryPath",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MtPyre_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MtPyre_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MtPyre_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MtPyre_4F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MtPyre_5F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MtPyre_6F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MtPyre_Exterior",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MtPyre_Summit",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AquaHideout_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AquaHideout_B1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AquaHideout_B2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Underwater_SeafloorCavern",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SeafloorCavern_Entrance",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SeafloorCavern_Room1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SeafloorCavern_Room2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SeafloorCavern_Room3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SeafloorCavern_Room4",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SeafloorCavern_Room5",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SeafloorCavern_Room6",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SeafloorCavern_Room7",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SeafloorCavern_Room8",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SeafloorCavern_Room9",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "CaveOfOrigin_Entrance",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "CaveOfOrigin_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "CaveOfOrigin_UnusedRubySapphireMap1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "CaveOfOrigin_UnusedRubySapphireMap2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "CaveOfOrigin_UnusedRubySapphireMap3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "CaveOfOrigin_B1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "VictoryRoad_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "VictoryRoad_B1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "VictoryRoad_B2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ShoalCave_LowTideEntranceRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ShoalCave_LowTideInnerRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ShoalCave_LowTideStairsRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ShoalCave_LowTideLowerRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ShoalCave_HighTideEntranceRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ShoalCave_HighTideInnerRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NewMauville_Entrance",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NewMauville_Inside",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AbandonedShip_Deck",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AbandonedShip_Corridors_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AbandonedShip_Rooms_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AbandonedShip_Corridors_B1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AbandonedShip_Rooms_B1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AbandonedShip_Rooms2_B1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AbandonedShip_Underwater1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AbandonedShip_Room_B1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AbandonedShip_Rooms2_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AbandonedShip_CaptainsOffice",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AbandonedShip_Underwater2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AbandonedShip_HiddenFloorCorridors",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AbandonedShip_HiddenFloorRooms",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "IslandCave",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AncientTomb",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Underwater_Route134",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Underwater_SealedChamber",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SealedChamber_OuterRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SealedChamber_InnerRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ScorchedSlab",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AquaHideout_UnusedRubyMap1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AquaHideout_UnusedRubyMap2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AquaHideout_UnusedRubyMap3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SkyPillar_Entrance",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SkyPillar_Outside",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SkyPillar_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SkyPillar_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SkyPillar_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SkyPillar_4F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ShoalCave_LowTideIceRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SkyPillar_5F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SkyPillar_Top",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MagmaHideout_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MagmaHideout_2F_1R",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MagmaHideout_2F_2R",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MagmaHideout_3F_1R",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MagmaHideout_3F_2R",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MagmaHideout_4F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MagmaHideout_3F_3R",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MagmaHideout_2F_3R",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MirageTower_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MirageTower_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MirageTower_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MirageTower_4F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "DesertUnderpass",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ArtisanCave_B1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ArtisanCave_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Underwater_MarineCave",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MarineCave_Entrance",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MarineCave_End",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "TerraCave_Entrance",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "TerraCave_End",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AlteringCave",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MeteorFalls_StevensCave",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ShoalCave_LowTideIceRoom_Suicune",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NewMauville_Inside_Raikou",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MagmaHideout_3F_1R_Entei",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ShoalCave_LowTideIceRoom_Modern",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NewMauville_Inside_Modern",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MagmaHideout_3F_1R_Modern",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "PetalburgWoods_Old",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "CeruleanCave1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "CeruleanCave2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "CeruleanCave3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "AlteringCave_Mewtwo",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "VictoryRoad_Moltres",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "VictoryRoad_Moltres2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "VictoryRoad_B2F_Modern",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MeteorFalls_B1F_2R_Modern",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "MeteorFalls_Articuno",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ScorchedSlab_Zapdos",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ScorchedSlab_Modern",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_RedCave1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_BrownCave1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_BlueCave1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_YellowCave1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_Tree1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_Shrub1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_RedCave2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_BrownCave2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_BlueCave2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_YellowCave2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_Tree2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_Shrub2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_RedCave3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_BrownCave3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_BlueCave3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_YellowCave3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_Tree3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_Shrub3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_RedCave4",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_BrownCave4",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_BlueCave4",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_YellowCave4",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_Tree4",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SecretBase_Shrub4",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleColosseum_2P",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "TradeCenter",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "RecordCorner",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleColosseum_4P",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ContestHall",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "UnusedContestHall1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "UnusedContestHall2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "UnusedContestHall3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "UnusedContestHall4",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "UnusedContestHall5",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "UnusedContestHall6",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ContestHallBeauty",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ContestHallTough",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ContestHallCool",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ContestHallSmart",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "ContestHallCute",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "InsideOfTruck",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SSTidalCorridor",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SSTidalLowerDeck",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SSTidalRooms",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattlePyramidSquare01",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattlePyramidSquare02",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattlePyramidSquare03",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattlePyramidSquare04",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattlePyramidSquare05",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattlePyramidSquare06",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattlePyramidSquare07",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattlePyramidSquare08",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattlePyramidSquare09",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattlePyramidSquare10",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattlePyramidSquare11",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattlePyramidSquare12",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattlePyramidSquare13",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattlePyramidSquare14",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattlePyramidSquare15",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattlePyramidSquare16",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "UnionRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SafariZone_Northwest",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SafariZone_North",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SafariZone_Southwest",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SafariZone_South",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_OutsideWest",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattleTowerLobby",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattleTowerElevator",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattleTowerCorridor",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattleTowerBattleRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SouthernIsland_Exterior",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SouthernIsland_Interior",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SafariZone_RestHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SafariZone_Northeast",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "SafariZone_Southeast",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_OutsideEast",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattleTowerMultiPartnerRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattleTowerMultiCorridor",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattleTowerMultiBattleRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattleDomeLobby",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattleDomeCorridor",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattleDomePreBattleRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattleDomeBattleRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattlePalaceLobby",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattlePalaceCorridor",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattlePalaceBattleRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattlePyramidLobby",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattlePyramidFloor",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattlePyramidTop",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattleArenaLobby",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattleArenaCorridor",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattleArenaBattleRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattleFactoryLobby",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattleFactoryPreBattleRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattleFactoryBattleRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattlePikeLobby",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattlePikeCorridor",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattlePikeThreePathRoom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattlePikeRoomNormal",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattlePikeRoomFinal",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_BattlePikeRoomWildMons",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_RankingHall",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_Lounge1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_ExchangeServiceCorner",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_Lounge2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_Lounge3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_Lounge4",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_ScottsHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_Lounge5",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_Lounge6",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_Lounge7",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_ReceptionGate",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_Lounge8",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_Lounge9",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_PokemonCenter_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_PokemonCenter_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_Mart",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FarawayIsland_Entrance",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "FarawayIsland_Interior",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BirthIsland_Exterior",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BirthIsland_Harbor",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "TrainerHill_Entrance",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "TrainerHill_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "TrainerHill_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "TrainerHill_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "TrainerHill_4F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "TrainerHill_Roof",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Exterior",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Harbor",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Entrance",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_B1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Fork",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Up1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Up2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Up3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Up4",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Top",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Down01",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Down02",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Down03",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Down04",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Down05",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Down06",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Down07",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Down08",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Down09",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Down10",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Down11",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Bottom",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "TrainerHill_Elevator",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "BattleFrontier_PokemonCenter_3F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Fork_Open",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_UnownChamber",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Unown_Room_1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "NavelRock_Unown_Room_2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route104_Prototype",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route104_PrototypePrettyPetalFlowerShop",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route109_SeashoreHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route110_TrickHouseEntrance",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route110_TrickHouseEnd",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route110_TrickHouseCorridor",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route110_TrickHousePuzzle1",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route110_TrickHousePuzzle2",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route110_TrickHousePuzzle3",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route110_TrickHousePuzzle4",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route110_TrickHousePuzzle5",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route110_TrickHousePuzzle6",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route110_TrickHousePuzzle7",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route110_TrickHousePuzzle8",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route110_SeasideCyclingRoadNorthEntrance",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route110_SeasideCyclingRoadSouthEntrance",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route113_GlassWorkshop",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route123_BerryMastersHouse",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route119_WeatherInstitute_1F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route119_WeatherInstitute_2F",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route119_House",
+        "reason": "Map reorganization unsupported"
+      },
+      {
+        "name": "Route124_DivingTreasureHuntersHouse",
+        "reason": "Map reorganization unsupported"
+      }
+    ],
+    "new_species": [
+      {
+        "name": "SPECIES_UNUSED_SPACE7",
+        "reason": "Species does not exist in vanilla"
+      }
+    ],
+    "trainers": [
+      {
+        "name": "TRAINER_SAWYER_1",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_MARC",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_JOEY",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_ALBERT",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_SAMUEL",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_WARREN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_OWEN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_JACK",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_ALAN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_TOMMY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_DUDLEY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_BILLY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_CHAD",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_NATE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_BRYAN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_JOSE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_PERRY",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_BRIDGET",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_ALICE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_CONNIE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_LINDA",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_LAURA",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_SHANNON",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_MICHELLE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_DANA",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_AARON",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_PAUL",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_BLAKE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_KEVIN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_ALLEN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_GWEN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_IRENE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_BETH",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_CAROL",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_VICTORIA",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, aiFlags"
+      },
+      {
+        "name": "TRAINER_SAMANTHA",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_JULIE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_JACLYN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_BRENDA",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_CAROLINE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_ANGELICA",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_OLIVIA",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_LARRY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_ANDREW",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_SHANE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_BEN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_BRENT",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_DONALD",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_PRESTON",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_EDWARD",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_VIRGIL",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_CLARISSA",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_SHIRLEY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_ED",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_WADE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_BENNY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_JOSH",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_DOUG",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_WAYNE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_JUSTIN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_HENRY",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_EDGAR",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_JONAH",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_SIMON",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_RANDALL",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_CHARLIE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_GEORGE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_BERKE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_KIRK",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_JEROME",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_TUCKER",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, aiFlags"
+      },
+      {
+        "name": "TRAINER_RICK",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_PARKER",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_PAULA",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_KAYLEE",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_SUSIE",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_DENISE",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_KARA",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_WENDY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_MARY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_KATIE",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_TARA",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_JODY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_NIKKI",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_HUEY",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_KENT",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_JEFF",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_STAN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_ERIC",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_PAT",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_SHAWN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_HUGH",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_VINCENT",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_ANTHONY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_PHILLIP",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_LEONARD",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_NOLAND",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, aiFlags"
+      },
+      {
+        "name": "TRAINER_SIDNEY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_DWAYNE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_RILEY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, aiFlags"
+      },
+      {
+        "name": "TRAINER_DUNCAN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_EDDIE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_NED",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_LYLE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_KIYO",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_LUNG",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, aiFlags"
+      },
+      {
+        "name": "TRAINER_FRANKLIN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_HERMAN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_GREG",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_MARK",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_PHIL",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_RICHARD",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_GILBERT",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_JARED",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_RODNEY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_HOPE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_SHARON",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_DEBRA",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_HEIDI",
+        "reason": "Modified unsupported fields: encounterMusic_gender, trainerName"
+      },
+      {
+        "name": "TRAINER_TIFFANY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_TANYA",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_ROLAND",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_IVAN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_BARRY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_DEAN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_DALE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_TED",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_THOMAS",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_LEROY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_DAVID",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_SPENCER",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_EDMOND",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_MARTHA",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_GRACE",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_BETHANY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_RONALD",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_DOUGLAS",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_WILLIAM",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_DEREK",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_JOSHUA",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_CARTER",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_BRANDON",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, aiFlags"
+      },
+      {
+        "name": "TRAINER_COLIN",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_ALEX",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_BEVERLY",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_GEORGIA",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName"
+      },
+      {
+        "name": "TRAINER_KAREN_1",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_KAREN_2",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic, trainerName, items, aiFlags"
+      }
+    ],
+    "new_trainers": [
+      {
+        "name": "TRAINER_ROSS",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MITCH",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JED",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RICH",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MIKEY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GORDON",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_IAN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JIMMY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JASON",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KIPP",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JOHNNY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_DANNY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JOE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RICKY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ROD",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ABE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_THEO",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_TOBY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_DENIS",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_VANCE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_HANK",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ROY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BORIS",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BOB",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_PETER",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BRET",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CARRIE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KRISE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ELLEN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_NICK",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CODY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MIKE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GAVEN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RYAN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JAKE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BRIAN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ERICK",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ANDY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_TYLER",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_SEAN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_STEVE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_DARIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_LOIS",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_FRAN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_LOLA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KATE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KELLY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JOYCE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_REENA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MEGAN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_QUINN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_EMMA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CYBIL",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JENN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CARA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CASSIE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CARLENE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JESSICA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RACHAEL",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KENDRA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_VERONICA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JULIA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_THERESA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_VALERIE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CALVIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RON",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ETHAN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ISSAC",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ZACH",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MILLER",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_3",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_4",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_5",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_6",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_7",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_8",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_9",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_10",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_11",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_12",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_13",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_14",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_15",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_16",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_17",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_18",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_19",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_20",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_21",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_22",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_23",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_24",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_25",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_26",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_27",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_28",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_29",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_30",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_31",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_32",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRUNT_33",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ETO",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ETO_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ETO_3",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GREGORY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ALFRED",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ROXANNE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_COLETTE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_HILLARY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_DON",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ROB",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_AL",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ARNIE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KEN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RALPH",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ARNOLD",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KYLE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MARVIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_TULLY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ANDRE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RAYMOND",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_WILTON",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MARTIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_STEPHEN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BARNEY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_SCOTT",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_HAROLD",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MATHEW",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_HAL",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_PATON",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_DARYL",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_WALTER",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_TONY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CAMERON",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_SETH",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JAMES",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_LEWIS",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ELAINE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_LISA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JILL",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_DAWN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_NICOLE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_LORI",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_DIANA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BRIANA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_EUGENE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_TERRELL",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ERNEST",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GARRETT",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KENNETH",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_STANLY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_HARRY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GREGG",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JAY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_DAVE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_SAM",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_TOM",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_TERU",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RUSS",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_NORTON",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MARKUS",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CLYDE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RUSSELL",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BENJAMIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ERIK",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MICHAEL",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_PARRY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_TIMOTHY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BAILEY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_TIM",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KENNY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JIM",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_DEVIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_DANIEL",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KAZU",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_HARRIS",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ZEKE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CHARLES",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JOEL",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GLENN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RICHARDO",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_NARD",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_COREY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_OTIS",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_DICK",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BURT",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BILL",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_WALT",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RAY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_IRWIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_FRITZ",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_HORTON",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KENJI",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_YOSHI",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_LAO",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_NOB",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_WAI",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_NATHAN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_FIDEL",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_NORMAN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_LIZ",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GINA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BROOKE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KIM",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CINDY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ERIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_EDNA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_TODD",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ELLIOT",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_LLOYD",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_SID",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_HARVEY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JOHN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JERRY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRANT",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_QUENTIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CHOW",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_NICO",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_TROY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JEFFREY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_PING",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_NEAL",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_LI",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GAKU",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MASA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KOJI",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MARGRET",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ETHEL",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_REBECCA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_DORIS",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BRAD",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ROBERT",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_TREVOR",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JEREMY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_REX",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ALLAN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_NAOKO",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_SAYO",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ZUKI",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KUNI",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MIKI",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_AMY_AND_MAY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ANN_AND_ANNE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JO_AND_ZOE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MEG_AND_PEG",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_LEA_AND_PIA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RUTH",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JAMIE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KEITH",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_DIRK",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_THOM_AND_KAE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_DUFF_AND_EDA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_FALKNER_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_FALKNER_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BUGSY_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BUGSY_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_WHITNEY_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_WHITNEY_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MORTY_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MORTY_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_PRYCE_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_PRYCE_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_PRYCE_1_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_PRYCE_1_3",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JASMINE_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JASMINE_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JASMINE_1_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JASMINE_1_3",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CHUCK_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CHUCK_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CHUCK_1_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CHUCK_1_3",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CLAIR_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CLAIR_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BROCK",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MISTY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_LTSURGE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ERIKA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_SABRINA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_JANINE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BLAINE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BLUE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BLUE_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_WILL_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_WILL_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BRUNO_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BRUNO_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KOGA_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KOGA_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_LANCE_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_LANCE_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_CHIKORITA_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_CHIKORITA_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_CHIKORITA_3",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_CHIKORITA_4",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_CHIKORITA_5",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_CHIKORITA_6",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_CHIKORITA_7",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_CYNDAQUIL_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_CYNDAQUIL_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_CYNDAQUIL_3",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_CYNDAQUIL_4",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_CYNDAQUIL_5",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_CYNDAQUIL_6",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_CYNDAQUIL_7",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_TOTODILE_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_TOTODILE_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_TOTODILE_3",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_TOTODILE_4",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_TOTODILE_5",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_TOTODILE_6",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RIVAL_TOTODILE_7",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_RED_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_EUSINE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GIOVANNI",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_PROTON_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_PROTON_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ARCHER",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ARCHER_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ARCHER_4",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ARCHER_5",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_PETREL_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_PETREL_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ARIANA_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ARIANA_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ANABEL_BF_BRAIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_TUCKER_BF_BRAIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_SPENSER_BF_BRAIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GRETA_BF_BRAIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_NOLAND_BF_BRAIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_LUCY_BF_BRAIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BRANDON_BF_BRAIN",
+        "reason": "New trainer IDs not supported by runtime"
+      }
+    ],
+    "items": [
+      {
+        "name": "ITEM_MASTER_BALL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ULTRA_BALL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_GREAT_BALL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_POKE_BALL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SAFARI_BALL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_NET_BALL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_DIVE_BALL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_NEST_BALL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_REPEAT_BALL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_TIMER_BALL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_LUXURY_BALL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_PREMIER_BALL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_POTION",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ANTIDOTE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BURN_HEAL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ICE_HEAL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_AWAKENING",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_PARALYZE_HEAL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_FULL_RESTORE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MAX_POTION",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_HYPER_POTION",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SUPER_POTION",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_FULL_HEAL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_REVIVE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MAX_REVIVE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_FRESH_WATER",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SODA_POP",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_LEMONADE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MOOMOO_MILK",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ENERGY_POWDER",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ENERGY_ROOT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_HEAL_POWDER",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_REVIVAL_HERB",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ETHER",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MAX_ETHER",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ELIXIR",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MAX_ELIXIR",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_LAVA_COOKIE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BLUE_FLUTE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_YELLOW_FLUTE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_RED_FLUTE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BLACK_FLUTE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_WHITE_FLUTE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BERRY_JUICE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SACRED_ASH",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SHOAL_SALT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SHOAL_SHELL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_RED_SHARD",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BLUE_SHARD",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_YELLOW_SHARD",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_GREEN_SHARD",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_FERTILIZER",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_HP_UP",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_PROTEIN",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_IRON",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_CARBOS",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_CALCIUM",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_RARE_CANDY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_PP_UP",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ZINC",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_PP_MAX",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_GUARD_SPEC",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_DIRE_HIT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_X_ATTACK",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_X_DEFEND",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_X_SPEED",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_X_ACCURACY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_X_SPECIAL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_POKE_DOLL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_FLUFFY_TAIL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BIG_NUGGET",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SUPER_REPEL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MAX_REPEL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ESCAPE_ROPE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_REPEL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SUN_STONE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MOON_STONE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_FIRE_STONE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_THUNDER_STONE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_WATER_STONE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_LEAF_STONE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_TINY_MUSHROOM",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BIG_MUSHROOM",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_PEARL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BIG_PEARL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_STARDUST",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_STAR_PIECE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_NUGGET",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_HEART_SCALE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_EXP_SHARE_SMALL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_FAIRY_GEM",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_072",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_073",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_074",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_075",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_076",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_HEALING_HEART",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ORANGE_MAIL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_HARBOR_MAIL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_GLITTER_MAIL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MECH_MAIL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_WOOD_MAIL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_WAVE_MAIL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BEAD_MAIL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SHADOW_MAIL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_TROPIC_MAIL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_DREAM_MAIL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_FAB_MAIL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_RETRO_MAIL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_CHERI_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_CHESTO_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_PECHA_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_RAWST_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ASPEAR_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_LEPPA_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ORAN_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_PERSIM_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_LUM_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SITRUS_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_FIGY_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_WIKI_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MAGO_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_AGUAV_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_IAPAPA_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_RAZZ_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BLUK_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_NANAB_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_WEPEAR_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_PINAP_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_POMEG_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_KELPSY_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_QUALOT_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_HONDEW_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_GREPA_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_TAMATO_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_CORNN_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MAGOST_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_RABUTA_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_NOMEL_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SPELON_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_PAMTRE_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_WATMEL_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_DURIN_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BELUE_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_LIECHI_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_GANLON_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SALAC_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_PETAYA_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_APICOT_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_LANSAT_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_STARF_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ENIGMA_BERRY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_UNUSED_BERRY_1",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BRIGHT_POWDER",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_WHITE_HERB",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MACHO_BRACE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_EXP_SHARE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_QUICK_CLAW",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SOOTHE_BELL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MENTAL_HERB",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_CHOICE_BAND",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_KINGS_ROCK",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SILVER_POWDER",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_AMULET_COIN",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_CLEANSE_TAG",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SOUL_DEW",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_DEEP_SEA_TOOTH",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_DEEP_SEA_SCALE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SMOKE_BALL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_EVERSTONE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_FOCUS_BAND",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_LUCKY_EGG",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SCOPE_LENS",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_METAL_COAT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_LEFTOVERS",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_DRAGON_SCALE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_LIGHT_BALL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SOFT_SAND",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_HARD_STONE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MIRACLE_SEED",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BLACK_GLASSES",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BLACK_BELT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MAGNET",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MYSTIC_WATER",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SHARP_BEAK",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_POISON_BARB",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_NEVER_MELT_ICE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SPELL_TAG",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_TWISTED_SPOON",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_CHARCOAL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_DRAGON_FANG",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SILK_SCARF",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_UP_GRADE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SHELL_BELL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SEA_INCENSE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_LAX_INCENSE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_LUCKY_PUNCH",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_METAL_POWDER",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_THICK_CLUB",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_STICK",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_INFINITE_REPEL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_INFINITE_RARE_CANDIES",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_RED_SCARF",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BLUE_SCARF",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_PINK_SCARF",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_GREEN_SCARF",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_YELLOW_SCARF",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MACH_BIKE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_COIN_CASE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ITEMFINDER",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_OLD_ROD",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_GOOD_ROD",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SUPER_ROD",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SS_TICKET",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_CONTEST_PASS",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_DEVON_GOODS",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SOOT_SACK",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BASEMENT_KEY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ACRO_BIKE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_POKEBLOCK_CASE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_LETTER",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_EON_TICKET",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_RED_ORB",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BLUE_ORB",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SCANNER",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_GO_GOGGLES",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_METEORITE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ROOM_1_KEY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ROOM_2_KEY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ROOM_4_KEY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ROOM_6_KEY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_STORAGE_KEY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ROOT_FOSSIL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_CLAW_FOSSIL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_DEVON_SCOPE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_OAKS_PARCEL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_POKE_FLUTE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SECRET_KEY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BIKE_VOUCHER",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_GOLD_TEETH",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_OLD_AMBER",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_CARD_KEY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_LIFT_KEY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_HELIX_FOSSIL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_DOME_FOSSIL",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SILPH_SCOPE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BICYCLE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_TOWN_MAP",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_VS_SEEKER",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_FAME_CHECKER",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_TM_CASE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BERRY_POUCH",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_TEACHY_TV",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_TRI_PASS",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_RAINBOW_PASS",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_TEA",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MYSTIC_TICKET",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_AURORA_TICKET",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_POWDER_JAR",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_RUBY",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SAPPHIRE",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MAGMA_EMBLEM",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_OLD_SEA_MAP",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_ADAMANT_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BOLD_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_BRAVE_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_CALM_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_CAREFUL_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_GENTLE_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_HASTY_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_IMPISH_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_JOLLY_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_LAX_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_LONELY_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MILD_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_MODEST_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_NAIVE_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_NAUGHTY_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_QUIET_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_RASH_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_RELAXED_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SASSY_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_SERIOUS_MINT",
+        "reason": "Modified unsupported fields: name"
+      },
+      {
+        "name": "ITEM_TIMID_MINT",
+        "reason": "Modified unsupported fields: name"
+      }
+    ],
+    "new_items": [
+      {
+        "name": "ITEM_LOVE_BALL",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_LURE_BALL",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_FRIEND_BALL",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_HEAVY_BALL",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_MOON_BALL",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_LEVEL_BALL",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_FAST_BALL",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_GS_BALL",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_RADIO",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_SQUIRT_BOTTLE",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_HM_WHIRLPOOL",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_CLEAR_BELL",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_LOST_ITEM",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_MACHINE_PART",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_MYSTERY_EGG",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_PASS",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_RAINBOW_WING",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_RED_SCALE",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_SECRET_POTION",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_SILVER_WING",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_RAGE_CANDY_BAR",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      },
+      {
+        "name": "ITEM_TIDAL_BELL",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      }
+    ],
+    "system": [
+      {
+        "name": "gbagfx",
+        "reason": "gbagfx tool not built. Run make tools in project."
+      }
+    ]
+  }
+}

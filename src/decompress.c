@@ -3,6 +3,7 @@
 #include "data.h"
 #include "decompress.h"
 #include "pokemon.h"
+#include "platform/mods/mod_manager.h"
 #include "text.h"
 
 EWRAM_DATA ALIGNED(4) u8 gDecompressionBuffer[0x4000] = {0};
@@ -306,6 +307,15 @@ bool8 LoadCompressedSpritePaletteUsingHeap(const struct CompressedSpritePalette 
 
 void DecompressPicFromTable_2(const struct CompressedSpriteSheet *src, void *buffer, s32 species) // a copy of DecompressPicFromTable
 {
+    // Mod Graphic Override (Trainer Front Pic)
+    if (src >= gTrainerFrontPicTable && src < gTrainerFrontPicTable + 200) {
+        u16 trainerPicId = src - gTrainerFrontPicTable;
+        if (ModManager_GetTrainerFrontPicOverride(trainerPicId, buffer)) {
+            DuplicateDeoxysTiles(buffer, species);
+            return;
+        }
+    }
+
     if (species > NUM_SPECIES)
         LZ77UnCompWram(gMonFrontPicTable[0].data, buffer);
     else

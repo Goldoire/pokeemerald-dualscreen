@@ -1,0 +1,3305 @@
+{
+  "summary": {
+    "maps": {
+      "changed": 28,
+      "imported": 28,
+      "unsupported": 0
+    },
+    "scripts": {
+      "changed": 159,
+      "imported": 159,
+      "unsupported": 0
+    },
+    "species": {
+      "changed": 106,
+      "imported": 106,
+      "unsupported": 0
+    },
+    "trainers": {
+      "changed": 694,
+      "imported": 694,
+      "unsupported": 0
+    },
+    "encounters": {
+      "changed": 87,
+      "imported": 87,
+      "unsupported": 0
+    },
+    "moves": {
+      "changed": 133,
+      "imported": 133,
+      "unsupported": 0
+    },
+    "items": {
+      "changed": 74,
+      "imported": 74,
+      "unsupported": 0
+    }
+  },
+  "unsupported": {
+    "new_maps": [],
+    "resized_maps": [],
+    "custom_code": [
+      {
+        "name": "src/trainer_hill.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/trainer_card.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/birch_pc.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_dome.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/rotating_gate.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/graphics.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/option_menu.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/region_map.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/event_object_movement.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/anim_mon_front_pics.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/start_menu.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokemon_storage_system.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokedex_area_screen.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokeball.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/fldeff_rocksmash.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/field_specials.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/strings.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_factory_screen.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/field_poison.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/gym_leader_rematch.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_pyramid.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_gfx_sfx_util.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/cable_car.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/apprentice.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_interface.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/wild_encounter.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/trade.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/fonts.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/contest_ai.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_controller_player_partner.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/credits.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/reset_rtc_screen.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/save_failed_screen.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/field_player_avatar.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_tv.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/player_pc.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/field_control_avatar.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/menu.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokemon_summary_screen.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/party_menu.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_util.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/daycare.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_setup.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/dodrio_berry_picking.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/union_room.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_bg.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokemon_animation.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_factory.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokemon_icon.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/m4a.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_tent.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/new_game.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/easy_chat.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/item_menu.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/frontier_util.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokenav_ribbons_summary.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/main.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/main_menu.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokedex.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/overworld.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/hall_of_fame.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_tower.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/script_pokemon_util.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/move_relearner.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/egg_hatch.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/item_menu_icons.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/roamer.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_script_commands.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/contest.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/field_tasks.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/roulette.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/use_pokeblock.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/frontier_pass.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/item_use.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/bike.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/union_room_player_avatar.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokedex_plus_hgss.c",
+        "reason": "New engine file"
+      },
+      {
+        "name": "src/evolution_scene.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_ai_switch_items.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/berry_blender.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/berry.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_message.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/match_call.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/fldeff_cut.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/siirtc.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_controller_player.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_anim_sound_tasks.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokemon.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_transition.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_pyramid_bag.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/scrcmd.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_main.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/field_screen_effect.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/pokeblock.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/berry_crush.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/secret_base.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/item.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/wallclock.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/intro.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "src/battle_ai_script_commands.c",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/fldeff.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/field_player_avatar.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/pokemon_summary_screen.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/gym_leader_rematch.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/global.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/battle.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/party_menu.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/battle_setup.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/battle_transition.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/battle_scripts.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/daycare.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/graphics.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/item_use.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/event_scripts.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/data.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/pokemon.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/battle_tower.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/strings.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/item.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/field_control_avatar.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/battle_message.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/contest.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/pokedex_plus_hgss.h",
+        "reason": "New engine file"
+      },
+      {
+        "name": "include/event_object_movement.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/field_specials.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/event_data.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/union_room.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/global.fieldmap.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/reset_rtc_screen.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/pokedex.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/event_objects.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/script_menu.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/species.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/global.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/hold_effects.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/battle.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/party_menu.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/battle_string_ids.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/opponents.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/battle_move_effects.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/items.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/battle_frontier.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/pokemon.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/battle_frontier_mons.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/flags.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/layouts.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/trade.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/event_object_movement.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/field_specials.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/vars.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/songs.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/trainers.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "include/constants/pokedex.h",
+        "reason": "Modified engine file"
+      },
+      {
+        "name": "items.h (ITEM_KINGS_ROCK)",
+        "reason": "CUSTOM ITEM CODE - MANUAL PORT REQUIRED"
+      },
+      {
+        "name": "items.h (ITEM_DEEP_SEA_TOOTH)",
+        "reason": "CUSTOM ITEM CODE - MANUAL PORT REQUIRED"
+      },
+      {
+        "name": "items.h (ITEM_DEEP_SEA_SCALE)",
+        "reason": "CUSTOM ITEM CODE - MANUAL PORT REQUIRED"
+      },
+      {
+        "name": "items.h (ITEM_METAL_COAT)",
+        "reason": "CUSTOM ITEM CODE - MANUAL PORT REQUIRED"
+      },
+      {
+        "name": "items.h (ITEM_DRAGON_SCALE)",
+        "reason": "CUSTOM ITEM CODE - MANUAL PORT REQUIRED"
+      },
+      {
+        "name": "items.h (ITEM_UP_GRADE)",
+        "reason": "CUSTOM ITEM CODE - MANUAL PORT REQUIRED"
+      },
+      {
+        "name": "items.h (ITEM_SOOT_SACK)",
+        "reason": "CUSTOM ITEM CODE - MANUAL PORT REQUIRED"
+      }
+    ],
+    "scripts": [
+      {
+        "name": "PetalburgCity.PetalburgCity_EventScript_Boy",
+        "reason": "Unsupported command: closemessage"
+      },
+      {
+        "name": "MauvilleCity.MauvilleCity_EventScript_SchoolKidM",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MauvilleCity.MauvilleCity_EventScript_Wally",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MauvilleCity.MauvilleCity_EventScript_WallysUncle",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MauvilleCity.MauvilleCity_EventScript_Wattson",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "RustboroCity.RustboroCity_EventScript_FatMan",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "RustboroCity.RustboroCity_EventScript_Boy2",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "RustboroCity.RustboroCity_EventScript_Man1",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "RustboroCity.RustboroCity_EventScript_LittleBoy",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "RustboroCity.RustboroCity_EventScript_LittleGirl",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "RustboroCity.RustboroCity_EventScript_DevonEmployee1",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "RustboroCity.RustboroCity_EventScript_Rival",
+        "reason": "Unsupported command: call_if_unset"
+      },
+      {
+        "name": "LilycoveCity.LilycoveCity_EventScript_Sailor2",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "LilycoveCity.LilycoveCity_EventScript_Girl",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "LilycoveCity.LilycoveCity_EventScript_Woman2",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "LilycoveCity.LilycoveCity_EventScript_ExpertM2",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "LilycoveCity.LilycoveCity_EventScript_WailmerTrainerGrunt",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "LilycoveCity.LilycoveCity_EventScript_BerryGentleman",
+        "reason": "Unsupported command: dotimebasedevents"
+      },
+      {
+        "name": "LilycoveCity.LilycoveCity_EventScript_Rival",
+        "reason": "Unsupported command: checkplayergender"
+      },
+      {
+        "name": "LilycoveCity.LilycoveCity_EventScript_SchoolKidM",
+        "reason": "Unsupported command: call_if_eq"
+      },
+      {
+        "name": "LilycoveCity.LilycoveCity_EventScript_Woman1",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "LilycoveCity.LilycoveCity_EventScript_Man1",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "MossdeepCity.MossdeepCity_EventScript_Sailor",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MossdeepCity.MossdeepCity_EventScript_PokefanF",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MossdeepCity.MossdeepCity_EventScript_Man",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "MossdeepCity.MossdeepCity_EventScript_Woman",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MossdeepCity.MossdeepCity_EventScript_KingsRockBoy",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MossdeepCity.MossdeepCity_EventScript_Scott",
+        "reason": "Unsupported command: closemessage"
+      },
+      {
+        "name": "SootopolisCity.SootopolisCity_EventScript_CaveOfOriginExpert",
+        "reason": "Unsupported command: goto_if_ge"
+      },
+      {
+        "name": "SootopolisCity.SootopolisCity_EventScript_Woman2",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "SootopolisCity.SootopolisCity_EventScript_Kiri",
+        "reason": "Unsupported command: goto_if_le"
+      },
+      {
+        "name": "SootopolisCity.SootopolisCity_EventScript_NinjaBoy",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "SootopolisCity.SootopolisCity_EventScript_Boy1",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "SootopolisCity.SootopolisCity_EventScript_Man",
+        "reason": "Unsupported command: goto_if_ge"
+      },
+      {
+        "name": "SootopolisCity.SootopolisCity_EventScript_Steven",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "SootopolisCity.SootopolisCity_EventScript_Woman1",
+        "reason": "Unsupported command: goto_if_ge"
+      },
+      {
+        "name": "SootopolisCity.SootopolisCity_EventScript_Maniac",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "SootopolisCity.SootopolisCity_EventScript_Girl",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "SootopolisCity.SootopolisCity_EventScript_BlackBelt",
+        "reason": "Unsupported command: goto_if_eq"
+      },
+      {
+        "name": "SootopolisCity.SootopolisCity_EventScript_Boy2",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "SootopolisCity.SootopolisCity_EventScript_Maxie",
+        "reason": "Unsupported command: goto_if_eq"
+      },
+      {
+        "name": "SootopolisCity.SootopolisCity_EventScript_Archie",
+        "reason": "Unsupported command: goto_if_eq"
+      },
+      {
+        "name": "SootopolisCity.SootopolisCity_EventScript_Wallace",
+        "reason": "Unsupported command: goto_if_eq"
+      },
+      {
+        "name": "LavaridgeTown.LavaridgeTown_EventScript_EggWoman",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "PacifidlogTown.PacifidlogTown_EventScript_Fisherman",
+        "reason": "Unsupported command: call"
+      },
+      {
+        "name": "Route104.Route104_EventScript_Haley",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route104.Route104_EventScript_Ivan",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route104.Route104_EventScript_ExpertF",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "Route104.Route104_EventScript_WhiteHerbFlorist",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "Route104.Route104_EventScript_Gina",
+        "reason": "Unsupported command: trainerbattle_double"
+      },
+      {
+        "name": "Route104.Route104_EventScript_Mia",
+        "reason": "Unsupported command: trainerbattle_double"
+      },
+      {
+        "name": "Route104.Route104_EventScript_Winston",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route104.Route104_EventScript_Cindy",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route104.Route104_EventScript_Billy",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route104.Route104_EventScript_Boy2",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "Route104.Route104_EventScript_Darian",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route104.Route104_EventScript_Rival",
+        "reason": "Unsupported command: setvar"
+      },
+      {
+        "name": "Route106.Route106_EventScript_Douglas",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route106.Route106_EventScript_Kyla",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route106.Route106_EventScript_Elliot",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route106.Route106_EventScript_Ned",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route109.Route109_EventScript_MrBriney",
+        "reason": "Unsupported command: goto_if_unset"
+      },
+      {
+        "name": "Route109.Route109_EventScript_David",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route109.Route109_EventScript_Alice",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route109.Route109_EventScript_Huey",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route109.Route109_EventScript_Edmond",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route109.Route109_EventScript_Ricky",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route109.Route109_EventScript_Lola",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route109.Route109_EventScript_Gwen",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route109.Route109_EventScript_Austina",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route109.Route109_EventScript_Carter",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route109.Route109_EventScript_SandCastleBoy",
+        "reason": "Unsupported command: closemessage"
+      },
+      {
+        "name": "Route109.Route109_EventScript_SoftSandGirl",
+        "reason": "Unsupported command: special"
+      },
+      {
+        "name": "Route109.Route109_EventScript_Mel",
+        "reason": "Unsupported command: trainerbattle_double"
+      },
+      {
+        "name": "Route109.Route109_EventScript_Paul",
+        "reason": "Unsupported command: trainerbattle_double"
+      },
+      {
+        "name": "Route109.Route109_EventScript_Zigzagoon",
+        "reason": "Unsupported command: waitse"
+      },
+      {
+        "name": "Route109.Route109_EventScript_Hailey",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route109.Route109_EventScript_Chandler",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route109.Route109_EventScript_Elijah",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route110.Route110_EventScript_Jasmine",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route110.Route110_EventScript_Anthony",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route110.Route110_EventScript_Abigail",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route110.Route110_EventScript_Benjamin",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route110.Route110_EventScript_Edward",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route110.Route110_EventScript_Jaclyn",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route110.Route110_EventScript_Edwin",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route110.Route110_EventScript_Dale",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route110.Route110_EventScript_ChallengeGuy",
+        "reason": "Unsupported command: specialvar"
+      },
+      {
+        "name": "Route110.Route110_EventScript_AquaGrunt1",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "Route110.Route110_EventScript_AquaGrunt2",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "Route110.Route110_EventScript_AquaGrunt3",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "Route110.Route110_EventScript_AquaGrunt4",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "Route110.Route110_EventScript_Jacob",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route110.Route110_EventScript_Timmy",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route110.Route110_EventScript_Isabel",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route110.Route110_EventScript_Kaleb",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route110.Route110_EventScript_Alyssa",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route110.Route110_EventScript_Joseph",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Victor",
+        "reason": "Unsupported command: setflag"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Heidi",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Drew",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Dusty",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Beau",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Becky",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Girl",
+        "reason": "Unsupported command: dotimebasedevents"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Irene",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Travis",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Daisuke",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Brooke",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Wilton",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Tyron",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Celina",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Bianca",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Hayden",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Bryan",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Celia",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Branden",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route111.Route111_EventScript_Hiker",
+        "reason": "Unsupported command: goto_if_eq"
+      },
+      {
+        "name": "Route111.Route111_EventScript_RockSmashTipFatMan",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "Route113.Route113_EventScript_Jaylen",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route113.Route113_EventScript_Dillon",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route113.Route113_EventScript_Madeline",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route113.Route113_EventScript_Lao",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route113.Route113_EventScript_Lung",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route113.Route113_EventScript_Tori",
+        "reason": "Unsupported command: trainerbattle_double"
+      },
+      {
+        "name": "Route113.Route113_EventScript_Tia",
+        "reason": "Unsupported command: trainerbattle_double"
+      },
+      {
+        "name": "Route113.Route113_EventScript_Wyatt",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route113.Route113_EventScript_Lawrence",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route113.Route113_EventScript_Sophie",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route113.Route113_EventScript_Coby",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route116.Route116_EventScript_Joey",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route116.Route116_EventScript_Jose",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route116.Route116_EventScript_Briney",
+        "reason": "Unsupported command: setvar"
+      },
+      {
+        "name": "Route116.Route116_EventScript_Clark",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route116.Route116_EventScript_Janice",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route116.Route116_EventScript_Karen",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route116.Route116_EventScript_Jerry",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route116.Route116_EventScript_DevonEmployee",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "Route116.Route116_EventScript_WandasBoyfriend",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "Route116.Route116_EventScript_GlassesMan",
+        "reason": "Unsupported command: checkitem"
+      },
+      {
+        "name": "Route116.Route116_EventScript_Sarah",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route116.Route116_EventScript_Dawson",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route116.Route116_EventScript_Johnson",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route116.Route116_EventScript_Devan",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119.Route119_EventScript_Greg",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119.Route119_EventScript_Taylor",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119.Route119_EventScript_Donald",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119.Route119_EventScript_Jackson",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119.Route119_EventScript_Brent",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119.Route119_EventScript_Catherine",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119.Route119_EventScript_Doug",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119.Route119_EventScript_Kent",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119.Route119_EventScript_Yasu",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119.Route119_EventScript_Takashi",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119.Route119_EventScript_Hugh",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119.Route119_EventScript_Phil",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119.Route119_EventScript_BridgeAquaGrunt1",
+        "reason": "Unsupported command: closemessage"
+      },
+      {
+        "name": "Route119.Route119_EventScript_BridgeAquaGrunt2",
+        "reason": "Unsupported command: closemessage"
+      },
+      {
+        "name": "Route119.Route119_EventScript_Hideo",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119.Route119_EventScript_Chris",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119.Route119_EventScript_Rachel",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119.Route119_EventScript_Dayton",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119.Route119_EventScript_Fabian",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route120.Route120_EventScript_BerryBeauty",
+        "reason": "Unsupported command: dotimebasedevents"
+      },
+      {
+        "name": "Route128.Route128_EventScript_Isaiah",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route128.Route128_EventScript_Katelyn",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route128.Route128_EventScript_Wayne",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route128.Route128_EventScript_Ruben",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route128.Route128_EventScript_Alexa",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route128.Route128_EventScript_Carlee",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route128.Route128_EventScript_Harrison",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "LittlerootTown_ProfessorBirchsLab.LittlerootTown_ProfessorBirchsLab_EventScript_Aide",
+        "reason": "Unsupported command: goto_if_ge"
+      },
+      {
+        "name": "LittlerootTown_ProfessorBirchsLab.LittlerootTown_ProfessorBirchsLab_EventScript_Birch",
+        "reason": "Unsupported command: goto_if_eq"
+      },
+      {
+        "name": "LittlerootTown_ProfessorBirchsLab.LittlerootTown_ProfessorBirchsLab_EventScript_Rival",
+        "reason": "Unsupported command: call_if_set"
+      },
+      {
+        "name": "LittlerootTown_ProfessorBirchsLab.LittlerootTown_ProfessorBirchsLab_EventScript_Cyndaquil",
+        "reason": "Unsupported command: goto_if_ge"
+      },
+      {
+        "name": "LittlerootTown_ProfessorBirchsLab.LittlerootTown_ProfessorBirchsLab_EventScript_Totodile",
+        "reason": "Unsupported command: goto_if_ge"
+      },
+      {
+        "name": "LittlerootTown_ProfessorBirchsLab.LittlerootTown_ProfessorBirchsLab_EventScript_Chikorita",
+        "reason": "Unsupported command: goto_if_ge"
+      },
+      {
+        "name": "OldaleTown_Mart.OldaleTown_Mart_EventScript_Clerk",
+        "reason": "Unsupported command: call_if_unset"
+      },
+      {
+        "name": "DewfordTown_Gym.DewfordTown_Gym_EventScript_Brawly",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "DewfordTown_Gym.DewfordTown_Gym_EventScript_Takao",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "DewfordTown_Gym.DewfordTown_Gym_EventScript_Jocelyn",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "DewfordTown_Gym.DewfordTown_Gym_EventScript_Laura",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "DewfordTown_Gym.DewfordTown_Gym_EventScript_GymGuide",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "DewfordTown_Gym.DewfordTown_Gym_EventScript_Cristian",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "DewfordTown_Gym.DewfordTown_Gym_EventScript_Lilith",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "DewfordTown_Gym.DewfordTown_Gym_EventScript_Brendan",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "LavaridgeTown_Gym_1F.LavaridgeTown_Gym_1F_EventScript_Flannery",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "LavaridgeTown_Gym_1F.LavaridgeTown_Gym_1F_EventScript_Cole",
+        "reason": "Unsupported command: trainerbattle"
+      },
+      {
+        "name": "LavaridgeTown_Gym_1F.LavaridgeTown_Gym_1F_EventScript_Gerald",
+        "reason": "Unsupported command: trainerbattle"
+      },
+      {
+        "name": "LavaridgeTown_Gym_1F.LavaridgeTown_Gym_1F_EventScript_Axle",
+        "reason": "Unsupported command: trainerbattle"
+      },
+      {
+        "name": "LavaridgeTown_Gym_1F.LavaridgeTown_Gym_1F_EventScript_Danielle",
+        "reason": "Unsupported command: trainerbattle"
+      },
+      {
+        "name": "LavaridgeTown_Gym_1F.LavaridgeTown_Gym_1F_EventScript_GymGuide",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "LavaridgeTown_Mart.LavaridgeTown_Mart_EventScript_Clerk",
+        "reason": "Unsupported command: call_if_unset"
+      },
+      {
+        "name": "LavaridgeTown_PokemonCenter_1F.LavaridgeTown_PokemonCenter_1F_EventScript_Nurse",
+        "reason": "Unsupported command: setvar"
+      },
+      {
+        "name": "FallarborTown_Mart.FallarborTown_Mart_EventScript_Clerk",
+        "reason": "Unsupported command: call_if_unset"
+      },
+      {
+        "name": "FallarborTown_CozmosHouse.FallarborTown_CozmosHouse_EventScript_ProfCozmo",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "FallarborTown_CozmosHouse.FallarborTown_CozmosHouse_EventScript_CozmosWife",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "FallarborTown_MoveRelearnersHouse.FallarborTown_MoveRelearnersHouse_EventScript_MoveRelearner",
+        "reason": "Unsupported command: clearflag"
+      },
+      {
+        "name": "VerdanturfTown_Mart.VerdanturfTown_Mart_EventScript_Clerk",
+        "reason": "Unsupported command: call_if_unset"
+      },
+      {
+        "name": "PacifidlogTown_House3.PacifidlogTown_House3_EventScript_Trader",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "PacifidlogTown_House5.PacifidlogTown_House5_EventScript_MirageIslandWatcher",
+        "reason": "Unsupported command: specialvar"
+      },
+      {
+        "name": "PetalburgCity_Gym.PetalburgCity_Gym_EventScript_Norman",
+        "reason": "Unsupported command: switch"
+      },
+      {
+        "name": "PetalburgCity_Gym.PetalburgCity_Gym_EventScript_Mary",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "PetalburgCity_Gym.PetalburgCity_Gym_EventScript_Randall",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "PetalburgCity_Gym.PetalburgCity_Gym_EventScript_Parker",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "PetalburgCity_Gym.PetalburgCity_Gym_EventScript_Alexia",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "PetalburgCity_Gym.PetalburgCity_Gym_EventScript_George",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "PetalburgCity_Gym.PetalburgCity_Gym_EventScript_Jody",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "PetalburgCity_Gym.PetalburgCity_Gym_EventScript_Berke",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "PetalburgCity_Gym.PetalburgCity_Gym_EventScript_GymGuide",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "PetalburgCity_Mart.PetalburgCity_Mart_EventScript_Clerk",
+        "reason": "Unsupported command: call_if_unset"
+      },
+      {
+        "name": "SlateportCity_Harbor.SlateportCity_Harbor_EventScript_FerryAttendant",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "SlateportCity_Harbor.SlateportCity_Harbor_EventScript_Sailor",
+        "reason": "Unsupported command: goto_if_unset"
+      },
+      {
+        "name": "SlateportCity_Harbor.SlateportCity_Harbor_EventScript_CaptStern",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "SlateportCity_Mart.SlateportCity_Mart_EventScript_Clerk",
+        "reason": "Unsupported command: call_if_unset"
+      },
+      {
+        "name": "MauvilleCity_Gym.MauvilleCity_Gym_EventScript_Wattson",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MauvilleCity_Gym.MauvilleCity_Gym_EventScript_Shawn",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MauvilleCity_Gym.MauvilleCity_Gym_EventScript_Vivian",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MauvilleCity_Gym.MauvilleCity_Gym_EventScript_Ben",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MauvilleCity_Gym.MauvilleCity_Gym_EventScript_Kirk",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MauvilleCity_Gym.MauvilleCity_Gym_EventScript_GymGuide",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MauvilleCity_Gym.MauvilleCity_Gym_EventScript_Angelo",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MauvilleCity_BikeShop.MauvilleCity_BikeShop_EventScript_Rydel",
+        "reason": "Unsupported command: goto_if_unset"
+      },
+      {
+        "name": "MauvilleCity_GameCorner.MauvilleCity_GameCorner_EventScript_CoinsClerk",
+        "reason": "Unsupported command: checkitem"
+      },
+      {
+        "name": "MauvilleCity_GameCorner.MauvilleCity_GameCorner_EventScript_PrizeCornerDolls",
+        "reason": "Unsupported command: checkitem"
+      },
+      {
+        "name": "MauvilleCity_GameCorner.MauvilleCity_GameCorner_EventScript_Girl",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MauvilleCity_GameCorner.MauvilleCity_GameCorner_EventScript_PokefanM",
+        "reason": "Unsupported command: checkitem"
+      },
+      {
+        "name": "MauvilleCity_GameCorner.MauvilleCity_GameCorner_EventScript_OldMan",
+        "reason": "Unsupported command: goto"
+      },
+      {
+        "name": "MauvilleCity_GameCorner.MauvilleCity_GameCorner_EventScript_Cook",
+        "reason": "Unsupported command: goto"
+      },
+      {
+        "name": "MauvilleCity_GameCorner.MauvilleCity_GameCorner_EventScript_PrizeCornerTMs",
+        "reason": "Unsupported command: checkitem"
+      },
+      {
+        "name": "MauvilleCity_GameCorner.MauvilleCity_GameCorner_EventScript_Man",
+        "reason": "Unsupported command: goto"
+      },
+      {
+        "name": "MauvilleCity_GameCorner.MauvilleCity_GameCorner_EventScript_Maniac",
+        "reason": "Unsupported command: goto"
+      },
+      {
+        "name": "MauvilleCity_GameCorner.MauvilleCity_GameCorner_EventScript_Woman",
+        "reason": "Unsupported command: goto"
+      },
+      {
+        "name": "MauvilleCity_PokemonCenter_1F.MauvilleCity_PokemonCenter_1F_EventScript_Nurse",
+        "reason": "Unsupported command: setvar"
+      },
+      {
+        "name": "MauvilleCity_PokemonCenter_1F.MauvilleCity_PokemonCenter_1F_EventScript_Woman1",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MauvilleCity_Mart.MauvilleCity_Mart_EventScript_Clerk",
+        "reason": "Unsupported command: call_if_unset"
+      },
+      {
+        "name": "RustboroCity_DevonCorp_2F.RustboroCity_DevonCorp_2F_EventScript_TalkToPokemonScientist",
+        "reason": "Unsupported command: call_if_eq"
+      },
+      {
+        "name": "RustboroCity_DevonCorp_2F.RustboroCity_DevonCorp_2F_EventScript_BallScientist",
+        "reason": "Unsupported command: call_if_eq"
+      },
+      {
+        "name": "RustboroCity_DevonCorp_2F.RustboroCity_DevonCorp_2F_EventScript_PokenavScientist",
+        "reason": "Unsupported command: call_if_eq"
+      },
+      {
+        "name": "RustboroCity_DevonCorp_2F.RustboroCity_DevonCorp_2F_EventScript_PokemonDreamsScientist",
+        "reason": "Unsupported command: call_if_eq"
+      },
+      {
+        "name": "RustboroCity_DevonCorp_2F.RustboroCity_DevonCorp_2F_EventScript_FossilScientist",
+        "reason": "Unsupported command: goto_if_eq"
+      },
+      {
+        "name": "RustboroCity_DevonCorp_2F.RustboroCity_DevonCorp_2F_EventScript_MatchCallScientist",
+        "reason": "Unsupported command: call_if_eq"
+      },
+      {
+        "name": "RustboroCity_Gym.RustboroCity_Gym_EventScript_Roxanne",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "RustboroCity_Gym.RustboroCity_Gym_EventScript_Josh",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "RustboroCity_Gym.RustboroCity_Gym_EventScript_Tommy",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "RustboroCity_Gym.RustboroCity_Gym_EventScript_GymGuide",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "RustboroCity_Gym.RustboroCity_Gym_EventScript_Marc",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "RustboroCity_PokemonSchool.RustboroCity_PokemonSchool_EventScript_Teacher",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "RustboroCity_PokemonSchool.RustboroCity_PokemonSchool_EventScript_Scott",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "RustboroCity_Mart.RustboroCity_Mart_EventScript_Clerk",
+        "reason": "Unsupported command: call_if_unset"
+      },
+      {
+        "name": "RustboroCity_House1.RustboroCity_House1_EventScript_Trader",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "RustboroCity_CuttersHouse.RustboroCity_CuttersHouse_EventScript_Cutter",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "FortreeCity_House1.FortreeCity_House1_EventScript_Trader",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "FortreeCity_House1.FortreeCity_House1_EventScript_Zigzagoon",
+        "reason": "Unsupported command: waitse"
+      },
+      {
+        "name": "FortreeCity_Gym.FortreeCity_Gym_EventScript_Winona",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "FortreeCity_Gym.FortreeCity_Gym_EventScript_Jared",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "FortreeCity_Gym.FortreeCity_Gym_EventScript_Flint",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "FortreeCity_Gym.FortreeCity_Gym_EventScript_Ashley",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "FortreeCity_Gym.FortreeCity_Gym_EventScript_Edwardo",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "FortreeCity_Gym.FortreeCity_Gym_EventScript_GymGuide",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "FortreeCity_Gym.FortreeCity_Gym_EventScript_Humberto",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "FortreeCity_Gym.FortreeCity_Gym_EventScript_Darius",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "FortreeCity_Mart.FortreeCity_Mart_EventScript_Clerk",
+        "reason": "Unsupported command: call_if_unset"
+      },
+      {
+        "name": "LilycoveCity_LilycoveMuseum_2F.LilycoveCity_LilycoveMuseum_2F_EventScript_Curator",
+        "reason": "Unsupported command: goto_if_unset"
+      },
+      {
+        "name": "LilycoveCity_ContestLobby.LilycoveCity_ContestLobby_EventScript_ContestReceptionist",
+        "reason": "Unsupported command: special"
+      },
+      {
+        "name": "LilycoveCity_ContestLobby.LilycoveCity_ContestLobby_EventScript_LinkContestReceptionist",
+        "reason": "Unsupported command: special"
+      },
+      {
+        "name": "LilycoveCity_ContestLobby.LilycoveCity_ContestLobby_EventScript_BlendMasterOnlooker4",
+        "reason": "Unsupported command: goto"
+      },
+      {
+        "name": "LilycoveCity_ContestLobby.LilycoveCity_ContestLobby_EventScript_BlendMasterOnlooker5",
+        "reason": "Unsupported command: goto"
+      },
+      {
+        "name": "LilycoveCity_ContestLobby.LilycoveCity_ContestLobby_EventScript_BlendMasterOnlooker6",
+        "reason": "Unsupported command: goto"
+      },
+      {
+        "name": "LilycoveCity_ContestLobby.LilycoveCity_ContestLobby_EventScript_BlendMaster",
+        "reason": "Unsupported command: goto"
+      },
+      {
+        "name": "LilycoveCity_ContestLobby.LilycoveCity_ContestLobby_EventScript_LittleGirl",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "LilycoveCity_DepartmentStoreRooftop.LilycoveCity_DepartmentStoreRooftop_EventScript_Man",
+        "reason": "Unsupported command: getpokenewsactive"
+      },
+      {
+        "name": "MossdeepCity_Gym.MossdeepCity_Gym_EventScript_TateAndLiza",
+        "reason": "Unsupported command: trainerbattle_double"
+      },
+      {
+        "name": "MossdeepCity_Gym.MossdeepCity_Gym_EventScript_Preston",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MossdeepCity_Gym.MossdeepCity_Gym_EventScript_Blake",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MossdeepCity_Gym.MossdeepCity_Gym_EventScript_Maura",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MossdeepCity_Gym.MossdeepCity_Gym_EventScript_Samantha",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MossdeepCity_Gym.MossdeepCity_Gym_EventScript_Virgil",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MossdeepCity_Gym.MossdeepCity_Gym_EventScript_Hannah",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MossdeepCity_Gym.MossdeepCity_Gym_EventScript_GymGuide",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MossdeepCity_Gym.MossdeepCity_Gym_EventScript_TateAndLiza",
+        "reason": "Unsupported command: trainerbattle_double"
+      },
+      {
+        "name": "MossdeepCity_Gym.MossdeepCity_Gym_EventScript_Nate",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MossdeepCity_Gym.MossdeepCity_Gym_EventScript_Sylvia",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MossdeepCity_Gym.MossdeepCity_Gym_EventScript_Clifford",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MossdeepCity_Gym.MossdeepCity_Gym_EventScript_Macey",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MossdeepCity_Gym.MossdeepCity_Gym_EventScript_Kathleen",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MossdeepCity_Gym.MossdeepCity_Gym_EventScript_Nicholas",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MossdeepCity_Mart.MossdeepCity_Mart_EventScript_Clerk",
+        "reason": "Unsupported command: call_if_unset"
+      },
+      {
+        "name": "MossdeepCity_SpaceCenter_1F.MossdeepCity_SpaceCenter_1F_EventScript_RocketLaunchCounter",
+        "reason": "Unsupported command: goto_if_eq"
+      },
+      {
+        "name": "MossdeepCity_SpaceCenter_1F.MossdeepCity_SpaceCenter_1F_EventScript_Scientist",
+        "reason": "Unsupported command: goto_if_eq"
+      },
+      {
+        "name": "MossdeepCity_SpaceCenter_1F.MossdeepCity_SpaceCenter_1F_EventScript_SunStoneMan",
+        "reason": "Unsupported command: goto_if_eq"
+      },
+      {
+        "name": "MossdeepCity_SpaceCenter_1F.MossdeepCity_SpaceCenter_1F_EventScript_OldMan",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MossdeepCity_SpaceCenter_1F.MossdeepCity_SpaceCenter_1F_EventScript_Woman",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MossdeepCity_SpaceCenter_1F.MossdeepCity_SpaceCenter_1F_EventScript_Grunt3",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MossdeepCity_SpaceCenter_1F.MossdeepCity_SpaceCenter_1F_EventScript_Grunt1",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MossdeepCity_SpaceCenter_1F.MossdeepCity_SpaceCenter_1F_EventScript_Grunt4",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MossdeepCity_SpaceCenter_1F.MossdeepCity_SpaceCenter_1F_EventScript_Grunt2",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MossdeepCity_SpaceCenter_1F.MossdeepCity_SpaceCenter_1F_EventScript_Steven",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "MossdeepCity_SpaceCenter_2F.MossdeepCity_SpaceCenter_2F_EventScript_RichBoy",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MossdeepCity_SpaceCenter_2F.MossdeepCity_SpaceCenter_2F_EventScript_Gentleman",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MossdeepCity_SpaceCenter_2F.MossdeepCity_SpaceCenter_2F_EventScript_Scientist",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MossdeepCity_SpaceCenter_2F.MossdeepCity_SpaceCenter_2F_EventScript_Steven",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MossdeepCity_SpaceCenter_2F.MossdeepCity_SpaceCenter_2F_EventScript_Tabitha",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "SootopolisCity_Gym_1F.SootopolisCity_Gym_1F_EventScript_Juan",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "SootopolisCity_Gym_1F.SootopolisCity_Gym_1F_EventScript_GymGuide",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "SootopolisCity_Gym_B1F.SootopolisCity_Gym_B1F_EventScript_Andrea",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "SootopolisCity_Gym_B1F.SootopolisCity_Gym_B1F_EventScript_Connie",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "SootopolisCity_Gym_B1F.SootopolisCity_Gym_B1F_EventScript_Brianna",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "SootopolisCity_Gym_B1F.SootopolisCity_Gym_B1F_EventScript_Bridget",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "SootopolisCity_Gym_B1F.SootopolisCity_Gym_B1F_EventScript_Tiffany",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "SootopolisCity_Gym_B1F.SootopolisCity_Gym_B1F_EventScript_Bethany",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "SootopolisCity_Gym_B1F.SootopolisCity_Gym_B1F_EventScript_Crissy",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "SootopolisCity_Gym_B1F.SootopolisCity_Gym_B1F_EventScript_Olivia",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "SootopolisCity_Gym_B1F.SootopolisCity_Gym_B1F_EventScript_Daphne",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "SootopolisCity_Gym_B1F.SootopolisCity_Gym_B1F_EventScript_Annika",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "SootopolisCity_PokemonCenter_1F.SootopolisCity_PokemonCenter_1F_EventScript_Nurse",
+        "reason": "Unsupported command: setvar"
+      },
+      {
+        "name": "SootopolisCity_PokemonCenter_1F.SootopolisCity_PokemonCenter_1F_EventScript_Gentleman",
+        "reason": "Unsupported command: goto_if_ge"
+      },
+      {
+        "name": "SootopolisCity_PokemonCenter_1F.SootopolisCity_PokemonCenter_1F_EventScript_Woman",
+        "reason": "Unsupported command: goto_if_ge"
+      },
+      {
+        "name": "SootopolisCity_Mart.SootopolisCity_Mart_EventScript_Clerk",
+        "reason": "Unsupported command: call_if_unset"
+      },
+      {
+        "name": "EverGrandeCity_SidneysRoom.EverGrandeCity_SidneysRoom_EventScript_Sidney",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "EverGrandeCity_PhoebesRoom.EverGrandeCity_PhoebesRoom_EventScript_Phoebe",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "EverGrandeCity_GlaciasRoom.EverGrandeCity_GlaciasRoom_EventScript_Glacia",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "EverGrandeCity_DrakesRoom.EverGrandeCity_DrakesRoom_EventScript_Drake",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "EverGrandeCity_PokemonLeague_1F.EverGrandeCity_PokemonLeague_1F_EventScript_Nurse",
+        "reason": "Unsupported command: setvar"
+      },
+      {
+        "name": "EverGrandeCity_PokemonLeague_1F.EverGrandeCity_PokemonLeague_1F_EventScript_Clerk",
+        "reason": "Unsupported command: call_if_unset"
+      },
+      {
+        "name": "EverGrandeCity_PokemonLeague_1F.EverGrandeCity_PokemonLeague_1F_EventScript_DoorGuard",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "EverGrandeCity_PokemonLeague_1F.EverGrandeCity_PokemonLeague_1F_EventScript_DoorGuard",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "Route104_PrettyPetalFlowerShop.Route104_PrettyPetalFlowerShop_EventScript_RandomBerryGirl",
+        "reason": "Unsupported command: dotimebasedevents"
+      },
+      {
+        "name": "MeteorFalls_1F_1R.MeteorFalls_1F_1R_EventScript_ProfCozmo",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "PetalburgWoods.PetalburgWoods_EventScript_Lyle",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "PetalburgWoods.PetalburgWoods_EventScript_James",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "PetalburgWoods.PetalburgWoods_EventScript_Girl",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MtChimney.MtChimney_EventScript_Archie",
+        "reason": "Unsupported command: call_if_unset"
+      },
+      {
+        "name": "MtChimney.MtChimney_EventScript_Maxie",
+        "reason": "Unsupported command: playbgm"
+      },
+      {
+        "name": "MtChimney.MtChimney_EventScript_Tabitha",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MtChimney.MtChimney_EventScript_LavaCookieLady",
+        "reason": "Unsupported command: showmoneybox"
+      },
+      {
+        "name": "MtChimney.MtChimney_EventScript_Grunt2",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MtChimney.MtChimney_EventScript_Shelby",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MtChimney.MtChimney_EventScript_Melissa",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MtChimney.MtChimney_EventScript_Sheila",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MtChimney.MtChimney_EventScript_Shirley",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MtChimney.MtChimney_EventScript_Grunt1",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MtChimney.MtChimney_EventScript_Sawyer",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MtPyre_Summit.MtPyre_Summit_EventScript_OldMan",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MtPyre_Summit.MtPyre_Summit_EventScript_OldLady",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "MtPyre_Summit.MtPyre_Summit_EventScript_Grunt2",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MtPyre_Summit.MtChimney_EventScript_AquaPoochyena",
+        "reason": "Script not found in scripts.inc or unsupported format"
+      },
+      {
+        "name": "SeafloorCavern_Room1.SeafloorCavern_Room1_EventScript_Grunt1",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "SeafloorCavern_Room1.SeafloorCavern_Room1_EventScript_Grunt2",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "SeafloorCavern_Room2.EventScript_StrengthBoulder",
+        "reason": "Script not found in scripts.inc or unsupported format"
+      },
+      {
+        "name": "SeafloorCavern_Room2.EventScript_RockSmash",
+        "reason": "Script not found in scripts.inc or unsupported format"
+      },
+      {
+        "name": "SeafloorCavern_Room5.EventScript_StrengthBoulder",
+        "reason": "Script not found in scripts.inc or unsupported format"
+      },
+      {
+        "name": "CaveOfOrigin_B1F.CaveOfOrigin_B1F_EventScript_Wallace",
+        "reason": "Unsupported command: closemessage"
+      },
+      {
+        "name": "VictoryRoad_B1F.EventScript_StrengthBoulder",
+        "reason": "Script not found in scripts.inc or unsupported format"
+      },
+      {
+        "name": "VictoryRoad_B1F.VictoryRoad_B1F_EventScript_Samuel",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "VictoryRoad_B1F.VictoryRoad_B1F_EventScript_Shannon",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "VictoryRoad_B1F.VictoryRoad_B1F_EventScript_Michelle",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "VictoryRoad_B1F.EventScript_RockSmash",
+        "reason": "Script not found in scripts.inc or unsupported format"
+      },
+      {
+        "name": "VictoryRoad_B1F.VictoryRoad_B1F_EventScript_ItemTMPsychic",
+        "reason": "Script not found in scripts.inc or unsupported format"
+      },
+      {
+        "name": "VictoryRoad_B1F.VictoryRoad_B1F_EventScript_ItemFullRestore",
+        "reason": "Script not found in scripts.inc or unsupported format"
+      },
+      {
+        "name": "VictoryRoad_B1F.VictoryRoad_B1F_EventScript_Mitchell",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "VictoryRoad_B1F.VictoryRoad_B1F_EventScript_Halle",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "SkyPillar_Top.SkyPillar_Top_EventScript_Rayquaza",
+        "reason": "Unsupported command: waitse"
+      },
+      {
+        "name": "MagmaHideout_1F.MagmaHideout_1F_EventScript_Grunt1",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MagmaHideout_1F.MagmaHideout_1F_EventScript_Grunt2",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MagmaHideout_4F.MagmaHideout_4F_EventScript_Grunt11",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MagmaHideout_4F.MagmaHideout_4F_EventScript_Grunt12",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MagmaHideout_4F.MagmaHideout_4F_EventScript_Grunt13",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MagmaHideout_4F.MagmaHideout_4F_EventScript_Tabitha",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "MagmaHideout_4F.MagmaHideout_4F_EventScript_Maxie",
+        "reason": "Unsupported command: playbgm"
+      },
+      {
+        "name": "MeteorFalls_StevensCave.MeteorFalls_StevensCave_EventScript_Steven",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "BattleFrontier_OutsideWest.BattleFrontier_OutsideWest_EventScript_FerryAttendant",
+        "reason": "Unsupported command: checkitem"
+      },
+      {
+        "name": "BattleFrontier_OutsideWest.BattleFrontier_OutsideWest_EventScript_Woman1",
+        "reason": "Unsupported command: trainerbattle_no_intro"
+      },
+      {
+        "name": "BattleFrontier_OutsideWest.BattleFrontier_OutsideWest_EventScript_Gentleman",
+        "reason": "Unsupported command: trainerbattle_no_intro"
+      },
+      {
+        "name": "BattleFrontier_OutsideWest.BattleFrontier_OutsideWest_EventScript_Maniac1",
+        "reason": "Unsupported command: goto"
+      },
+      {
+        "name": "BattleFrontier_OutsideWest.BattleFrontier_OutsideWest_EventScript_Maniac2",
+        "reason": "Unsupported command: goto"
+      },
+      {
+        "name": "BattleFrontier_OutsideWest.BattleFrontier_OutsideWest_EventScript_Girl",
+        "reason": "Unsupported command: message"
+      },
+      {
+        "name": "BattleFrontier_OutsideWest.BattleFrontier_OutsideWest_EventScript_Woman2",
+        "reason": "Unsupported command: random"
+      },
+      {
+        "name": "BattleFrontier_OutsideWest.BattleFrontier_OutsideWest_EventScript_Camper",
+        "reason": "Unsupported command: delay"
+      },
+      {
+        "name": "BattleFrontier_OutsideWest.BattleFrontier_OutsideWest_EventScript_Fisherman2",
+        "reason": "Unsupported command: message"
+      },
+      {
+        "name": "BattleFrontier_OutsideWest.BattleFrontier_OutsideWest_EventScript_Man4",
+        "reason": "Unsupported command: closemessage"
+      },
+      {
+        "name": "BattleFrontier_OutsideEast.BattleFrontier_OutsideEast_EventScript_NinjaBoy",
+        "reason": "Unsupported command: trainerbattle_no_intro"
+      },
+      {
+        "name": "BattleFrontier_OutsideEast.BattleFrontier_OutsideEast_EventScript_HexManiac",
+        "reason": "Unsupported command: trainerbattle_no_intro"
+      },
+      {
+        "name": "BattleFrontier_OutsideEast.BattleFrontier_OutsideEast_EventScript_Zigzagoon",
+        "reason": "Unsupported command: waitse"
+      },
+      {
+        "name": "BattleFrontier_OutsideEast.BattleFrontier_OutsideEast_EventScript_Sudowoodo",
+        "reason": "Unsupported command: waitse"
+      },
+      {
+        "name": "BattleFrontier_OutsideEast.BattleFrontier_OutsideEast_EventScript_Maniac1",
+        "reason": "Unsupported command: trainerbattle_no_intro"
+      },
+      {
+        "name": "BattleFrontier_OutsideEast.BattleFrontier_OutsideEast_EventScript_Girl",
+        "reason": "Unsupported command: trainerbattle_no_intro"
+      },
+      {
+        "name": "BattleFrontier_OutsideEast.BattleFrontier_OutsideEast_EventScript_OldWoman",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "BattleFrontier_ExchangeServiceCorner.BattleFrontier_ExchangeServiceCorner_EventScript_DecorClerk1",
+        "reason": "Unsupported command: setvar"
+      },
+      {
+        "name": "BattleFrontier_ExchangeServiceCorner.BattleFrontier_ExchangeServiceCorner_EventScript_DecorClerk2",
+        "reason": "Unsupported command: setvar"
+      },
+      {
+        "name": "BattleFrontier_ExchangeServiceCorner.BattleFrontier_ExchangeServiceCorner_EventScript_VitaminClerk",
+        "reason": "Unsupported command: setvar"
+      },
+      {
+        "name": "BattleFrontier_ExchangeServiceCorner.BattleFrontier_ExchangeServiceCorner_EventScript_HoldItemClerk",
+        "reason": "Unsupported command: setvar"
+      },
+      {
+        "name": "BattleFrontier_ScottsHouse.BattleFrontier_ScottsHouse_EventScript_Scott",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "BattleFrontier_Lounge8.BattleFrontier_Lounge8_EventScript_NinjaBoy",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "BattleFrontier_PokemonCenter_1F.BattleFrontier_PokemonCenter_1F_EventScript_Nurse",
+        "reason": "Unsupported command: setvar"
+      },
+      {
+        "name": "BattleFrontier_PokemonCenter_1F.BattleFrontier_PokemonCenter_1F_EventScript_SchoolKid",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "BattleFrontier_PokemonCenter_1F.BattleFrontier_PokemonCenter_1F_EventScript_Skitty",
+        "reason": "Unsupported command: waitse"
+      },
+      {
+        "name": "TrainerHill_Entrance.TrainerHill_Entrance_EventScript_Attendant",
+        "reason": "Unsupported command: trainerhill_inchallenge"
+      },
+      {
+        "name": "TrainerHill_Entrance.TrainerHill_Entrance_EventScript_Nurse",
+        "reason": "Unsupported command: setvar"
+      },
+      {
+        "name": "TrainerHill_Entrance.TrainerHill_Entrance_EventScript_Clerk",
+        "reason": "Unsupported command: message"
+      },
+      {
+        "name": "TrainerHill_Entrance.TrainerHill_Entrance_EventScript_Girl",
+        "reason": "Unsupported command: goto_if_unset"
+      },
+      {
+        "name": "TrainerHill_Entrance.TrainerHill_Entrance_EventScript_Man",
+        "reason": "Unsupported command: goto_if_unset"
+      },
+      {
+        "name": "Route110_TrickHouseEntrance.Route110_TrickHouseEntrance_EventScript_TrickMaster",
+        "reason": "Unsupported command: switch"
+      },
+      {
+        "name": "Route110_TrickHouseEnd.Route110_TrickHouseEnd_EventScript_TrickMaster",
+        "reason": "Unsupported command: setvar"
+      },
+      {
+        "name": "Route110_TrickHousePuzzle4.Route110_TrickHousePuzzle4_EventScript_Cora",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route110_TrickHousePuzzle4.Route110_TrickHousePuzzle4_EventScript_Paula",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route110_TrickHousePuzzle4.Route110_TrickHousePuzzle4_EventScript_Yuji",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route110_TrickHousePuzzle5.Route110_TrickHousePuzzle5_EventScript_Mechadoll1",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "Route110_TrickHousePuzzle5.Route110_TrickHousePuzzle5_EventScript_Mechadoll2",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "Route110_TrickHousePuzzle5.Route110_TrickHousePuzzle5_EventScript_Mechadoll3",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "Route110_TrickHousePuzzle5.Route110_TrickHousePuzzle5_EventScript_Mechadoll4",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "Route110_TrickHousePuzzle5.Route110_TrickHousePuzzle5_EventScript_Mechadoll5",
+        "reason": "Unsupported command: applymovement"
+      },
+      {
+        "name": "Route123_BerryMastersHouse.Route123_BerryMastersHouse_EventScript_BerryMastersWife",
+        "reason": "Unsupported command: dotimebasedevents"
+      },
+      {
+        "name": "Route119_WeatherInstitute_1F.Route119_WeatherInstitute_1F_EventScript_Grunt1",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119_WeatherInstitute_1F.Route119_WeatherInstitute_1F_EventScript_Grunt4",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119_WeatherInstitute_1F.Route119_WeatherInstitute_1F_EventScript_InstituteWorker2",
+        "reason": "Unsupported command: goto_if_unset"
+      },
+      {
+        "name": "Route119_WeatherInstitute_1F.Route119_WeatherInstitute_1F_EventScript_InstituteWorker1",
+        "reason": "Unsupported command: goto_if_unset"
+      },
+      {
+        "name": "Route119_WeatherInstitute_1F.Route119_WeatherInstitute_1F_EventScript_LittleBoy",
+        "reason": "Unsupported command: special"
+      },
+      {
+        "name": "Route119_WeatherInstitute_2F.Route119_WeatherInstitute_2F_EventScript_Grunt2",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119_WeatherInstitute_2F.Route119_WeatherInstitute_2F_EventScript_Grunt3",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119_WeatherInstitute_2F.Route119_WeatherInstitute_2F_EventScript_Shelly",
+        "reason": "Unsupported command: trainerbattle_single"
+      },
+      {
+        "name": "Route119_WeatherInstitute_2F.Route119_WeatherInstitute_2F_EventScript_WeatherScientist",
+        "reason": "Unsupported command: goto_if_set"
+      },
+      {
+        "name": "Route119_WeatherInstitute_2F.Route119_WeatherInstitute_2F_EventScript_Grunt5",
+        "reason": "Unsupported command: trainerbattle_single"
+      }
+    ],
+    "object_events": [
+      {
+        "name": "Map 0.0 Object 9",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.0 Object 10",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.1 Object 35",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.2 Object 11",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.6 Object 17",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.6 Object 18",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.7 Object 18",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.7 Object 19",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.21 Object 5",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.23 Object 7",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.34 Object 43",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.38 Object 43",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.39 Object 12",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.39 Object 13",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.40 Object 10",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.42 Object 11",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.43 Object 10",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.45 Object 4",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.47 Object 10",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 0.49 Object 11",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 3.3 Object 8",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 4.5 Object 4",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 4.5 Object 5",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 7.6 Object 2",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 7.6 Object 3",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 10.3 Object 12",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 14.10 Object 9",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 15.0 Object 2",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 16.4 Object 3",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 16.11 Object 1",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.8 Object 1",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.9 Object 9",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.22 Object 8",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.22 Object 9",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.22 Object 10",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.22 Object 11",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.22 Object 12",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.22 Object 13",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.22 Object 14",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.22 Object 15",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.22 Object 16",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.22 Object 17",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.42 Object 1",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.42 Object 2",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.42 Object 3",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.53 Object 8",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.66 Object 4",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.73 Object 1",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.79 Object 0",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.80 Object 0",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.81 Object 0",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.82 Object 0",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.83 Object 2",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.84 Object 0",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.85 Object 2",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.85 Object 3",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.86 Object 6",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.92 Object 1",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.99 Object 1",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.103 Object 1",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.105 Object 1",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 24.106 Object 0",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 26.4 Object 24",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 26.4 Object 25",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 26.4 Object 26",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 26.14 Object 26",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 26.14 Object 27",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 26.14 Object 28",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 26.14 Object 29",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 26.42 Object 9",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 32.1 Object 8",
+        "reason": "New objects unsupported"
+      },
+      {
+        "name": "Map 32.1 Object 9",
+        "reason": "New objects unsupported"
+      }
+    ],
+    "new_species": [
+      {
+        "name": "SPECIES_DEOXYS_SPEED",
+        "reason": "Species does not exist in vanilla"
+      },
+      {
+        "name": "SPECIES_DEOXYS_ATTACK",
+        "reason": "Species does not exist in vanilla"
+      },
+      {
+        "name": "SPECIES_DEOXYS_DEFENSE",
+        "reason": "Species does not exist in vanilla"
+      }
+    ],
+    "trainers": [
+      {
+        "name": "TRAINER_GRUNT_MT_PYRE_1",
+        "reason": "Modified unsupported fields: trainerClass, encounterMusic_gender, trainerPic"
+      },
+      {
+        "name": "TRAINER_MATT",
+        "reason": "Modified unsupported fields: items, aiFlags"
+      },
+      {
+        "name": "TRAINER_SHELLY_WEATHER_INSTITUTE",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_SHELLY_SEAFLOOR_CAVERN",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_ARCHIE",
+        "reason": "Modified unsupported fields: items, aiFlags"
+      },
+      {
+        "name": "TRAINER_FELIX",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_ALBERT",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_HOPE",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_SIDNEY",
+        "reason": "Modified unsupported fields: items, aiFlags"
+      },
+      {
+        "name": "TRAINER_PHOEBE",
+        "reason": "Modified unsupported fields: items, aiFlags"
+      },
+      {
+        "name": "TRAINER_GLACIA",
+        "reason": "Modified unsupported fields: items, aiFlags"
+      },
+      {
+        "name": "TRAINER_DRAKE",
+        "reason": "Modified unsupported fields: items, aiFlags"
+      },
+      {
+        "name": "TRAINER_ROXANNE_1",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_BRAWLY_1",
+        "reason": "Modified unsupported fields: items, aiFlags"
+      },
+      {
+        "name": "TRAINER_WATTSON_1",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_FLANNERY_1",
+        "reason": "Modified unsupported fields: items, aiFlags"
+      },
+      {
+        "name": "TRAINER_NORMAN_1",
+        "reason": "Modified unsupported fields: items, aiFlags"
+      },
+      {
+        "name": "TRAINER_WINONA_1",
+        "reason": "Modified unsupported fields: items, aiFlags"
+      },
+      {
+        "name": "TRAINER_TATE_AND_LIZA_1",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_JUAN_1",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_COLTON (Mon 0)",
+        "reason": "Modified unsupported party fields: heldItem"
+      },
+      {
+        "name": "TRAINER_COLTON (Mon 1)",
+        "reason": "Modified unsupported party fields: heldItem"
+      },
+      {
+        "name": "TRAINER_COLTON (Mon 2)",
+        "reason": "Modified unsupported party fields: heldItem"
+      },
+      {
+        "name": "TRAINER_COLTON (Mon 3)",
+        "reason": "Modified unsupported party fields: heldItem"
+      },
+      {
+        "name": "TRAINER_COLTON (Mon 4)",
+        "reason": "Modified unsupported party fields: heldItem"
+      },
+      {
+        "name": "TRAINER_COLTON (Mon 5)",
+        "reason": "Modified unsupported party fields: heldItem"
+      },
+      {
+        "name": "TRAINER_VANESSA (Mon 0)",
+        "reason": "Modified unsupported party fields: heldItem"
+      },
+      {
+        "name": "TRAINER_QUINCY",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_KATELYNN",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_DIANNE",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_TABITHA_MOSSDEEP",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_WALLY_VR_1",
+        "reason": "Modified unsupported fields: trainerClass, items, aiFlags"
+      },
+      {
+        "name": "TRAINER_BRENDAN_ROUTE_110_MUDKIP",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_BRENDAN_ROUTE_119_MUDKIP",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_BRENDAN_ROUTE_110_TREECKO",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_BRENDAN_ROUTE_119_TREECKO",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_BRENDAN_ROUTE_110_TORCHIC",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_BRENDAN_ROUTE_119_TORCHIC",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_MAY_ROUTE_110_MUDKIP",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_MAY_ROUTE_119_MUDKIP",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_MAY_ROUTE_110_TREECKO",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_MAY_ROUTE_119_TREECKO",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_MAY_ROUTE_110_TORCHIC",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_MAY_ROUTE_119_TORCHIC",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_TABITHA_MT_CHIMNEY",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_MAXIE_MAGMA_HIDEOUT",
+        "reason": "Modified unsupported fields: items, aiFlags"
+      },
+      {
+        "name": "TRAINER_MAXIE_MT_CHIMNEY",
+        "reason": "Modified unsupported fields: items, aiFlags"
+      },
+      {
+        "name": "TRAINER_WALLY_VR_2",
+        "reason": "Modified unsupported fields: trainerClass, items, doubleBattle"
+      },
+      {
+        "name": "TRAINER_WALLY_VR_3",
+        "reason": "Modified unsupported fields: trainerClass, items, doubleBattle"
+      },
+      {
+        "name": "TRAINER_WALLY_VR_4",
+        "reason": "Modified unsupported fields: trainerClass, items, doubleBattle"
+      },
+      {
+        "name": "TRAINER_WALLY_VR_5",
+        "reason": "Modified unsupported fields: trainerClass, items, doubleBattle"
+      },
+      {
+        "name": "TRAINER_TABITHA_MAGMA_HIDEOUT",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_MAXIE_MOSSDEEP",
+        "reason": "Modified unsupported fields: aiFlags"
+      },
+      {
+        "name": "TRAINER_MAKAYLA",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_ROXANNE_2",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_ROXANNE_3",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_ROXANNE_4",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_ROXANNE_5",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_BRAWLY_2",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_BRAWLY_3",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_BRAWLY_4",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_BRAWLY_5",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_WATTSON_2",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_WATTSON_3",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_WATTSON_4",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_WATTSON_5",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_FLANNERY_2",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_FLANNERY_3",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_FLANNERY_4",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_FLANNERY_5",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_NORMAN_2",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_NORMAN_3",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_NORMAN_4",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_NORMAN_5",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_WINONA_2",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_WINONA_3",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_WINONA_4",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_WINONA_5",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_TATE_AND_LIZA_2",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_TATE_AND_LIZA_3",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_TATE_AND_LIZA_4",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_TATE_AND_LIZA_5",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_JUAN_2",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_JUAN_3",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_JUAN_4",
+        "reason": "Modified unsupported fields: items"
+      },
+      {
+        "name": "TRAINER_JUAN_5",
+        "reason": "Modified unsupported fields: items"
+      }
+    ],
+    "new_trainers": [
+      {
+        "name": "TRAINER_WALLACE_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BRENDAN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_STEVEN_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_KENJI",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_TULLY",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_DANIEL",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_TOBIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_WALLY_PETALBURG",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BRAWLY_1_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_BRAWLY_1_3",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_STEVEN_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_WALLACE_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_COURTNEY_1",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_COURTNEY_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ARCHIE_MT_PYRE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MATT_MT_PYRE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ARCHIE_MARINE_CAVE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_MAXIE_TERRA_CAVE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_ZINNIA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_SIDNEY_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_PHOEBE_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_GLACIA_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_DRAKE_2",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_SMITH",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_CRAIG",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_WEEBRA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_EVA",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_EVIN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_EVE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_EVANGELOS",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_EVVI",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_EVERN",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_SIDNEY_2_SINGLE",
+        "reason": "New trainer IDs not supported by runtime"
+      },
+      {
+        "name": "TRAINER_PHOEBE_2_SINGLE",
+        "reason": "New trainer IDs not supported by runtime"
+      }
+    ],
+    "items": [
+      {
+        "name": "ITEM_KINGS_ROCK",
+        "reason": "Modified unsupported fields: type"
+      },
+      {
+        "name": "ITEM_DEEP_SEA_TOOTH",
+        "reason": "Modified unsupported fields: type"
+      },
+      {
+        "name": "ITEM_DEEP_SEA_SCALE",
+        "reason": "Modified unsupported fields: type"
+      },
+      {
+        "name": "ITEM_METAL_COAT",
+        "reason": "Modified unsupported fields: type"
+      },
+      {
+        "name": "ITEM_DRAGON_SCALE",
+        "reason": "Modified unsupported fields: type"
+      },
+      {
+        "name": "ITEM_UP_GRADE",
+        "reason": "Modified unsupported fields: type"
+      },
+      {
+        "name": "ITEM_TM_DRAGON_CLAW",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_CALM_MIND",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_ROAR",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_TOXIC",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_BULK_UP",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_SUNNY_DAY",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_ICE_BEAM",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_RAIN_DANCE",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_GIGA_DRAIN",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_FRUSTRATION",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_SOLAR_BEAM",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_IRON_TAIL",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_THUNDERBOLT",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_EARTHQUAKE",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_RETURN",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_DIG",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_PSYCHIC",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_SHADOW_BALL",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_BRICK_BREAK",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_DOUBLE_TEAM",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_FLAMETHROWER",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_SLUDGE_BOMB",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_SANDSTORM",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_FACADE",
+        "reason": "UNRESOLVED ITEM ID"
+      },
+      {
+        "name": "ITEM_TM_OVERHEAT",
+        "reason": "UNRESOLVED ITEM ID"
+      }
+    ],
+    "new_items": [
+      {
+        "name": "ITEM_BRICK_PIECE",
+        "reason": "NEW ITEM - RUNTIME EXPANSION REQUIRED"
+      }
+    ],
+    "system": [
+      {
+        "name": "gbagfx",
+        "reason": "gbagfx tool not built. Run make tools in project."
+      }
+    ]
+  }
+}

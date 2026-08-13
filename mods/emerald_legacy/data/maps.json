@@ -1,0 +1,550 @@
+{
+  "maps": [
+    {
+      "map_group": 0,
+      "map_num": 18,
+      "objects": [
+        {
+          "index": 14,
+          "x": 72,
+          "y": 8,
+          "graphics_id": 82,
+          "movement_type": 1
+        }
+      ]
+    },
+    {
+      "map_group": 0,
+      "map_num": 25,
+      "objects": [
+        {
+          "index": 30,
+          "x": 11,
+          "y": 75,
+          "graphics_id": 18,
+          "movement_type": 9
+        },
+        {
+          "index": 31,
+          "x": 7,
+          "y": 75,
+          "graphics_id": 25,
+          "movement_type": 10
+        }
+      ]
+    },
+    {
+      "map_group": 0,
+      "map_num": 26,
+      "objects": [
+        {
+          "index": 14,
+          "x": 18,
+          "y": 101,
+          "graphics_id": 86,
+          "movement_type": 1
+        },
+        {
+          "index": 15,
+          "x": 19,
+          "y": 100,
+          "graphics_id": 86,
+          "movement_type": 1
+        }
+      ]
+    },
+    {
+      "map_group": 0,
+      "map_num": 31,
+      "objects": [
+        {
+          "index": 3,
+          "x": 21,
+          "y": 6,
+          "graphics_id": 82,
+          "movement_type": 1
+        },
+        {
+          "index": 4,
+          "x": 32,
+          "y": 10,
+          "graphics_id": 82,
+          "movement_type": 1
+        },
+        {
+          "index": 11,
+          "x": 28,
+          "y": 11,
+          "graphics_id": 82,
+          "movement_type": 1
+        },
+        {
+          "index": 13,
+          "x": 24,
+          "y": 9,
+          "graphics_id": 82,
+          "movement_type": 1
+        },
+        {
+          "index": 25,
+          "x": 30,
+          "y": 5,
+          "graphics_id": 82,
+          "movement_type": 1
+        }
+      ]
+    },
+    {
+      "map_group": 0,
+      "map_num": 32,
+      "objects": [
+        {
+          "index": 8,
+          "x": 8,
+          "y": 10,
+          "graphics_id": 20,
+          "movement_type": 8
+        }
+      ]
+    },
+    {
+      "map_group": 0,
+      "map_num": 36,
+      "objects": [
+        {
+          "index": 17,
+          "x": 55,
+          "y": 8,
+          "graphics_id": 48,
+          "movement_type": 9
+        }
+      ]
+    },
+    {
+      "map_group": 0,
+      "map_num": 42,
+      "objects": [
+        {
+          "index": 6,
+          "x": 54,
+          "y": 13,
+          "graphics_id": 50,
+          "movement_type": 7
+        }
+      ]
+    },
+    {
+      "map_group": 3,
+      "map_num": 3,
+      "objects": [
+        {
+          "index": 7,
+          "x": 14,
+          "y": 12,
+          "graphics_id": 49,
+          "movement_type": 10
+        }
+      ]
+    },
+    {
+      "map_group": 5,
+      "map_num": 6,
+      "objects": [
+        {
+          "index": 0,
+          "x": 6,
+          "y": 4,
+          "graphics_id": 46,
+          "movement_type": 1
+        }
+      ]
+    },
+    {
+      "map_group": 11,
+      "map_num": 10,
+      "objects": [
+        {
+          "index": 0,
+          "x": 6,
+          "y": 4,
+          "graphics_id": 45,
+          "movement_type": 9
+        }
+      ]
+    },
+    {
+      "map_group": 14,
+      "map_num": 9,
+      "objects": [
+        {
+          "index": 5,
+          "x": 12,
+          "y": 9,
+          "graphics_id": 120,
+          "movement_type": 9
+        },
+        {
+          "index": 6,
+          "x": 11,
+          "y": 6,
+          "graphics_id": 119,
+          "movement_type": 9
+        }
+      ]
+    },
+    {
+      "map_group": 14,
+      "map_num": 10,
+      "objects": [
+        {
+          "index": 7,
+          "x": 0,
+          "y": 8,
+          "graphics_id": 249,
+          "movement_type": 10
+        }
+      ]
+    },
+    {
+      "map_group": 15,
+      "map_num": 0,
+      "objects": [
+        {
+          "index": 0,
+          "x": 8,
+          "y": 2,
+          "graphics_id": 218,
+          "movement_type": 8
+        }
+      ]
+    },
+    {
+      "map_group": 16,
+      "map_num": 4,
+      "objects": [
+        {
+          "index": 0,
+          "x": 6,
+          "y": 5,
+          "graphics_id": 133,
+          "movement_type": 8
+        }
+      ]
+    },
+    {
+      "map_group": 16,
+      "map_num": 11,
+      "objects": [
+        {
+          "index": 0,
+          "x": 6,
+          "y": 16,
+          "graphics_id": 133,
+          "movement_type": 7
+        }
+      ]
+    },
+    {
+      "map_group": 17,
+      "map_num": 1,
+      "objects": [
+        {
+          "index": 2,
+          "x": 11,
+          "y": 6,
+          "graphics_id": 8,
+          "movement_type": 8
+        }
+      ]
+    },
+    {
+      "map_group": 24,
+      "map_num": 12,
+      "objects": [
+        {
+          "index": 2,
+          "x": 12,
+          "y": 11,
+          "graphics_id": 249,
+          "movement_type": 9
+        }
+      ]
+    },
+    {
+      "map_group": 24,
+      "map_num": 22,
+      "objects": [
+        {
+          "index": 1,
+          "x": 21,
+          "y": 6,
+          "graphics_id": 195,
+          "movement_type": 10
+        },
+        {
+          "index": 3,
+          "x": 25,
+          "y": 18,
+          "graphics_id": 117,
+          "movement_type": 9
+        },
+        {
+          "index": 4,
+          "x": 24,
+          "y": 14,
+          "graphics_id": 118,
+          "movement_type": 8
+        },
+        {
+          "index": 5,
+          "x": 25,
+          "y": 6,
+          "graphics_id": 196,
+          "movement_type": 9
+        },
+        {
+          "index": 6,
+          "x": 23,
+          "y": 11,
+          "graphics_id": 251,
+          "movement_type": 9
+        },
+        {
+          "index": 7,
+          "x": 23,
+          "y": 23,
+          "graphics_id": 220,
+          "movement_type": 66
+        }
+      ]
+    },
+    {
+      "map_group": 24,
+      "map_num": 25,
+      "objects": [
+        {
+          "index": 0,
+          "x": 23,
+          "y": 19,
+          "graphics_id": 251,
+          "movement_type": 9
+        }
+      ]
+    },
+    {
+      "map_group": 24,
+      "map_num": 28,
+      "objects": [
+        {
+          "index": 2,
+          "x": 8,
+          "y": 6,
+          "graphics_id": 117,
+          "movement_type": 1
+        },
+        {
+          "index": 3,
+          "x": 15,
+          "y": 10,
+          "graphics_id": 117,
+          "movement_type": 16
+        }
+      ]
+    },
+    {
+      "map_group": 24,
+      "map_num": 29,
+      "objects": [
+        {
+          "index": 5,
+          "x": 4,
+          "y": 8,
+          "graphics_id": 87,
+          "movement_type": 1
+        },
+        {
+          "index": 7,
+          "x": 8,
+          "y": 7,
+          "graphics_id": 86,
+          "movement_type": 1
+        }
+      ]
+    },
+    {
+      "map_group": 24,
+      "map_num": 30,
+      "objects": [
+        {
+          "index": 7,
+          "x": 9,
+          "y": 5,
+          "graphics_id": 250,
+          "movement_type": 9
+        }
+      ]
+    },
+    {
+      "map_group": 24,
+      "map_num": 32,
+      "objects": [
+        {
+          "index": 3,
+          "x": 12,
+          "y": 8,
+          "graphics_id": 87,
+          "movement_type": 1
+        }
+      ]
+    },
+    {
+      "map_group": 24,
+      "map_num": 44,
+      "objects": [
+        {
+          "index": 4,
+          "x": 21,
+          "y": 26,
+          "graphics_id": 87,
+          "movement_type": 1
+        },
+        {
+          "index": 5,
+          "x": 20,
+          "y": 25,
+          "graphics_id": 87,
+          "movement_type": 1
+        },
+        {
+          "index": 9,
+          "x": 34,
+          "y": 4,
+          "graphics_id": 87,
+          "movement_type": 1
+        },
+        {
+          "index": 10,
+          "x": 37,
+          "y": 12,
+          "graphics_id": 33,
+          "movement_type": 9
+        },
+        {
+          "index": 11,
+          "x": 26,
+          "y": 16,
+          "graphics_id": 34,
+          "movement_type": 7
+        },
+        {
+          "index": 12,
+          "x": 5,
+          "y": 21,
+          "graphics_id": 34,
+          "movement_type": 9
+        },
+        {
+          "index": 13,
+          "x": 34,
+          "y": 3,
+          "graphics_id": 86,
+          "movement_type": 1
+        },
+        {
+          "index": 14,
+          "x": 42,
+          "y": 8,
+          "graphics_id": 59,
+          "movement_type": 1
+        },
+        {
+          "index": 15,
+          "x": 32,
+          "y": 3,
+          "graphics_id": 59,
+          "movement_type": 1
+        },
+        {
+          "index": 16,
+          "x": 14,
+          "y": 16,
+          "graphics_id": 33,
+          "movement_type": 8
+        },
+        {
+          "index": 17,
+          "x": 14,
+          "y": 20,
+          "graphics_id": 34,
+          "movement_type": 16
+        }
+      ]
+    },
+    {
+      "map_group": 24,
+      "map_num": 91,
+      "objects": [
+        {
+          "index": 4,
+          "x": 22,
+          "y": 4,
+          "graphics_id": 249,
+          "movement_type": 8
+        }
+      ]
+    },
+    {
+      "map_group": 26,
+      "map_num": 4,
+      "objects": [
+        {
+          "index": 5,
+          "x": 33,
+          "y": 41,
+          "graphics_id": 34,
+          "movement_type": 1
+        },
+        {
+          "index": 7,
+          "x": 17,
+          "y": 20,
+          "graphics_id": 48,
+          "movement_type": 1
+        }
+      ]
+    },
+    {
+      "map_group": 26,
+      "map_num": 14,
+      "objects": [
+        {
+          "index": 3,
+          "x": 54,
+          "y": 16,
+          "graphics_id": 40,
+          "movement_type": 1
+        },
+        {
+          "index": 15,
+          "x": 51,
+          "y": 53,
+          "graphics_id": 14,
+          "movement_type": 1
+        }
+      ]
+    },
+    {
+      "map_group": 32,
+      "map_num": 1,
+      "objects": [
+        {
+          "index": 2,
+          "x": 4,
+          "y": 6,
+          "graphics_id": 250,
+          "movement_type": 10
+        }
+      ]
+    }
+  ]
+}

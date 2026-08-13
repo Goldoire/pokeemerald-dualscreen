@@ -1,0 +1,19 @@
+{
+  "starters": [
+    {
+      "slot": 0,
+      "species": 152,
+      "level": 5
+    },
+    {
+      "slot": 1,
+      "species": 155,
+      "level": 5
+    },
+    {
+      "slot": 2,
+      "species": 158,
+      "level": 5
+    }
+  ]
+}

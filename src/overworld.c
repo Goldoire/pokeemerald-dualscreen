@@ -1,4 +1,5 @@
 #include "global.h"
+#include "platform/mods/mod_manager.h"
 #include "overworld.h"
 #include "battle_pyramid.h"
 #include "battle_setup.h"
@@ -584,7 +585,7 @@ static bool32 IsDummyWarp(struct WarpData *warp)
 
 struct MapHeader const *const Overworld_GetMapHeaderByGroupAndId(u16 mapGroup, u16 mapNum)
 {
-    return gMapGroups[mapGroup][mapNum];
+    return ModManager_GetMapHeaderByMap(mapGroup, mapNum, gMapGroups[mapGroup][mapNum]);
 }
 
 struct MapHeader const *const GetDestinationWarpMapHeader(void)

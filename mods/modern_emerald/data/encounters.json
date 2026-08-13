@@ -1,0 +1,9057 @@
+{
+  "maps": [
+    {
+      "map_group": 0,
+      "map_num": 16,
+      "land": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 290,
+            "min_level": 2,
+            "max_level": 2
+          },
+          {
+            "species": 286,
+            "min_level": 2,
+            "max_level": 2
+          },
+          {
+            "species": 290,
+            "min_level": 2,
+            "max_level": 2
+          },
+          {
+            "species": 290,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 286,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 286,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 10,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 13,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 288,
+            "min_level": 2,
+            "max_level": 2
+          },
+          {
+            "species": 288,
+            "min_level": 2,
+            "max_level": 2
+          },
+          {
+            "species": 288,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 133,
+            "min_level": 3,
+            "max_level": 3
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 17,
+      "land": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 286,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 290,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 161,
+            "min_level": 4,
+            "max_level": 4
+          },
+          {
+            "species": 21,
+            "min_level": 4,
+            "max_level": 4
+          },
+          {
+            "species": 295,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 295,
+            "min_level": 4,
+            "max_level": 4
+          },
+          {
+            "species": 288,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 288,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 288,
+            "min_level": 4,
+            "max_level": 4
+          },
+          {
+            "species": 392,
+            "min_level": 4,
+            "max_level": 4
+          },
+          {
+            "species": 435,
+            "min_level": 4,
+            "max_level": 4
+          },
+          {
+            "species": 298,
+            "min_level": 3,
+            "max_level": 3
+          }
+        ]
+      },
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 183,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 311,
+            "min_level": 10,
+            "max_level": 20
+          },
+          {
+            "species": 311,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 183,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 118,
+            "min_level": 20,
+            "max_level": 30
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 118,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 60,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 118,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 326,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 326,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 326,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 61,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 326,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 326,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 18,
+      "land": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 286,
+            "min_level": 2,
+            "max_level": 2
+          },
+          {
+            "species": 286,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 161,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 286,
+            "min_level": 4,
+            "max_level": 4
+          },
+          {
+            "species": 309,
+            "min_level": 2,
+            "max_level": 2
+          },
+          {
+            "species": 288,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 10,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 13,
+            "min_level": 4,
+            "max_level": 4
+          },
+          {
+            "species": 309,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 309,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 309,
+            "min_level": 2,
+            "max_level": 2
+          },
+          {
+            "species": 309,
+            "min_level": 4,
+            "max_level": 4
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 331,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 19,
+      "land": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 286,
+            "min_level": 4,
+            "max_level": 4
+          },
+          {
+            "species": 290,
+            "min_level": 4,
+            "max_level": 4
+          },
+          {
+            "species": 16,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 183,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 183,
+            "min_level": 4,
+            "max_level": 4
+          },
+          {
+            "species": 16,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 304,
+            "min_level": 4,
+            "max_level": 4
+          },
+          {
+            "species": 304,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 309,
+            "min_level": 4,
+            "max_level": 4
+          },
+          {
+            "species": 309,
+            "min_level": 4,
+            "max_level": 4
+          },
+          {
+            "species": 175,
+            "min_level": 3,
+            "max_level": 3
+          },
+          {
+            "species": 309,
+            "min_level": 5,
+            "max_level": 5
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 60,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 129,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 60,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 129,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 129,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 129,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 129,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 129,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 20,
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 25,
+      "land": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 69,
+            "min_level": 12,
+            "max_level": 12
+          },
+          {
+            "species": 337,
+            "min_level": 12,
+            "max_level": 12
+          },
+          {
+            "species": 367,
+            "min_level": 12,
+            "max_level": 12
+          },
+          {
+            "species": 102,
+            "min_level": 13,
+            "max_level": 13
+          },
+          {
+            "species": 354,
+            "min_level": 13,
+            "max_level": 13
+          },
+          {
+            "species": 43,
+            "min_level": 13,
+            "max_level": 13
+          },
+          {
+            "species": 354,
+            "min_level": 13,
+            "max_level": 13
+          },
+          {
+            "species": 367,
+            "min_level": 13,
+            "max_level": 13
+          },
+          {
+            "species": 286,
+            "min_level": 12,
+            "max_level": 12
+          },
+          {
+            "species": 309,
+            "min_level": 12,
+            "max_level": 12
+          },
+          {
+            "species": 353,
+            "min_level": 12,
+            "max_level": 12
+          },
+          {
+            "species": 353,
+            "min_level": 13,
+            "max_level": 13
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 26,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 27,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 332,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 27,
+            "min_level": 21,
+            "max_level": 21
+          },
+          {
+            "species": 332,
+            "min_level": 21,
+            "max_level": 21
+          },
+          {
+            "species": 318,
+            "min_level": 19,
+            "max_level": 19
+          },
+          {
+            "species": 318,
+            "min_level": 21,
+            "max_level": 21
+          },
+          {
+            "species": 104,
+            "min_level": 19,
+            "max_level": 19
+          },
+          {
+            "species": 104,
+            "min_level": 19,
+            "max_level": 19
+          },
+          {
+            "species": 318,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 344,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 344,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 344,
+            "min_level": 22,
+            "max_level": 22
+          }
+        ]
+      },
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 183,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 311,
+            "min_level": 10,
+            "max_level": 20
+          },
+          {
+            "species": 311,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 183,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 118,
+            "min_level": 20,
+            "max_level": 30
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 118,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 60,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 118,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 323,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 323,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 323,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 61,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 323,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 323,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 27,
+      "land": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 339,
+            "min_level": 15,
+            "max_level": 15
+          },
+          {
+            "species": 339,
+            "min_level": 15,
+            "max_level": 15
+          },
+          {
+            "species": 183,
+            "min_level": 15,
+            "max_level": 15
+          },
+          {
+            "species": 339,
+            "min_level": 14,
+            "max_level": 14
+          },
+          {
+            "species": 339,
+            "min_level": 14,
+            "max_level": 14
+          },
+          {
+            "species": 183,
+            "min_level": 14,
+            "max_level": 14
+          },
+          {
+            "species": 240,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 183,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 339,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 339,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 240,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 240,
+            "min_level": 16,
+            "max_level": 16
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 28,
+      "land": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 308,
+            "min_level": 15,
+            "max_level": 15
+          },
+          {
+            "species": 308,
+            "min_level": 15,
+            "max_level": 15
+          },
+          {
+            "species": 218,
+            "min_level": 15,
+            "max_level": 15
+          },
+          {
+            "species": 77,
+            "min_level": 14,
+            "max_level": 14
+          },
+          {
+            "species": 308,
+            "min_level": 14,
+            "max_level": 14
+          },
+          {
+            "species": 218,
+            "min_level": 14,
+            "max_level": 14
+          },
+          {
+            "species": 308,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 218,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 308,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 227,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 308,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 227,
+            "min_level": 16,
+            "max_level": 16
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 29,
+      "land": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 358,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 295,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 358,
+            "min_level": 17,
+            "max_level": 17
+          },
+          {
+            "species": 358,
+            "min_level": 15,
+            "max_level": 15
+          },
+          {
+            "species": 198,
+            "min_level": 15,
+            "max_level": 15
+          },
+          {
+            "species": 296,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 296,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 296,
+            "min_level": 18,
+            "max_level": 18
+          },
+          {
+            "species": 380,
+            "min_level": 17,
+            "max_level": 17
+          },
+          {
+            "species": 379,
+            "min_level": 15,
+            "max_level": 15
+          },
+          {
+            "species": 108,
+            "min_level": 17,
+            "max_level": 17
+          },
+          {
+            "species": 299,
+            "min_level": 15,
+            "max_level": 15
+          }
+        ]
+      },
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 183,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 311,
+            "min_level": 10,
+            "max_level": 20
+          },
+          {
+            "species": 311,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 183,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 118,
+            "min_level": 20,
+            "max_level": 30
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 31,
+      "land": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 286,
+            "min_level": 6,
+            "max_level": 6
+          },
+          {
+            "species": 370,
+            "min_level": 6,
+            "max_level": 6
+          },
+          {
+            "species": 301,
+            "min_level": 6,
+            "max_level": 6
+          },
+          {
+            "species": 63,
+            "min_level": 7,
+            "max_level": 7
+          },
+          {
+            "species": 301,
+            "min_level": 7,
+            "max_level": 7
+          },
+          {
+            "species": 16,
+            "min_level": 6,
+            "max_level": 6
+          },
+          {
+            "species": 304,
+            "min_level": 7,
+            "max_level": 7
+          },
+          {
+            "species": 23,
+            "min_level": 8,
+            "max_level": 8
+          },
+          {
+            "species": 29,
+            "min_level": 7,
+            "max_level": 7
+          },
+          {
+            "species": 32,
+            "min_level": 8,
+            "max_level": 8
+          },
+          {
+            "species": 315,
+            "min_level": 7,
+            "max_level": 7
+          },
+          {
+            "species": 315,
+            "min_level": 8,
+            "max_level": 8
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 32,
+      "land": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 286,
+            "min_level": 13,
+            "max_level": 13
+          },
+          {
+            "species": 43,
+            "min_level": 13,
+            "max_level": 13
+          },
+          {
+            "species": 286,
+            "min_level": 14,
+            "max_level": 14
+          },
+          {
+            "species": 43,
+            "min_level": 14,
+            "max_level": 14
+          },
+          {
+            "species": 183,
+            "min_level": 13,
+            "max_level": 13
+          },
+          {
+            "species": 415,
+            "min_level": 13,
+            "max_level": 13
+          },
+          {
+            "species": 83,
+            "min_level": 13,
+            "max_level": 13
+          },
+          {
+            "species": 43,
+            "min_level": 13,
+            "max_level": 13
+          },
+          {
+            "species": 387,
+            "min_level": 14,
+            "max_level": 14
+          },
+          {
+            "species": 387,
+            "min_level": 14,
+            "max_level": 14
+          },
+          {
+            "species": 386,
+            "min_level": 13,
+            "max_level": 13
+          },
+          {
+            "species": 298,
+            "min_level": 13,
+            "max_level": 13
+          }
+        ]
+      },
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 183,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 311,
+            "min_level": 10,
+            "max_level": 20
+          },
+          {
+            "species": 311,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 183,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 118,
+            "min_level": 20,
+            "max_level": 30
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 118,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 60,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 118,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 326,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 326,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 326,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 61,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 326,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 326,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 33,
+      "land": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 288,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 337,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 19,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 337,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 289,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 338,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 20,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 309,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 309,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 309,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 309,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 317,
+            "min_level": 25,
+            "max_level": 25
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 39,
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 331,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 11,
+      "land": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 286,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 290,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 306,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 46,
+            "min_level": 6,
+            "max_level": 6
+          },
+          {
+            "species": 291,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 293,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 48,
+            "min_level": 6,
+            "max_level": 6
+          },
+          {
+            "species": 306,
+            "min_level": 6,
+            "max_level": 6
+          },
+          {
+            "species": 46,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 364,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 304,
+            "min_level": 6,
+            "max_level": 6
+          },
+          {
+            "species": 364,
+            "min_level": 6,
+            "max_level": 6
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 4,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 370,
+            "min_level": 6,
+            "max_level": 6
+          },
+          {
+            "species": 370,
+            "min_level": 7,
+            "max_level": 7
+          },
+          {
+            "species": 370,
+            "min_level": 6,
+            "max_level": 6
+          },
+          {
+            "species": 370,
+            "min_level": 6,
+            "max_level": 6
+          },
+          {
+            "species": 370,
+            "min_level": 7,
+            "max_level": 7
+          },
+          {
+            "species": 370,
+            "min_level": 7,
+            "max_level": 7
+          },
+          {
+            "species": 370,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 370,
+            "min_level": 8,
+            "max_level": 8
+          },
+          {
+            "species": 370,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 370,
+            "min_level": 8,
+            "max_level": 8
+          },
+          {
+            "species": 370,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 246,
+            "min_level": 8,
+            "max_level": 8
+          }
+        ]
+      },
+      "rock_smash": {
+        "encounter_rate": 150,
+        "slots": [
+          {
+            "species": 74,
+            "min_level": 10,
+            "max_level": 10
+          },
+          {
+            "species": 74,
+            "min_level": 12,
+            "max_level": 12
+          },
+          {
+            "species": 320,
+            "min_level": 12,
+            "max_level": 12
+          },
+          {
+            "species": 95,
+            "min_level": 15,
+            "max_level": 15
+          },
+          {
+            "species": 95,
+            "min_level": 15,
+            "max_level": 15
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 7,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 41,
+            "min_level": 7,
+            "max_level": 7
+          },
+          {
+            "species": 335,
+            "min_level": 8,
+            "max_level": 8
+          },
+          {
+            "species": 335,
+            "min_level": 7,
+            "max_level": 7
+          },
+          {
+            "species": 41,
+            "min_level": 8,
+            "max_level": 8
+          },
+          {
+            "species": 335,
+            "min_level": 9,
+            "max_level": 9
+          },
+          {
+            "species": 63,
+            "min_level": 8,
+            "max_level": 8
+          },
+          {
+            "species": 236,
+            "min_level": 10,
+            "max_level": 10
+          },
+          {
+            "species": 236,
+            "min_level": 6,
+            "max_level": 6
+          },
+          {
+            "species": 74,
+            "min_level": 7,
+            "max_level": 7
+          },
+          {
+            "species": 74,
+            "min_level": 8,
+            "max_level": 8
+          },
+          {
+            "species": 74,
+            "min_level": 6,
+            "max_level": 6
+          },
+          {
+            "species": 74,
+            "min_level": 9,
+            "max_level": 9
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 8,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 41,
+            "min_level": 9,
+            "max_level": 9
+          },
+          {
+            "species": 382,
+            "min_level": 10,
+            "max_level": 10
+          },
+          {
+            "species": 382,
+            "min_level": 9,
+            "max_level": 9
+          },
+          {
+            "species": 382,
+            "min_level": 11,
+            "max_level": 11
+          },
+          {
+            "species": 41,
+            "min_level": 10,
+            "max_level": 10
+          },
+          {
+            "species": 63,
+            "min_level": 9,
+            "max_level": 9
+          },
+          {
+            "species": 335,
+            "min_level": 10,
+            "max_level": 10
+          },
+          {
+            "species": 236,
+            "min_level": 11,
+            "max_level": 11
+          },
+          {
+            "species": 322,
+            "min_level": 10,
+            "max_level": 10
+          },
+          {
+            "species": 322,
+            "min_level": 10,
+            "max_level": 10
+          },
+          {
+            "species": 322,
+            "min_level": 9,
+            "max_level": 9
+          },
+          {
+            "species": 322,
+            "min_level": 11,
+            "max_level": 11
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 15,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 377,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 377,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 92,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 92,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 92,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 377,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 377,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 377,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 377,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 377,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 377,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 377,
+            "min_level": 24,
+            "max_level": 24
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 43,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 42,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 336,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 383,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 371,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 41,
+            "min_level": 36,
+            "max_level": 36
+          },
+          {
+            "species": 335,
+            "min_level": 36,
+            "max_level": 36
+          },
+          {
+            "species": 42,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 336,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 382,
+            "min_level": 36,
+            "max_level": 36
+          },
+          {
+            "species": 356,
+            "min_level": 36,
+            "max_level": 36
+          },
+          {
+            "species": 246,
+            "min_level": 36,
+            "max_level": 36
+          },
+          {
+            "species": 370,
+            "min_level": 36,
+            "max_level": 36
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 26,
+      "map_num": 3,
+      "land": {
+        "encounter_rate": 25,
+        "slots": [
+          {
+            "species": 43,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 43,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 203,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 203,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 177,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 84,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 44,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 202,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 25,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 128,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 123,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 123,
+            "min_level": 29,
+            "max_level": 29
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 51,
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 373,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 170,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 90,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 381,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 381,
+            "min_level": 30,
+            "max_level": 35
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 9,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 41,
+            "min_level": 10,
+            "max_level": 10
+          },
+          {
+            "species": 382,
+            "min_level": 11,
+            "max_level": 11
+          },
+          {
+            "species": 382,
+            "min_level": 10,
+            "max_level": 10
+          },
+          {
+            "species": 41,
+            "min_level": 11,
+            "max_level": 11
+          },
+          {
+            "species": 96,
+            "min_level": 12,
+            "max_level": 12
+          },
+          {
+            "species": 63,
+            "min_level": 10,
+            "max_level": 10
+          },
+          {
+            "species": 322,
+            "min_level": 10,
+            "max_level": 10
+          },
+          {
+            "species": 322,
+            "min_level": 11,
+            "max_level": 11
+          },
+          {
+            "species": 322,
+            "min_level": 12,
+            "max_level": 12
+          },
+          {
+            "species": 322,
+            "min_level": 10,
+            "max_level": 10
+          },
+          {
+            "species": 322,
+            "min_level": 12,
+            "max_level": 12
+          },
+          {
+            "species": 322,
+            "min_level": 10,
+            "max_level": 10
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 14,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 339,
+            "min_level": 15,
+            "max_level": 15
+          },
+          {
+            "species": 109,
+            "min_level": 15,
+            "max_level": 15
+          },
+          {
+            "species": 339,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 66,
+            "min_level": 15,
+            "max_level": 15
+          },
+          {
+            "species": 321,
+            "min_level": 15,
+            "max_level": 15
+          },
+          {
+            "species": 218,
+            "min_level": 15,
+            "max_level": 15
+          },
+          {
+            "species": 109,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 58,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 321,
+            "min_level": 14,
+            "max_level": 14
+          },
+          {
+            "species": 321,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 88,
+            "min_level": 14,
+            "max_level": 14
+          },
+          {
+            "species": 88,
+            "min_level": 14,
+            "max_level": 14
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 3,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 42,
+            "min_level": 33,
+            "max_level": 33
+          },
+          {
+            "species": 42,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 395,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 349,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 395,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 348,
+            "min_level": 37,
+            "max_level": 37
+          },
+          {
+            "species": 395,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 349,
+            "min_level": 39,
+            "max_level": 39
+          },
+          {
+            "species": 348,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 35,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 348,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 35,
+            "min_level": 40,
+            "max_level": 40
+          }
+        ]
+      },
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 42,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 42,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 349,
+            "min_level": 25,
+            "max_level": 35
+          },
+          {
+            "species": 147,
+            "min_level": 15,
+            "max_level": 25
+          },
+          {
+            "species": 147,
+            "min_level": 5,
+            "max_level": 15
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 118,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 129,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 118,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 323,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 323,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 323,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 324,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 211,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 211,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 13,
+      "land": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 339,
+            "min_level": 21,
+            "max_level": 21
+          },
+          {
+            "species": 339,
+            "min_level": 21,
+            "max_level": 21
+          },
+          {
+            "species": 66,
+            "min_level": 21,
+            "max_level": 21
+          },
+          {
+            "species": 58,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 351,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 236,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 351,
+            "min_level": 21,
+            "max_level": 21
+          },
+          {
+            "species": 66,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 77,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 351,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 77,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 351,
+            "min_level": 22,
+            "max_level": 22
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 21,
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 22,
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 23,
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 35
+          },
+          {
+            "species": 309,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 98,
+            "min_level": 15,
+            "max_level": 25
+          },
+          {
+            "species": 310,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 310,
+            "min_level": 25,
+            "max_level": 30
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 129,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 98,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 313,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 313,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 24,
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 30,
+      "land": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 358,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 56,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 21,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 56,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 304,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 305,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 39,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 39,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 309,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 309,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 22,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 22,
+            "min_level": 25,
+            "max_level": 25
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 53,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 100,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 81,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 100,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 81,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 100,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 81,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 239,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 81,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 100,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 101,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 125,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 82,
+            "min_level": 26,
+            "max_level": 26
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 34,
+      "land": {
+        "encounter_rate": 15,
+        "slots": [
+          {
+            "species": 288,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 289,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 19,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 43,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 20,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 43,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 43,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 43,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 369,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 369,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 369,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 317,
+            "min_level": 25,
+            "max_level": 25
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 35,
+      "land": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 286,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 287,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 287,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 19,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 183,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 43,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 20,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 183,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 376,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 376,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 317,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 298,
+            "min_level": 25,
+            "max_level": 25
+          }
+        ]
+      },
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 183,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 311,
+            "min_level": 10,
+            "max_level": 20
+          },
+          {
+            "species": 311,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 183,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 118,
+            "min_level": 20,
+            "max_level": 30
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 118,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 60,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 118,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 323,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 323,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 323,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 61,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 61,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 61,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 36,
+      "land": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 286,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 377,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 287,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 377,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 19,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 43,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 20,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 44,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 309,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 309,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 309,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 317,
+            "min_level": 25,
+            "max_level": 25
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 37,
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 331,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 211,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 38,
+      "land": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 286,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 377,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 287,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 19,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 22,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 20,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 43,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 44,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 309,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 309,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 436,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 317,
+            "min_level": 25,
+            "max_level": 25
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 60,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 61,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 61,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 61,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 61,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 16,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 377,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 377,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 92,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 92,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 92,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 377,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 377,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 377,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 377,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 377,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 377,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 377,
+            "min_level": 24,
+            "max_level": 24
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 17,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 377,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 377,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 92,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 92,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 92,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 377,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 377,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 377,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 377,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 377,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 377,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 377,
+            "min_level": 24,
+            "max_level": 24
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 18,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 377,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 377,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 377,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 92,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 92,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 92,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 377,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 377,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 361,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 361,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 361,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 361,
+            "min_level": 29,
+            "max_level": 29
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 19,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 377,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 377,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 92,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 92,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 92,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 377,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 377,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 377,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 361,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 361,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 361,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 361,
+            "min_level": 29,
+            "max_level": 29
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 20,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 377,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 377,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 92,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 92,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 92,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 377,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 377,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 200,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 361,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 361,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 361,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 361,
+            "min_level": 29,
+            "max_level": 29
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 21,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 377,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 377,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 356,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 356,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 37,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 37,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 37,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 37,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 92,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 92,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 92,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 309,
+            "min_level": 28,
+            "max_level": 28
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 22,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 377,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 377,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 92,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 92,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 377,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 377,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 416,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 361,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 361,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 361,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 411,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 411,
+            "min_level": 28,
+            "max_level": 28
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 10,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 41,
+            "min_level": 7,
+            "max_level": 7
+          },
+          {
+            "species": 335,
+            "min_level": 8,
+            "max_level": 8
+          },
+          {
+            "species": 335,
+            "min_level": 7,
+            "max_level": 7
+          },
+          {
+            "species": 41,
+            "min_level": 8,
+            "max_level": 8
+          },
+          {
+            "species": 335,
+            "min_level": 9,
+            "max_level": 9
+          },
+          {
+            "species": 63,
+            "min_level": 8,
+            "max_level": 8
+          },
+          {
+            "species": 335,
+            "min_level": 10,
+            "max_level": 10
+          },
+          {
+            "species": 236,
+            "min_level": 6,
+            "max_level": 6
+          },
+          {
+            "species": 382,
+            "min_level": 7,
+            "max_level": 7
+          },
+          {
+            "species": 382,
+            "min_level": 8,
+            "max_level": 8
+          },
+          {
+            "species": 382,
+            "min_level": 7,
+            "max_level": 7
+          },
+          {
+            "species": 246,
+            "min_level": 8,
+            "max_level": 8
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 40,
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 331,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 41,
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 331,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 42,
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 331,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 43,
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 325,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 325,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 222,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 44,
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 331,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 45,
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 331,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 46,
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 331,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 47,
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 331,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 116,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 48,
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 331,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 116,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 49,
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 331,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 116,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 33,
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 35
+          },
+          {
+            "species": 41,
+            "min_level": 5,
+            "max_level": 35
+          },
+          {
+            "species": 79,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 79,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 42,
+            "min_level": 30,
+            "max_level": 35
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 34,
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 35
+          },
+          {
+            "species": 41,
+            "min_level": 5,
+            "max_level": 35
+          },
+          {
+            "species": 79,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 79,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 42,
+            "min_level": 30,
+            "max_level": 35
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 27,
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 35
+          },
+          {
+            "species": 41,
+            "min_level": 5,
+            "max_level": 35
+          },
+          {
+            "species": 79,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 79,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 42,
+            "min_level": 30,
+            "max_level": 35
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 39,
+      "land": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 27,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 104,
+            "min_level": 20,
+            "max_level": 23
+          },
+          {
+            "species": 309,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 332,
+            "min_level": 20,
+            "max_level": 24
+          },
+          {
+            "species": 27,
+            "min_level": 20,
+            "max_level": 22
+          },
+          {
+            "species": 332,
+            "min_level": 20,
+            "max_level": 23
+          },
+          {
+            "species": 98,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 309,
+            "min_level": 20,
+            "max_level": 23
+          },
+          {
+            "species": 27,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 120,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 120,
+            "min_level": 20,
+            "max_level": 22
+          },
+          {
+            "species": 120,
+            "min_level": 23,
+            "max_level": 23
+          }
+        ]
+      },
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 309,
+            "min_level": 22,
+            "max_level": 29
+          },
+          {
+            "species": 72,
+            "min_level": 22,
+            "max_level": 28
+          },
+          {
+            "species": 310,
+            "min_level": 22,
+            "max_level": 23
+          },
+          {
+            "species": 310,
+            "min_level": 22,
+            "max_level": 30
+          },
+          {
+            "species": 310,
+            "min_level": 22,
+            "max_level": 30
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 6
+          },
+          {
+            "species": 118,
+            "min_level": 5,
+            "max_level": 15
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 15
+          },
+          {
+            "species": 118,
+            "min_level": 5,
+            "max_level": 15
+          },
+          {
+            "species": 72,
+            "min_level": 15,
+            "max_level": 25
+          },
+          {
+            "species": 118,
+            "min_level": 15,
+            "max_level": 25
+          },
+          {
+            "species": 313,
+            "min_level": 15,
+            "max_level": 25
+          },
+          {
+            "species": 99,
+            "min_level": 15,
+            "max_level": 26
+          },
+          {
+            "species": 99,
+            "min_level": 30,
+            "max_level": 35
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 41,
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 35
+          },
+          {
+            "species": 309,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 309,
+            "min_level": 15,
+            "max_level": 30
+          },
+          {
+            "species": 310,
+            "min_level": 25,
+            "max_level": 35
+          },
+          {
+            "species": 310,
+            "min_level": 30,
+            "max_level": 35
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 98,
+            "min_level": 15,
+            "max_level": 25
+          },
+          {
+            "species": 313,
+            "min_level": 15,
+            "max_level": 25
+          },
+          {
+            "species": 72,
+            "min_level": 15,
+            "max_level": 25
+          },
+          {
+            "species": 331,
+            "min_level": 25,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 211,
+            "min_level": 25,
+            "max_level": 35
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 314,
+            "min_level": 45,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 26,
+      "map_num": 2,
+      "land": {
+        "encounter_rate": 25,
+        "slots": [
+          {
+            "species": 43,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 43,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 203,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 202,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 177,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 84,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 44,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 25,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 203,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 426,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 113,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 8,
+            "min_level": 29,
+            "max_level": 29
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 26,
+      "map_num": 1,
+      "land": {
+        "encounter_rate": 25,
+        "slots": [
+          {
+            "species": 231,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 43,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 231,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 43,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 177,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 44,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 214,
+            "min_level": 31,
+            "max_level": 31
+          },
+          {
+            "species": 177,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 178,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 115,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 5,
+            "min_level": 31,
+            "max_level": 31
+          },
+          {
+            "species": 115,
+            "min_level": 29,
+            "max_level": 29
+          }
+        ]
+      },
+      "rock_smash": {
+        "encounter_rate": 25,
+        "slots": [
+          {
+            "species": 95,
+            "min_level": 10,
+            "max_level": 15
+          },
+          {
+            "species": 74,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 74,
+            "min_level": 15,
+            "max_level": 20
+          },
+          {
+            "species": 95,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 95,
+            "min_level": 25,
+            "max_level": 30
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 26,
+      "map_num": 0,
+      "land": {
+        "encounter_rate": 25,
+        "slots": [
+          {
+            "species": 111,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 43,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 111,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 43,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 84,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 114,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 44,
+            "min_level": 31,
+            "max_level": 31
+          },
+          {
+            "species": 114,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 85,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 127,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 2,
+            "min_level": 31,
+            "max_level": 31
+          },
+          {
+            "species": 127,
+            "min_level": 29,
+            "max_level": 29
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 44,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 42,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 336,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 383,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 357,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 42,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 336,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 42,
+            "min_level": 42,
+            "max_level": 42
+          },
+          {
+            "species": 336,
+            "min_level": 42,
+            "max_level": 42
+          },
+          {
+            "species": 357,
+            "min_level": 42,
+            "max_level": 42
+          },
+          {
+            "species": 355,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 383,
+            "min_level": 42,
+            "max_level": 42
+          },
+          {
+            "species": 246,
+            "min_level": 38,
+            "max_level": 38
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 45,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 42,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 322,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 383,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 357,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 42,
+            "min_level": 42,
+            "max_level": 42
+          },
+          {
+            "species": 322,
+            "min_level": 42,
+            "max_level": 42
+          },
+          {
+            "species": 42,
+            "min_level": 44,
+            "max_level": 44
+          },
+          {
+            "species": 322,
+            "min_level": 44,
+            "max_level": 44
+          },
+          {
+            "species": 383,
+            "min_level": 42,
+            "max_level": 42
+          },
+          {
+            "species": 355,
+            "min_level": 42,
+            "max_level": 42
+          },
+          {
+            "species": 357,
+            "min_level": 44,
+            "max_level": 44
+          },
+          {
+            "species": 247,
+            "min_level": 44,
+            "max_level": 44
+          }
+        ]
+      },
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 42,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 42,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 147,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 148,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 148,
+            "min_level": 35,
+            "max_level": 40
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 0,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 41,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 41,
+            "min_level": 17,
+            "max_level": 17
+          },
+          {
+            "species": 30,
+            "min_level": 18,
+            "max_level": 18
+          },
+          {
+            "species": 33,
+            "min_level": 15,
+            "max_level": 15
+          },
+          {
+            "species": 41,
+            "min_level": 14,
+            "max_level": 14
+          },
+          {
+            "species": 349,
+            "min_level": 16,
+            "max_level": 16
+          },
+          {
+            "species": 348,
+            "min_level": 18,
+            "max_level": 18
+          },
+          {
+            "species": 348,
+            "min_level": 14,
+            "max_level": 14
+          },
+          {
+            "species": 41,
+            "min_level": 19,
+            "max_level": 19
+          },
+          {
+            "species": 41,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 41,
+            "min_level": 19,
+            "max_level": 19
+          },
+          {
+            "species": 35,
+            "min_level": 20,
+            "max_level": 20
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 1,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 42,
+            "min_level": 33,
+            "max_level": 33
+          },
+          {
+            "species": 42,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 42,
+            "min_level": 33,
+            "max_level": 33
+          },
+          {
+            "species": 349,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 349,
+            "min_level": 33,
+            "max_level": 33
+          },
+          {
+            "species": 348,
+            "min_level": 37,
+            "max_level": 37
+          },
+          {
+            "species": 30,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 348,
+            "min_level": 39,
+            "max_level": 39
+          },
+          {
+            "species": 33,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 35,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 35,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 35,
+            "min_level": 40,
+            "max_level": 40
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 2,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 42,
+            "min_level": 33,
+            "max_level": 33
+          },
+          {
+            "species": 42,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 42,
+            "min_level": 33,
+            "max_level": 33
+          },
+          {
+            "species": 348,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 348,
+            "min_level": 33,
+            "max_level": 33
+          },
+          {
+            "species": 349,
+            "min_level": 37,
+            "max_level": 37
+          },
+          {
+            "species": 33,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 349,
+            "min_level": 39,
+            "max_level": 39
+          },
+          {
+            "species": 30,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 35,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 35,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 35,
+            "min_level": 40,
+            "max_level": 40
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 47,
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 35
+          },
+          {
+            "species": 86,
+            "min_level": 5,
+            "max_level": 35
+          },
+          {
+            "species": 87,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 131,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 131,
+            "min_level": 25,
+            "max_level": 35
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 46,
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 35
+          },
+          {
+            "species": 86,
+            "min_level": 5,
+            "max_level": 35
+          },
+          {
+            "species": 86,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 87,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 87,
+            "min_level": 25,
+            "max_level": 35
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 5,
+      "fishing": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 120,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 11,
+      "fishing": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 1,
+      "fishing": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 6,
+      "fishing": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 331,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 15,
+      "fishing": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 72,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 331,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 8,
+      "fishing": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 72,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 325,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 313,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 325,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 222,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 99,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 99,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 0,
+      "fishing": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 60,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 129,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 118,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 98,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 326,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 326,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 326,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 326,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 326,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 0,
+      "map_num": 50,
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 373,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 90,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 170,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 381,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 381,
+            "min_level": 30,
+            "max_level": 35
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 83,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 220,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 341,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 41,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 341,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 238,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 341,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 346,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 341,
+            "min_level": 32,
+            "max_level": 32
+          },
+          {
+            "species": 42,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 346,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 215,
+            "min_level": 32,
+            "max_level": 32
+          },
+          {
+            "species": 225,
+            "min_level": 30,
+            "max_level": 30
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 79,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 322,
+            "min_level": 33,
+            "max_level": 33
+          },
+          {
+            "species": 42,
+            "min_level": 34,
+            "max_level": 34
+          },
+          {
+            "species": 97,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 322,
+            "min_level": 34,
+            "max_level": 34
+          },
+          {
+            "species": 319,
+            "min_level": 36,
+            "max_level": 36
+          },
+          {
+            "species": 378,
+            "min_level": 37,
+            "max_level": 37
+          },
+          {
+            "species": 378,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 24,
+            "min_level": 36,
+            "max_level": 36
+          },
+          {
+            "species": 24,
+            "min_level": 37,
+            "max_level": 37
+          },
+          {
+            "species": 93,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 93,
+            "min_level": 37,
+            "max_level": 37
+          },
+          {
+            "species": 319,
+            "min_level": 38,
+            "max_level": 38
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 81,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 322,
+            "min_level": 33,
+            "max_level": 33
+          },
+          {
+            "species": 42,
+            "min_level": 34,
+            "max_level": 34
+          },
+          {
+            "species": 97,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 322,
+            "min_level": 34,
+            "max_level": 34
+          },
+          {
+            "species": 319,
+            "min_level": 36,
+            "max_level": 36
+          },
+          {
+            "species": 378,
+            "min_level": 37,
+            "max_level": 37
+          },
+          {
+            "species": 378,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 24,
+            "min_level": 36,
+            "max_level": 36
+          },
+          {
+            "species": 24,
+            "min_level": 37,
+            "max_level": 37
+          },
+          {
+            "species": 93,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 93,
+            "min_level": 37,
+            "max_level": 37
+          },
+          {
+            "species": 319,
+            "min_level": 38,
+            "max_level": 38
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 84,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 322,
+            "min_level": 33,
+            "max_level": 33
+          },
+          {
+            "species": 42,
+            "min_level": 34,
+            "max_level": 34
+          },
+          {
+            "species": 97,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 24,
+            "min_level": 34,
+            "max_level": 34
+          },
+          {
+            "species": 319,
+            "min_level": 36,
+            "max_level": 36
+          },
+          {
+            "species": 378,
+            "min_level": 37,
+            "max_level": 37
+          },
+          {
+            "species": 378,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 319,
+            "min_level": 36,
+            "max_level": 36
+          },
+          {
+            "species": 93,
+            "min_level": 37,
+            "max_level": 37
+          },
+          {
+            "species": 359,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 359,
+            "min_level": 39,
+            "max_level": 39
+          },
+          {
+            "species": 359,
+            "min_level": 39,
+            "max_level": 39
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 26,
+      "map_num": 13,
+      "land": {
+        "encounter_rate": 25,
+        "slots": [
+          {
+            "species": 191,
+            "min_level": 22,
+            "max_level": 30
+          },
+          {
+            "species": 179,
+            "min_level": 21,
+            "max_level": 30
+          },
+          {
+            "species": 187,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 206,
+            "min_level": 22,
+            "max_level": 30
+          },
+          {
+            "species": 190,
+            "min_level": 23,
+            "max_level": 30
+          },
+          {
+            "species": 167,
+            "min_level": 22,
+            "max_level": 30
+          },
+          {
+            "species": 163,
+            "min_level": 26,
+            "max_level": 30
+          },
+          {
+            "species": 209,
+            "min_level": 24,
+            "max_level": 30
+          },
+          {
+            "species": 234,
+            "min_level": 22,
+            "max_level": 30
+          },
+          {
+            "species": 207,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 234,
+            "min_level": 28,
+            "max_level": 30
+          },
+          {
+            "species": 207,
+            "min_level": 30,
+            "max_level": 30
+          }
+        ]
+      },
+      "water": {
+        "encounter_rate": 9,
+        "slots": [
+          {
+            "species": 194,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 183,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 433,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 433,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 195,
+            "min_level": 35,
+            "max_level": 40
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 35,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 118,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 129,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 118,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 223,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 118,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 223,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 223,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 223,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 224,
+            "min_level": 35,
+            "max_level": 36
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 26,
+      "map_num": 12,
+      "land": {
+        "encounter_rate": 25,
+        "slots": [
+          {
+            "species": 190,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 216,
+            "min_level": 24,
+            "max_level": 30
+          },
+          {
+            "species": 190,
+            "min_level": 22,
+            "max_level": 30
+          },
+          {
+            "species": 216,
+            "min_level": 23,
+            "max_level": 30
+          },
+          {
+            "species": 193,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 165,
+            "min_level": 23,
+            "max_level": 30
+          },
+          {
+            "species": 163,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 204,
+            "min_level": 26,
+            "max_level": 30
+          },
+          {
+            "species": 228,
+            "min_level": 27,
+            "max_level": 30
+          },
+          {
+            "species": 241,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 228,
+            "min_level": 29,
+            "max_level": 31
+          },
+          {
+            "species": 241,
+            "min_level": 29,
+            "max_level": 31
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 86,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 74,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 321,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 74,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 321,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 126,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 31,
+            "max_level": 31
+          },
+          {
+            "species": 75,
+            "min_level": 32,
+            "max_level": 32
+          },
+          {
+            "species": 75,
+            "min_level": 33,
+            "max_level": 33
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 87,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 74,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 321,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 74,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 321,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 126,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 31,
+            "max_level": 31
+          },
+          {
+            "species": 75,
+            "min_level": 32,
+            "max_level": 32
+          },
+          {
+            "species": 75,
+            "min_level": 33,
+            "max_level": 33
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 88,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 74,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 321,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 74,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 321,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 126,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 31,
+            "max_level": 31
+          },
+          {
+            "species": 75,
+            "min_level": 32,
+            "max_level": 32
+          },
+          {
+            "species": 75,
+            "min_level": 33,
+            "max_level": 33
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 89,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 74,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 321,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 74,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 321,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 126,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 31,
+            "max_level": 31
+          },
+          {
+            "species": 75,
+            "min_level": 32,
+            "max_level": 32
+          },
+          {
+            "species": 75,
+            "min_level": 33,
+            "max_level": 33
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 90,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 74,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 321,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 74,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 321,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 126,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 31,
+            "max_level": 31
+          },
+          {
+            "species": 75,
+            "min_level": 32,
+            "max_level": 32
+          },
+          {
+            "species": 75,
+            "min_level": 33,
+            "max_level": 33
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 91,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 74,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 321,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 74,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 321,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 126,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 31,
+            "max_level": 31
+          },
+          {
+            "species": 75,
+            "min_level": 32,
+            "max_level": 32
+          },
+          {
+            "species": 75,
+            "min_level": 33,
+            "max_level": 33
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 92,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 74,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 321,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 74,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 321,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 126,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 31,
+            "max_level": 31
+          },
+          {
+            "species": 75,
+            "min_level": 32,
+            "max_level": 32
+          },
+          {
+            "species": 75,
+            "min_level": 33,
+            "max_level": 33
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 93,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 74,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 321,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 74,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 321,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 126,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 31,
+            "max_level": 31
+          },
+          {
+            "species": 75,
+            "min_level": 32,
+            "max_level": 32
+          },
+          {
+            "species": 75,
+            "min_level": 33,
+            "max_level": 33
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 94,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 27,
+            "min_level": 21,
+            "max_level": 21
+          },
+          {
+            "species": 332,
+            "min_level": 21,
+            "max_level": 21
+          },
+          {
+            "species": 50,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 332,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 27,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 104,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 104,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 50,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 27,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 332,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 27,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 332,
+            "min_level": 24,
+            "max_level": 24
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 95,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 27,
+            "min_level": 21,
+            "max_level": 21
+          },
+          {
+            "species": 332,
+            "min_level": 21,
+            "max_level": 21
+          },
+          {
+            "species": 50,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 332,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 27,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 104,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 104,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 50,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 27,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 332,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 27,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 332,
+            "min_level": 24,
+            "max_level": 24
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 96,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 27,
+            "min_level": 21,
+            "max_level": 21
+          },
+          {
+            "species": 332,
+            "min_level": 21,
+            "max_level": 21
+          },
+          {
+            "species": 50,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 332,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 27,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 104,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 104,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 50,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 27,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 332,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 27,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 332,
+            "min_level": 24,
+            "max_level": 24
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 97,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 27,
+            "min_level": 21,
+            "max_level": 21
+          },
+          {
+            "species": 332,
+            "min_level": 21,
+            "max_level": 21
+          },
+          {
+            "species": 50,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 332,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 27,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 104,
+            "min_level": 20,
+            "max_level": 20
+          },
+          {
+            "species": 104,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 50,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 27,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 332,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 27,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 332,
+            "min_level": 24,
+            "max_level": 24
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 98,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 132,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 50,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 132,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 371,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 132,
+            "min_level": 41,
+            "max_level": 41
+          },
+          {
+            "species": 370,
+            "min_level": 36,
+            "max_level": 36
+          },
+          {
+            "species": 371,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 132,
+            "min_level": 42,
+            "max_level": 42
+          },
+          {
+            "species": 51,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 132,
+            "min_level": 43,
+            "max_level": 43
+          },
+          {
+            "species": 371,
+            "min_level": 44,
+            "max_level": 44
+          },
+          {
+            "species": 132,
+            "min_level": 45,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 99,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 235,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 235,
+            "min_level": 41,
+            "max_level": 41
+          },
+          {
+            "species": 235,
+            "min_level": 42,
+            "max_level": 42
+          },
+          {
+            "species": 235,
+            "min_level": 43,
+            "max_level": 43
+          },
+          {
+            "species": 235,
+            "min_level": 44,
+            "max_level": 44
+          },
+          {
+            "species": 235,
+            "min_level": 45,
+            "max_level": 45
+          },
+          {
+            "species": 235,
+            "min_level": 46,
+            "max_level": 46
+          },
+          {
+            "species": 235,
+            "min_level": 47,
+            "max_level": 47
+          },
+          {
+            "species": 235,
+            "min_level": 48,
+            "max_level": 48
+          },
+          {
+            "species": 235,
+            "min_level": 49,
+            "max_level": 49
+          },
+          {
+            "species": 235,
+            "min_level": 50,
+            "max_level": 50
+          },
+          {
+            "species": 137,
+            "min_level": 50,
+            "max_level": 50
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 100,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 235,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 235,
+            "min_level": 41,
+            "max_level": 41
+          },
+          {
+            "species": 235,
+            "min_level": 42,
+            "max_level": 42
+          },
+          {
+            "species": 235,
+            "min_level": 43,
+            "max_level": 43
+          },
+          {
+            "species": 235,
+            "min_level": 44,
+            "max_level": 44
+          },
+          {
+            "species": 235,
+            "min_level": 45,
+            "max_level": 45
+          },
+          {
+            "species": 235,
+            "min_level": 46,
+            "max_level": 46
+          },
+          {
+            "species": 235,
+            "min_level": 47,
+            "max_level": 47
+          },
+          {
+            "species": 235,
+            "min_level": 48,
+            "max_level": 48
+          },
+          {
+            "species": 235,
+            "min_level": 49,
+            "max_level": 49
+          },
+          {
+            "species": 235,
+            "min_level": 50,
+            "max_level": 50
+          },
+          {
+            "species": 137,
+            "min_level": 50,
+            "max_level": 50
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 107,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 42,
+            "min_level": 33,
+            "max_level": 33
+          },
+          {
+            "species": 42,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 42,
+            "min_level": 33,
+            "max_level": 33
+          },
+          {
+            "species": 349,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 349,
+            "min_level": 33,
+            "max_level": 33
+          },
+          {
+            "species": 348,
+            "min_level": 37,
+            "max_level": 37
+          },
+          {
+            "species": 395,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 349,
+            "min_level": 39,
+            "max_level": 39
+          },
+          {
+            "species": 348,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 42,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 348,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 35,
+            "min_level": 40,
+            "max_level": 40
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 26,
+      "map_num": 91,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 201,
+            "min_level": 1,
+            "max_level": 45
+          },
+          {
+            "species": 201,
+            "min_level": 1,
+            "max_level": 50
+          },
+          {
+            "species": 201,
+            "min_level": 1,
+            "max_level": 55
+          },
+          {
+            "species": 201,
+            "min_level": 1,
+            "max_level": 60
+          },
+          {
+            "species": 201,
+            "min_level": 1,
+            "max_level": 65
+          },
+          {
+            "species": 201,
+            "min_level": 1,
+            "max_level": 70
+          },
+          {
+            "species": 201,
+            "min_level": 1,
+            "max_level": 75
+          },
+          {
+            "species": 201,
+            "min_level": 1,
+            "max_level": 80
+          },
+          {
+            "species": 201,
+            "min_level": 1,
+            "max_level": 85
+          },
+          {
+            "species": 201,
+            "min_level": 1,
+            "max_level": 90
+          },
+          {
+            "species": 201,
+            "min_level": 1,
+            "max_level": 95
+          },
+          {
+            "species": 201,
+            "min_level": 1,
+            "max_level": 100
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 26,
+      "map_num": 92,
+      "land": {
+        "encounter_rate": 0,
+        "slots": [
+          {
+            "species": 201,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 201,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 201,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 201,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 201,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 201,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 201,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 201,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 201,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 201,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 201,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 201,
+            "min_level": 5,
+            "max_level": 5
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 76,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 177,
+            "min_level": 22,
+            "max_level": 29
+          },
+          {
+            "species": 228,
+            "min_level": 23,
+            "max_level": 31
+          },
+          {
+            "species": 190,
+            "min_level": 21,
+            "max_level": 30
+          },
+          {
+            "species": 177,
+            "min_level": 25,
+            "max_level": 35
+          },
+          {
+            "species": 204,
+            "min_level": 23,
+            "max_level": 38
+          },
+          {
+            "species": 179,
+            "min_level": 23,
+            "max_level": 35
+          },
+          {
+            "species": 280,
+            "min_level": 25,
+            "max_level": 36
+          },
+          {
+            "species": 277,
+            "min_level": 26,
+            "max_level": 35
+          },
+          {
+            "species": 283,
+            "min_level": 27,
+            "max_level": 33
+          },
+          {
+            "species": 204,
+            "min_level": 26,
+            "max_level": 37
+          },
+          {
+            "species": 283,
+            "min_level": 27,
+            "max_level": 36
+          },
+          {
+            "species": 241,
+            "min_level": 28,
+            "max_level": 34
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 115,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 47,
+            "min_level": 49,
+            "max_level": 58
+          },
+          {
+            "species": 82,
+            "min_level": 49,
+            "max_level": 49
+          },
+          {
+            "species": 42,
+            "min_level": 46,
+            "max_level": 55
+          },
+          {
+            "species": 67,
+            "min_level": 46,
+            "max_level": 50
+          },
+          {
+            "species": 57,
+            "min_level": 52,
+            "max_level": 55
+          },
+          {
+            "species": 132,
+            "min_level": 52,
+            "max_level": 57
+          },
+          {
+            "species": 47,
+            "min_level": 51,
+            "max_level": 58
+          },
+          {
+            "species": 101,
+            "min_level": 58,
+            "max_level": 58
+          },
+          {
+            "species": 42,
+            "min_level": 47,
+            "max_level": 52
+          },
+          {
+            "species": 202,
+            "min_level": 55,
+            "max_level": 55
+          },
+          {
+            "species": 68,
+            "min_level": 60,
+            "max_level": 61
+          },
+          {
+            "species": 449,
+            "min_level": 60,
+            "max_level": 61
+          }
+        ]
+      },
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 54,
+            "min_level": 30,
+            "max_level": 50
+          },
+          {
+            "species": 79,
+            "min_level": 40,
+            "max_level": 50
+          },
+          {
+            "species": 55,
+            "min_level": 40,
+            "max_level": 55
+          },
+          {
+            "species": 80,
+            "min_level": 40,
+            "max_level": 55
+          },
+          {
+            "species": 80,
+            "min_level": 40,
+            "max_level": 55
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 60,
+            "min_level": 5,
+            "max_level": 15
+          },
+          {
+            "species": 118,
+            "min_level": 5,
+            "max_level": 15
+          },
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 15
+          },
+          {
+            "species": 118,
+            "min_level": 5,
+            "max_level": 15
+          },
+          {
+            "species": 61,
+            "min_level": 15,
+            "max_level": 25
+          },
+          {
+            "species": 119,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 130,
+            "min_level": 15,
+            "max_level": 25
+          },
+          {
+            "species": 54,
+            "min_level": 15,
+            "max_level": 35
+          },
+          {
+            "species": 79,
+            "min_level": 15,
+            "max_level": 35
+          }
+        ]
+      },
+      "rock_smash": {
+        "encounter_rate": 20,
+        "slots": [
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 50
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 50
+          },
+          {
+            "species": 75,
+            "min_level": 40,
+            "max_level": 55
+          },
+          {
+            "species": 75,
+            "min_level": 40,
+            "max_level": 55
+          },
+          {
+            "species": 75,
+            "min_level": 40,
+            "max_level": 55
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 116,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 42,
+            "min_level": 49,
+            "max_level": 58
+          },
+          {
+            "species": 67,
+            "min_level": 49,
+            "max_level": 50
+          },
+          {
+            "species": 82,
+            "min_level": 52,
+            "max_level": 52
+          },
+          {
+            "species": 64,
+            "min_level": 55,
+            "max_level": 64
+          },
+          {
+            "species": 132,
+            "min_level": 55,
+            "max_level": 64
+          },
+          {
+            "species": 47,
+            "min_level": 52,
+            "max_level": 61
+          },
+          {
+            "species": 202,
+            "min_level": 55,
+            "max_level": 58
+          },
+          {
+            "species": 42,
+            "min_level": 46,
+            "max_level": 57
+          },
+          {
+            "species": 47,
+            "min_level": 53,
+            "max_level": 59
+          },
+          {
+            "species": 101,
+            "min_level": 61,
+            "max_level": 61
+          },
+          {
+            "species": 76,
+            "min_level": 55,
+            "max_level": 64
+          },
+          {
+            "species": 65,
+            "min_level": 55,
+            "max_level": 65
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 117,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 64,
+            "min_level": 58,
+            "max_level": 67
+          },
+          {
+            "species": 132,
+            "min_level": 58,
+            "max_level": 67
+          },
+          {
+            "species": 47,
+            "min_level": 55,
+            "max_level": 63
+          },
+          {
+            "species": 42,
+            "min_level": 52,
+            "max_level": 61
+          },
+          {
+            "species": 202,
+            "min_level": 52,
+            "max_level": 52
+          },
+          {
+            "species": 82,
+            "min_level": 55,
+            "max_level": 55
+          },
+          {
+            "species": 64,
+            "min_level": 58,
+            "max_level": 66
+          },
+          {
+            "species": 132,
+            "min_level": 55,
+            "max_level": 67
+          },
+          {
+            "species": 47,
+            "min_level": 55,
+            "max_level": 66
+          },
+          {
+            "species": 101,
+            "min_level": 64,
+            "max_level": 64
+          },
+          {
+            "species": 169,
+            "min_level": 58,
+            "max_level": 61
+          },
+          {
+            "species": 431,
+            "min_level": 61,
+            "max_level": 61
+          }
+        ]
+      },
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 79,
+            "min_level": 40,
+            "max_level": 60
+          },
+          {
+            "species": 54,
+            "min_level": 40,
+            "max_level": 60
+          },
+          {
+            "species": 80,
+            "min_level": 50,
+            "max_level": 65
+          },
+          {
+            "species": 55,
+            "min_level": 50,
+            "max_level": 65
+          },
+          {
+            "species": 55,
+            "min_level": 50,
+            "max_level": 65
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 60,
+            "min_level": 5,
+            "max_level": 15
+          },
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 15
+          },
+          {
+            "species": 118,
+            "min_level": 5,
+            "max_level": 15
+          },
+          {
+            "species": 119,
+            "min_level": 15,
+            "max_level": 25
+          },
+          {
+            "species": 61,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 130,
+            "min_level": 15,
+            "max_level": 35
+          },
+          {
+            "species": 54,
+            "min_level": 15,
+            "max_level": 25
+          },
+          {
+            "species": 79,
+            "min_level": 15,
+            "max_level": 25
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 108,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 341,
+            "min_level": 25,
+            "max_level": 40
+          },
+          {
+            "species": 346,
+            "min_level": 25,
+            "max_level": 40
+          },
+          {
+            "species": 220,
+            "min_level": 20,
+            "max_level": 40
+          },
+          {
+            "species": 220,
+            "min_level": 20,
+            "max_level": 40
+          },
+          {
+            "species": 41,
+            "min_level": 25,
+            "max_level": 40
+          },
+          {
+            "species": 221,
+            "min_level": 22,
+            "max_level": 40
+          },
+          {
+            "species": 346,
+            "min_level": 21,
+            "max_level": 40
+          },
+          {
+            "species": 341,
+            "min_level": 25,
+            "max_level": 40
+          },
+          {
+            "species": 346,
+            "min_level": 22,
+            "max_level": 40
+          },
+          {
+            "species": 42,
+            "min_level": 23,
+            "max_level": 40
+          },
+          {
+            "species": 124,
+            "min_level": 20,
+            "max_level": 40
+          },
+          {
+            "species": 346,
+            "min_level": 40,
+            "max_level": 40
+          }
+        ]
+      },
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 86,
+            "min_level": 20,
+            "max_level": 35
+          },
+          {
+            "species": 87,
+            "min_level": 25,
+            "max_level": 35
+          },
+          {
+            "species": 131,
+            "min_level": 25,
+            "max_level": 35
+          },
+          {
+            "species": 131,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 131,
+            "min_level": 31,
+            "max_level": 35
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 5
+          },
+          {
+            "species": 129,
+            "min_level": 15,
+            "max_level": 25
+          },
+          {
+            "species": 72,
+            "min_level": 15,
+            "max_level": 25
+          },
+          {
+            "species": 90,
+            "min_level": 20,
+            "max_level": 25
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 40
+          },
+          {
+            "species": 313,
+            "min_level": 30,
+            "max_level": 40
+          },
+          {
+            "species": 91,
+            "min_level": 32,
+            "max_level": 40
+          },
+          {
+            "species": 91,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 314,
+            "min_level": 45,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 109,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 100,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 81,
+            "min_level": 24,
+            "max_level": 24
+          },
+          {
+            "species": 100,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 81,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 100,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 81,
+            "min_level": 23,
+            "max_level": 23
+          },
+          {
+            "species": 239,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 125,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 100,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 101,
+            "min_level": 22,
+            "max_level": 22
+          },
+          {
+            "species": 82,
+            "min_level": 26,
+            "max_level": 26
+          },
+          {
+            "species": 421,
+            "min_level": 26,
+            "max_level": 26
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 110,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 74,
+            "min_level": 27,
+            "max_level": 27
+          },
+          {
+            "species": 321,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 74,
+            "min_level": 28,
+            "max_level": 28
+          },
+          {
+            "species": 321,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 29,
+            "max_level": 29
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 126,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 31,
+            "max_level": 31
+          },
+          {
+            "species": 75,
+            "min_level": 32,
+            "max_level": 32
+          },
+          {
+            "species": 430,
+            "min_level": 33,
+            "max_level": 33
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 119,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 42,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 322,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 357,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 383,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 42,
+            "min_level": 42,
+            "max_level": 42
+          },
+          {
+            "species": 322,
+            "min_level": 42,
+            "max_level": 42
+          },
+          {
+            "species": 42,
+            "min_level": 44,
+            "max_level": 44
+          },
+          {
+            "species": 322,
+            "min_level": 44,
+            "max_level": 44
+          },
+          {
+            "species": 247,
+            "min_level": 42,
+            "max_level": 42
+          },
+          {
+            "species": 355,
+            "min_level": 42,
+            "max_level": 42
+          },
+          {
+            "species": 357,
+            "min_level": 44,
+            "max_level": 44
+          },
+          {
+            "species": 355,
+            "min_level": 44,
+            "max_level": 44
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 123,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 42,
+            "min_level": 33,
+            "max_level": 33
+          },
+          {
+            "species": 42,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 395,
+            "min_level": 30,
+            "max_level": 30
+          },
+          {
+            "species": 349,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 395,
+            "min_level": 35,
+            "max_level": 35
+          },
+          {
+            "species": 348,
+            "min_level": 37,
+            "max_level": 37
+          },
+          {
+            "species": 395,
+            "min_level": 25,
+            "max_level": 25
+          },
+          {
+            "species": 349,
+            "min_level": 39,
+            "max_level": 39
+          },
+          {
+            "species": 348,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 35,
+            "min_level": 40,
+            "max_level": 40
+          },
+          {
+            "species": 348,
+            "min_level": 38,
+            "max_level": 38
+          },
+          {
+            "species": 35,
+            "min_level": 40,
+            "max_level": 40
+          }
+        ]
+      },
+      "water": {
+        "encounter_rate": 4,
+        "slots": [
+          {
+            "species": 42,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 42,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 349,
+            "min_level": 25,
+            "max_level": 35
+          },
+          {
+            "species": 147,
+            "min_level": 15,
+            "max_level": 25
+          },
+          {
+            "species": 147,
+            "min_level": 5,
+            "max_level": 15
+          }
+        ]
+      },
+      "fishing": {
+        "encounter_rate": 30,
+        "slots": [
+          {
+            "species": 129,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 118,
+            "min_level": 5,
+            "max_level": 10
+          },
+          {
+            "species": 129,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 118,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 323,
+            "min_level": 10,
+            "max_level": 30
+          },
+          {
+            "species": 323,
+            "min_level": 25,
+            "max_level": 30
+          },
+          {
+            "species": 323,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 324,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 211,
+            "min_level": 35,
+            "max_level": 40
+          },
+          {
+            "species": 211,
+            "min_level": 40,
+            "max_level": 45
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 26,
+      "map_num": 66,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 177,
+            "min_level": 25,
+            "max_level": 35
+          },
+          {
+            "species": 235,
+            "min_level": 25,
+            "max_level": 35
+          },
+          {
+            "species": 194,
+            "min_level": 25,
+            "max_level": 35
+          },
+          {
+            "species": 194,
+            "min_level": 25,
+            "max_level": 35
+          },
+          {
+            "species": 177,
+            "min_level": 30,
+            "max_level": 40
+          },
+          {
+            "species": 235,
+            "min_level": 30,
+            "max_level": 40
+          },
+          {
+            "species": 178,
+            "min_level": 40,
+            "max_level": 50
+          },
+          {
+            "species": 235,
+            "min_level": 40,
+            "max_level": 50
+          },
+          {
+            "species": 195,
+            "min_level": 40,
+            "max_level": 50
+          },
+          {
+            "species": 235,
+            "min_level": 40,
+            "max_level": 50
+          },
+          {
+            "species": 195,
+            "min_level": 40,
+            "max_level": 50
+          },
+          {
+            "species": 235,
+            "min_level": 40,
+            "max_level": 50
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 26,
+      "map_num": 68,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 41,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 20,
+            "max_level": 31
+          },
+          {
+            "species": 322,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 92,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 92,
+            "min_level": 20,
+            "max_level": 32
+          },
+          {
+            "species": 41,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 41,
+            "min_level": 20,
+            "max_level": 33
+          },
+          {
+            "species": 74,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 74,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 41,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 42,
+            "min_level": 33,
+            "max_level": 40
+          },
+          {
+            "species": 75,
+            "min_level": 32,
+            "max_level": 40
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 26,
+      "map_num": 69,
+      "land": {
+        "encounter_rate": 10,
+        "slots": [
+          {
+            "species": 41,
+            "min_level": 30,
+            "max_level": 35
+          },
+          {
+            "species": 74,
+            "min_level": 28,
+            "max_level": 36
+          },
+          {
+            "species": 322,
+            "min_level": 32,
+            "max_level": 40
+          },
+          {
+            "species": 322,
+            "min_level": 33,
+            "max_level": 35
+          },
+          {
+            "species": 92,
+            "min_level": 30,
+            "max_level": 32
+          },
+          {
+            "species": 92,
+            "min_level": 27,
+            "max_level": 33
+          },
+          {
+            "species": 42,
+            "min_level": 26,
+            "max_level": 35
+          },
+          {
+            "species": 75,
+            "min_level": 24,
+            "max_level": 36
+          },
+          {
+            "species": 95,
+            "min_level": 26,
+            "max_level": 38
+          },
+          {
+            "species": 93,
+            "min_level": 27,
+            "max_level": 38
+          },
+          {
+            "species": 93,
+            "min_level": 40,
+            "max_level": 51
+          },
+          {
+            "species": 95,
+            "min_level": 40,
+            "max_level": 52
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 26,
+      "map_num": 70,
+      "land": {
+        "encounter_rate": 5,
+        "slots": [
+          {
+            "species": 42,
+            "min_level": 33,
+            "max_level": 53
+          },
+          {
+            "species": 75,
+            "min_level": 32,
+            "max_level": 52
+          },
+          {
+            "species": 322,
+            "min_level": 31,
+            "max_level": 51
+          },
+          {
+            "species": 322,
+            "min_level": 36,
+            "max_level": 55
+          },
+          {
+            "species": 93,
+            "min_level": 38,
+            "max_level": 51
+          },
+          {
+            "species": 93,
+            "min_level": 34,
+            "max_level": 52
+          },
+          {
+            "species": 41,
+            "min_level": 40,
+            "max_level": 53
+          },
+          {
+            "species": 74,
+            "min_level": 40,
+            "max_level": 55
+          },
+          {
+            "species": 95,
+            "min_level": 40,
+            "max_level": 53
+          },
+          {
+            "species": 92,
+            "min_level": 40,
+            "max_level": 55
+          },
+          {
+            "species": 169,
+            "min_level": 50,
+            "max_level": 61
+          },
+          {
+            "species": 76,
+            "min_level": 50,
+            "max_level": 61
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 26,
+      "map_num": 90,
+      "land": {
+        "encounter_rate": 5,
+        "slots": [
+          {
+            "species": 42,
+            "min_level": 50,
+            "max_level": 58
+          },
+          {
+            "species": 75,
+            "min_level": 49,
+            "max_level": 57
+          },
+          {
+            "species": 322,
+            "min_level": 55,
+            "max_level": 60
+          },
+          {
+            "species": 322,
+            "min_level": 50,
+            "max_level": 59
+          },
+          {
+            "species": 93,
+            "min_level": 54,
+            "max_level": 59
+          },
+          {
+            "species": 93,
+            "min_level": 53,
+            "max_level": 60
+          },
+          {
+            "species": 95,
+            "min_level": 55,
+            "max_level": 62
+          },
+          {
+            "species": 94,
+            "min_level": 56,
+            "max_level": 61
+          },
+          {
+            "species": 76,
+            "min_level": 60,
+            "max_level": 68
+          },
+          {
+            "species": 169,
+            "min_level": 60,
+            "max_level": 68
+          },
+          {
+            "species": 169,
+            "min_level": 69,
+            "max_level": 70
+          },
+          {
+            "species": 76,
+            "min_level": 69,
+            "max_level": 70
+          }
+        ]
+      }
+    },
+    {
+      "map_group": 24,
+      "map_num": 124,
+      "land": {
+        "encounter_rate": 5,
+        "slots": [
+          {
+            "species": 74,
+            "min_level": 15,
+            "max_level": 26
+          },
+          {
+            "species": 41,
+            "min_level": 15,
+            "max_level": 26
+          },
+          {
+            "species": 74,
+            "min_level": 15,
+            "max_level": 24
+          },
+          {
+            "species": 41,
+            "min_level": 15,
+            "max_level": 24
+          },
+          {
+            "species": 74,
+            "min_level": 15,
+            "max_level": 25
+          },
+          {
+            "species": 41,
+            "min_level": 15,
+            "max_level": 25
+          },
+          {
+            "species": 74,
+            "min_level": 15,
+            "max_level": 27
+          },
+          {
+            "species": 41,
+            "min_level": 15,
+            "max_level": 27
+          },
+          {
+            "species": 74,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 41,
+            "min_level": 20,
+            "max_level": 30
+          },
+          {
+            "species": 75,
+            "min_level": 30,
+            "max_level": 32
+          },
+          {
+            "species": 42,
+            "min_level": 30,
+            "max_level": 32
+          }
+        ]
+      }
+    }
+  ]
+}

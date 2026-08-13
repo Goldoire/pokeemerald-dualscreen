@@ -1,0 +1,307 @@
+{
+  "species": [
+    {
+      "base_hp": 0,
+      "id": 3
+    },
+    {
+      "base_hp": 0,
+      "base_attack": 0,
+      "base_speed": 0,
+      "id": 9
+    },
+    {
+      "base_sp_attack": 0,
+      "id": 12
+    },
+    {
+      "base_attack": 0,
+      "id": 15
+    },
+    {
+      "base_attack": 0,
+      "id": 24
+    },
+    {
+      "base_defense": 0,
+      "base_sp_attack": 0,
+      "base_sp_defense": 50,
+      "id": 25
+    },
+    {
+      "base_speed": 0,
+      "id": 26
+    },
+    {
+      "base_attack": 0,
+      "id": 31
+    },
+    {
+      "base_attack": 0,
+      "id": 34
+    },
+    {
+      "base_sp_attack": 0,
+      "id": 36
+    },
+    {
+      "base_sp_attack": 0,
+      "id": 40
+    },
+    {
+      "base_sp_attack": 0,
+      "id": 45
+    },
+    {
+      "base_hp": 0,
+      "id": 47
+    },
+    {
+      "base_attack": 0,
+      "id": 51
+    },
+    {
+      "base_attack": 95,
+      "base_defense": 0,
+      "id": 62
+    },
+    {
+      "base_sp_defense": 0,
+      "id": 65
+    },
+    {
+      "base_hp": 0,
+      "base_speed": 0,
+      "id": 68
+    },
+    {
+      "base_sp_defense": 0,
+      "id": 71
+    },
+    {
+      "base_attack": 0,
+      "id": 76
+    },
+    {
+      "base_attack": 0,
+      "id": 83
+    },
+    {
+      "base_speed": 0,
+      "id": 85
+    },
+    {
+      "base_speed": 0,
+      "id": 101
+    },
+    {
+      "base_sp_defense": 0,
+      "id": 103
+    },
+    {
+      "base_attack": 0,
+      "base_sp_attack": 0,
+      "id": 119
+    },
+    {
+      "base_sp_attack": 0,
+      "id": 124
+    },
+    {
+      "base_attack": 0,
+      "id": 128
+    },
+    {
+      "base_defense": 0,
+      "base_sp_defense": 0,
+      "id": 154
+    },
+    {
+      "base_attack": 0,
+      "base_speed": 0,
+      "base_sp_attack": 0,
+      "id": 160
+    },
+    {
+      "base_defense": 0,
+      "id": 164
+    },
+    {
+      "base_attack": 0,
+      "base_defense": 0,
+      "base_speed": 0,
+      "base_sp_attack": 0,
+      "id": 166
+    },
+    {
+      "base_hp": 0,
+      "base_attack": 0,
+      "base_sp_defense": 70,
+      "id": 168
+    },
+    {
+      "base_defense": 0,
+      "id": 181
+    },
+    {
+      "base_defense": 0,
+      "id": 182
+    },
+    {
+      "base_sp_attack": 0,
+      "id": 184
+    },
+    {
+      "base_hp": 0,
+      "id": 186
+    },
+    {
+      "base_sp_defense": 0,
+      "id": 189
+    },
+    {
+      "base_hp": 0,
+      "base_defense": 0,
+      "base_speed": 0,
+      "id": 192
+    },
+    {
+      "base_hp": 0,
+      "id": 205
+    },
+    {
+      "base_defense": 0,
+      "id": 211
+    },
+    {
+      "base_defense": 0,
+      "base_sp_defense": 0,
+      "id": 218
+    },
+    {
+      "base_hp": 0,
+      "base_sp_attack": 0,
+      "base_sp_defense": 0,
+      "id": 219
+    },
+    {
+      "base_hp": 0,
+      "base_defense": 0,
+      "base_sp_defense": 0,
+      "id": 222
+    },
+    {
+      "base_hp": 0,
+      "base_attack": 0,
+      "base_defense": 0,
+      "base_sp_defense": 0,
+      "id": 225
+    },
+    {
+      "base_hp": 0,
+      "id": 226
+    },
+    {
+      "base_attack": 0,
+      "base_defense": 0,
+      "id": 277
+    },
+    {
+      "base_attack": 0,
+      "base_defense": 0,
+      "id": 278
+    },
+    {
+      "base_attack": 0,
+      "base_defense": 0,
+      "id": 279
+    },
+    {
+      "base_speed": 85,
+      "id": 282
+    },
+    {
+      "base_sp_attack": 0,
+      "id": 292
+    },
+    {
+      "base_defense": 0,
+      "id": 294
+    },
+    {
+      "base_sp_attack": 0,
+      "id": 305
+    },
+    {
+      "base_hp": 70,
+      "base_attack": 70,
+      "base_defense": 70,
+      "base_speed": 70,
+      "base_sp_attack": 70,
+      "base_sp_defense": 70,
+      "id": 308
+    },
+    {
+      "base_sp_attack": 0,
+      "id": 310
+    },
+    {
+      "base_speed": 0,
+      "base_sp_attack": 0,
+      "id": 312
+    },
+    {
+      "base_hp": 0,
+      "base_speed": 90,
+      "base_sp_defense": 0,
+      "id": 316
+    },
+    {
+      "base_hp": 0,
+      "base_sp_attack": 0,
+      "id": 322
+    },
+    {
+      "base_hp": 0,
+      "base_defense": 0,
+      "base_speed": 0,
+      "base_sp_attack": 0,
+      "base_sp_defense": 0,
+      "id": 325
+    },
+    {
+      "base_hp": 0,
+      "id": 348
+    },
+    {
+      "base_hp": 0,
+      "id": 349
+    },
+    {
+      "base_hp": 0,
+      "base_defense": 0,
+      "base_sp_defense": 0,
+      "id": 355
+    },
+    {
+      "base_sp_defense": 0,
+      "id": 372
+    },
+    {
+      "base_defense": 0,
+      "base_sp_defense": 0,
+      "id": 386
+    },
+    {
+      "base_defense": 0,
+      "base_sp_defense": 0,
+      "id": 387
+    },
+    {
+      "base_hp": 0,
+      "base_defense": 0,
+      "base_sp_defense": 0,
+      "id": 411
+    }
+  ]
+}

@@ -1,0 +1,2637 @@
+{
+  "scripts": [
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 0,
+        "object_index": 1
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "very soon\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 0,
+        "object_index": 4
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "BOX over a PC connection."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 0,
+        "object_index": 8
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "is in the town."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 2,
+        "object_index": 1
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "you have to nurse it back to health."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 2,
+        "object_index": 2
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "wild POK\u00e9MON could jump you."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 2,
+        "object_index": 3
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "people coming through."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 2,
+        "object_index": 4
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "man."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 3,
+        "object_index": 1
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "well against ROCK-type POK\u00e9MON\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 3,
+        "object_index": 3
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "to catch rare POK\u00e9MON easily?"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 3,
+        "object_index": 4
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "places with POK\u00e9MON, too."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 3,
+        "object_index": 11
+      },
+      "commands": [
+        {
+          "cmd": "lock"
+        },
+        {
+          "cmd": "faceplayer"
+        },
+        {
+          "cmd": "msgbox",
+          "text": "POK\u00e9MON TRAINER'S SCHOOL?"
+        },
+        {
+          "cmd": "release"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 3,
+        "object_index": 13
+      },
+      "commands": [
+        {
+          "cmd": "lock"
+        },
+        {
+          "cmd": "faceplayer"
+        },
+        {
+          "cmd": "msgbox",
+          "text": "BADGES, it may not obey you\u2026"
+        },
+        {
+          "cmd": "release"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 3,
+        "object_index": 16
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "could beat two TRAINERS by yourself?"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 5,
+        "object_index": 3
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "My heart swells with excitement!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 5,
+        "object_index": 4
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "only in this area?"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 5,
+        "object_index": 5
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "magnificent works on exhibit\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 5,
+        "object_index": 7
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Fwohoho fwohohohoho\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 5,
+        "object_index": 8
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Mufufufu mufufufufufu\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 5,
+        "object_index": 12
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "place for POK\u00e9MON, too."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 5,
+        "object_index": 13
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "I was just talking to myself!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 5,
+        "object_index": 14
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "I was just talking to myself!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 5,
+        "object_index": 15
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "I'm an adult, so you just listen to me!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 5,
+        "object_index": 21
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "It's called the SKY PILLAR, I hear."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 5,
+        "object_index": 22
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Could that possibly be\u2026?"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 6,
+        "object_index": 2
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Yes, like the very shoreline here."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 6,
+        "object_index": 4
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "WAILMER watching!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 6,
+        "object_index": 5
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "plants and flowers like this island?"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 6,
+        "object_index": 17
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "by a trainer named JUAN."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 12,
+        "object_index": 1
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "as you."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 12,
+        "object_index": 2
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "as hot springs."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 12,
+        "object_index": 3
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "A POK\u00e9MON nipped my backside!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 12,
+        "object_index": 4
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "GYM LEADER like FLANNERY."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 12,
+        "object_index": 5
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "a bubble bath, or even a lava bath\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 12,
+        "object_index": 6
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "money\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 15,
+        "object_index": 1
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "up swept away somewhere else."
+        },
+        {
+          "cmd": "release"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 15,
+        "object_index": 3
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "I was born here!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 19,
+        "object_index": 1
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "of the sea?"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 19,
+        "object_index": 2
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "feared the sea, however stormy."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 19,
+        "object_index": 4
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "poisoned, burned, or lulled to sleep."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 19,
+        "object_index": 5
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "wild POK\u00e9MON."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 19,
+        "object_index": 6
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "of their sight."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 24,
+        "object_index": 9
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "chill at my papa's spot!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 24,
+        "object_index": 16
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "should be okay, but\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 24,
+        "object_index": 19
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "back to haunt us eventually."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 25,
+        "object_index": 1
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "and look for POK\u00e9MON?"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 25,
+        "object_index": 2
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "reach only by using a BIKE technique."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 25,
+        "object_index": 3
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "a leisurely walk on the low road."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 25,
+        "object_index": 4
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "the place--it's good advertising!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 25,
+        "object_index": 5
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Perhaps that is right and fair."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 25,
+        "object_index": 6
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "I grew my hair out just for that."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 25,
+        "object_index": 7
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "at full speed on CYCLING ROAD?"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 26,
+        "object_index": 8
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "any GYM LEADER."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 26,
+        "object_index": 34
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "going\u2026 They destroyed me."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 28,
+        "object_index": 1
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "really neat!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 28,
+        "object_index": 2
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "It can be fashioned into glass."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 34,
+        "object_index": 26
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "time ago\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 34,
+        "object_index": 31
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "There's no way you can cycle here."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 0,
+        "map_num": 34,
+        "object_index": 33
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "SECRET BASE?"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 4,
+        "map_num": 5,
+        "object_index": 2
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "soak, too."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 4,
+        "map_num": 5,
+        "object_index": 3
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "That's what I think."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 4,
+        "map_num": 5,
+        "object_index": 4
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "should their TRAINERS."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 7,
+        "map_num": 6,
+        "object_index": 2
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "disappearing?"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 9,
+        "map_num": 9,
+        "object_index": 3
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "any room for the CAPTAIN\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 10,
+        "map_num": 1,
+        "object_index": 2
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "the back."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 10,
+        "map_num": 3,
+        "object_index": 1
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "in the GAME CORNER."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 10,
+        "map_num": 3,
+        "object_index": 2
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Win or lose, it's only by luck."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 10,
+        "map_num": 5,
+        "object_index": 4
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "as my friend's!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 10,
+        "map_num": 5,
+        "object_index": 5
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "sounds fun. I'll go check it out!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 11,
+        "map_num": 4,
+        "object_index": 1
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "my friend right now."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 11,
+        "map_num": 4,
+        "object_index": 2
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "I'm finally getting one!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 11,
+        "map_num": 4,
+        "object_index": 3
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "they need."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 11,
+        "map_num": 4,
+        "object_index": 4
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "loss!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 11,
+        "map_num": 4,
+        "object_index": 5
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "should write them down again\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 11,
+        "map_num": 10,
+        "object_index": 2
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "sorts of places."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 11,
+        "map_num": 11,
+        "object_index": 2
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "the land of trees."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 12,
+        "map_num": 0,
+        "object_index": 3
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "memories with other people."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 13,
+        "map_num": 3,
+        "object_index": 2
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "this pretty."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 13,
+        "map_num": 3,
+        "object_index": 3
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "rather amusing."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 13,
+        "map_num": 3,
+        "object_index": 4
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "a TRAINER?"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 13,
+        "map_num": 4,
+        "object_index": 5
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Uheheheh."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 13,
+        "map_num": 4,
+        "object_index": 6
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "part of my daily stroll."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 13,
+        "map_num": 4,
+        "object_index": 7
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "art?"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 13,
+        "map_num": 4,
+        "object_index": 9
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "[BerryBlender_Text_LetsGetBlendingAlready]"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 13,
+        "map_num": 4,
+        "object_index": 12
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Today, victory is mine!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 13,
+        "map_num": 4,
+        "object_index": 13
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Cascading sweat\u2026 I swoon!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 13,
+        "map_num": 4,
+        "object_index": 14
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "{POKEBLOCK}S if you have more people."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 13,
+        "map_num": 4,
+        "object_index": 17
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "[BerryBlender_Text_WhatKindOfPokeblockWillIGet]"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 13,
+        "map_num": 4,
+        "object_index": 18
+      },
+      "commands": [
+        {
+          "cmd": "lock"
+        },
+        {
+          "cmd": "msgbox",
+          "text": "[BerryBlender_Text_WickedlyFast]"
+        },
+        {
+          "cmd": "release"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 13,
+        "map_num": 4,
+        "object_index": 19
+      },
+      "commands": [
+        {
+          "cmd": "lock"
+        },
+        {
+          "cmd": "msgbox",
+          "text": "[BerryBlender_Text_WhatAnExpert]"
+        },
+        {
+          "cmd": "release"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 13,
+        "map_num": 4,
+        "object_index": 23
+      },
+      "commands": [
+        {
+          "cmd": "lock"
+        },
+        {
+          "cmd": "msgbox",
+          "text": "[BerryBlender_Text_WhoaAwesome]"
+        },
+        {
+          "cmd": "release"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 14,
+        "map_num": 9,
+        "object_index": 10
+      },
+      "commands": [
+        {
+          "cmd": "lockall"
+        },
+        {
+          "cmd": "msgbox",
+          "text": "                                          TEAM MAGMA\u201d"
+        },
+        {
+          "cmd": "releaseall"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 14,
+        "map_num": 10,
+        "object_index": 5
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "mess we got ourselves into."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 14,
+        "map_num": 10,
+        "object_index": 6
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "at all?"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 14,
+        "map_num": 10,
+        "object_index": 7
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "We look worse than usual by triple!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 14,
+        "map_num": 10,
+        "object_index": 9
+      },
+      "commands": [
+        {
+          "cmd": "lockall"
+        },
+        {
+          "cmd": "msgbox",
+          "text": "I don't have time for this!"
+        },
+        {
+          "cmd": "releaseall"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 11,
+        "object_index": 8
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "of tall grass."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 11,
+        "object_index": 11
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "walking."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 4
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Douse them in fire!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 5
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "use a name like ours!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 6
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "less habitats for WATER POK\u00e9MON!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 7
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "We can't keep up with them!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 8
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "a confusing name!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 10
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "We're going to keep making more land!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 11
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Bushaa!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 12
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Bufoh!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 13
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "METEORITES pack amazing power!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 14
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Bufoh!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 15
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Bufoh!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 16
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "for the benefit of everyone!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 17
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "They always mess with our plans!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 18
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Bushaa!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 19
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Bufoh!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 20
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Bushaa!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 21
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Bufoh!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 23
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Bushaa!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 12,
+        "object_index": 24
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Bufoh!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 22,
+        "object_index": 5
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "let it be TEAM MAGMA\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 22,
+        "object_index": 7
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "before TEAM MAGMA does!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 24,
+        "map_num": 78,
+        "object_index": 1
+      },
+      "commands": [
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 4,
+        "object_index": 1
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "I've been useless!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 4,
+        "object_index": 4
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "But where is the entrance?"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 4,
+        "object_index": 5
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "know about the BATTLE FRONTIER."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 4,
+        "object_index": 7
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Munch, munch\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 4,
+        "object_index": 11
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "I'll bring my mother out to see this."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 4,
+        "object_index": 15
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "matter what, until I get a Symbol."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 4,
+        "object_index": 17
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "That's disappointing\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 4,
+        "object_index": 19
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Crunch, munch\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 4,
+        "object_index": 20
+      },
+      "commands": [
+        {
+          "cmd": "lock"
+        },
+        {
+          "cmd": "msgbox",
+          "text": "our eyes met and sparks flew!"
+        },
+        {
+          "cmd": "release"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 4,
+        "object_index": 21
+      },
+      "commands": [
+        {
+          "cmd": "lock"
+        },
+        {
+          "cmd": "msgbox",
+          "text": "because my cheering was so loud!"
+        },
+        {
+          "cmd": "release"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 4,
+        "object_index": 22
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "The only idol for me!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 4,
+        "object_index": 24
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "to find the delightful creature!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 2
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "if she will be friends with me!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 3
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "climb the outside\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 5
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "We're storming the BATTLE ARENA!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 6
+      },
+      "commands": [
+        {
+          "cmd": "lock"
+        },
+        {
+          "cmd": "msgbox",
+          "text": "tasty treats you like if you win!"
+        },
+        {
+          "cmd": "release"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 7
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "another shot at glory."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 8
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "ever."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 9
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "watch at the BATTLE PALACE\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 10
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "an eye!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 11
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "at POK\u00e9MON."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 12
+      },
+      "commands": [
+        {
+          "cmd": "lock"
+        },
+        {
+          "cmd": "msgbox",
+          "text": "so you'll be dominating!"
+        },
+        {
+          "cmd": "release"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 17
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "That, my friend, I can't say!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 18
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "talent?! Man!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 19
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "decide to go to the BATTLE TOWER."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 20
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "plush DOLL!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 21
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "recorded here for posterity."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 22
+      },
+      "commands": [
+        {
+          "cmd": "lock"
+        },
+        {
+          "cmd": "msgbox",
+          "text": "With you by my side, I can do anything."
+        },
+        {
+          "cmd": "release"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 23
+      },
+      "commands": [
+        {
+          "cmd": "lock"
+        },
+        {
+          "cmd": "msgbox",
+          "text": "will topple like dominoes!"
+        },
+        {
+          "cmd": "release"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 25
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "a bigger objective\u2026"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 14,
+        "object_index": 26
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "it kept staring at me!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 42,
+        "object_index": 2
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "I wish I had them all!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 42,
+        "object_index": 3
+      },
+      "commands": [
+        {
+          "cmd": "lock"
+        },
+        {
+          "cmd": "msgbox",
+          "text": "through anything to get it, honey!"
+        },
+        {
+          "cmd": "release"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 42,
+        "object_index": 4
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "No question about it!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 42,
+        "object_index": 5
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "Isn't that right, SMOOCHUM?"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 42,
+        "object_index": 9
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "giving you more and more Battle Points."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 51,
+        "object_index": 2
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "What's that?"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 51,
+        "object_index": 3
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "facilities in the BATTLE FRONTIER."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 53,
+        "object_index": 3
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "the PC Storage System."
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "target": {
+        "map_group": 26,
+        "map_num": 53,
+        "object_index": 4
+      },
+      "commands": [
+        {
+          "cmd": "msgbox",
+          "text": "challenge with just this baby!"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    }
+  ]
+}

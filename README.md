@@ -75,6 +75,10 @@ cart and emulator saves work).
 `tools/dualscreen/savetool.py` can inspect and edit saves for testing
 (`info` / `teleport` / `heal` / `money`).
 
+Upstream's experimental 2.5D voxel renderer is inherited and available on
+the Linux build via `./pokeemerald --voxel` (see the multiplatform repo
+for details).
+
 ## Credits
 
 - [pret/pokeemerald](https://github.com/pret/pokeemerald) — the decompilation.

@@ -1170,6 +1170,7 @@ void CB2_InitCopyrightScreenAfterTitleScreen(void)
 
 static void Task_Scene1_Load(u8 taskId)
 {
+    printf("[AgbMain] Task_Scene1_Load reached!\n");
     SetVBlankCallback(NULL);
     sIntroCharacterGender = MOD(Random(), GENDER_COUNT);
     IntroResetGpuRegs();
