@@ -97,6 +97,8 @@ static void UpdateInternalClock(void);
 #ifdef __ANDROID__
 static void HandleTouchEvent(const SDL_TouchFingerEvent *event);
 static void DrawTouchControls(void);
+static void MigrateFile(const char *from, const char *to);
+static FILE *ReclaimSaveFile(const char *path);
 #endif
 
 int main(int argc, char **argv)
@@ -162,8 +164,34 @@ int main(int argc, char **argv)
     // cover everything past the first 32 bytes of each path.
     if (prefPath != NULL)
     {
-        SDL_snprintf(sSavePath, sizeof(sSavePath), "%spokeemerald.sav", prefPath);
-        SDL_snprintf(sConfigPath, sizeof(sConfigPath), "%spokeemerald.cfg", prefPath);
+        // The save and the settings live in the app's external files dir
+        // (/sdcard/Android/data/<pkg>/files), alongside the baserom.gba the
+        // ROM gate reads: that directory is reachable over adb, USB and the
+        // device's file manager, so a save can be copied in from an emulator
+        // or out before an uninstall. The private pref path is the fallback
+        // when external storage is not writable, and stays the home of
+        // asset_manifest.bin, which only the fill above touches.
+        const char *extPath = SDL_AndroidGetExternalStoragePath();
+        if (extPath != NULL && (SDL_AndroidGetExternalStorageState() & SDL_ANDROID_EXTERNAL_STORAGE_WRITE))
+        {
+            char legacyPath[1024];
+
+            SDL_snprintf(sSavePath, sizeof(sSavePath), "%s/pokeemerald.sav", extPath);
+            SDL_snprintf(sConfigPath, sizeof(sConfigPath), "%s/pokeemerald.cfg", extPath);
+
+            // Without this an existing install starts a fresh game on the
+            // new path and leaves the old save stranded where only adb can
+            // reach it.
+            SDL_snprintf(legacyPath, sizeof(legacyPath), "%spokeemerald.sav", prefPath);
+            MigrateFile(legacyPath, sSavePath);
+            SDL_snprintf(legacyPath, sizeof(legacyPath), "%spokeemerald.cfg", prefPath);
+            MigrateFile(legacyPath, sConfigPath);
+        }
+        else
+        {
+            SDL_snprintf(sSavePath, sizeof(sSavePath), "%spokeemerald.sav", prefPath);
+            SDL_snprintf(sConfigPath, sizeof(sConfigPath), "%spokeemerald.cfg", prefPath);
+        }
         SDL_free(prefPath);
     }
 #endif
@@ -559,10 +587,117 @@ int main(int argc, char **argv)
     return 0;
 }
 
+#ifdef __ANDROID__
+// Copy `from` to `to`, but only when `to` does not exist yet: the destination
+// is the live file once the game has run there, and a second migration must
+// never overwrite newer progress with the stale copy left behind.
+static void MigrateFile(const char *from, const char *to)
+{
+    FILE *src, *dst;
+    char buffer[4096];
+    size_t got;
+
+    dst = fopen(to, "rb");
+    if (dst != NULL)
+    {
+        fclose(dst);
+        return;
+    }
+
+    src = fopen(from, "rb");
+    if (src == NULL)
+        return;
+
+    dst = fopen(to, "wb");
+    if (dst == NULL)
+    {
+        fclose(src);
+        return;
+    }
+
+    while ((got = fread(buffer, 1, sizeof(buffer), src)) > 0)
+    {
+        if (fwrite(buffer, 1, got, dst) != got)
+        {
+            SDL_Log("Failed to migrate %s to %s", from, to);
+            fclose(src);
+            fclose(dst);
+            remove(to);
+            return;
+        }
+    }
+
+    fclose(src);
+    fclose(dst);
+    SDL_Log("Migrated %s to %s", from, to);
+}
+#endif
+
+#ifdef __ANDROID__
+// A save copied into the external files dir belongs to whatever wrote it —
+// `adb push` leaves it owned by shell, mode 644 — so the game can read it but
+// cannot reopen it "r+b", and the "w+b" fallback cannot truncate it either.
+// The directory is ours, so rewrite the contents into a file the app owns.
+// The copy goes to a sibling and is renamed over the original rather than
+// unlinking first: if any step fails, the incoming save is still on disk.
+static FILE *ReclaimSaveFile(const char *path)
+{
+    char tempPath[1024];
+    FILE *incoming, *owned;
+    char buffer[4096];
+    size_t got;
+
+    // Missing rather than unwritable: let the caller create it as usual.
+    incoming = fopen(path, "rb");
+    if (incoming == NULL)
+        return NULL;
+
+    if (SDL_snprintf(tempPath, sizeof(tempPath), "%s.reclaim", path) >= (int)sizeof(tempPath))
+    {
+        fclose(incoming);
+        return NULL;
+    }
+
+    owned = fopen(tempPath, "wb");
+    if (owned == NULL)
+    {
+        fclose(incoming);
+        return NULL;
+    }
+
+    while ((got = fread(buffer, 1, sizeof(buffer), incoming)) > 0)
+    {
+        if (fwrite(buffer, 1, got, owned) != got)
+        {
+            fclose(incoming);
+            fclose(owned);
+            remove(tempPath);
+            return NULL;
+        }
+    }
+
+    fclose(incoming);
+    if (fclose(owned) != 0 || rename(tempPath, path) != 0)
+    {
+        remove(tempPath);
+        return NULL;
+    }
+
+    SDL_Log("Took ownership of imported save file: %s", path);
+    return fopen(path, "r+b");
+}
+#endif
+
 static void ReadSaveFile(const char *path)
 {
     // Check whether the saveFile exists, and create it if not
     sSaveFile = fopen(path, "r+b");
+#ifdef __ANDROID__
+    if (sSaveFile == NULL)
+    {
+        sSaveFile = ReclaimSaveFile(path);
+    }
+#endif
     if (sSaveFile == NULL)
     {
         sSaveFile = fopen(path, "w+b");
