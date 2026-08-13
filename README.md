@@ -1,5 +1,7 @@
 # Pokémon Emerald — Dual Screen
 
+![Showcase](docs/screenshots/showcase.png)
+
 A dual-screen mod of the [Pokémon Emerald decompilation](https://github.com/pret/pokeemerald),
 built for the AYN Thor and other dual-screen Android devices. The game runs
 natively (no emulator) on the top screen while the bottom screen becomes a
@@ -47,6 +49,21 @@ read in-process — no RAM peeking, no emulator hooks:
   input never leaves the game.
 - Touch input reaches the game through a virtual key queue consumed by
   `Platform_GetKeyInput`, one button state per frame.
+
+## Installing (release APK)
+
+Download the APK from the Releases page and install it. It is debug-signed,
+so Android will warn about an unknown developer.
+
+The APK contains **no game data** — every asset byte is zeroed out and
+restored at runtime from your own copy of the game. On first launch, either
+pick your Pokémon Emerald (USA/Europe) ROM in the file picker, or place it
+beforehand at `Android/data/com.pokeemerald.experimental/files/baserom.gba`
+(SHA-1 `f3ae088181bf583e55daf962a92bb46f4f1d07b7`). It is verified once and
+kept in app storage; later launches go straight to the game.
+
+Saves are standard 128KB flash format, stored in the app's private storage
+as `pokeemerald.sav` — cart and emulator saves work.
 
 ## Building (Linux / WSL)
 
