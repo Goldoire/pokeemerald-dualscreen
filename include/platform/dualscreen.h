@@ -11,6 +11,12 @@ void DualScreen_FrameHook(void);
 // Thread-safe; may be called from any thread.
 const char *DualScreen_GetSnapshotJson(void);
 
+#ifdef __ANDROID__
+// Restores zeroed asset ranges from the user's extracted ROM data before
+// the game starts (no-op in development builds). See make_asset_holes.py.
+void DualScreen_FillAssets(const char *prefPath);
+#endif
+
 // True when the bottom screen owns the battle menus: the top screen then
 // suppresses the action/move menu text and cursor, and input can arrive
 // through the virtual key queue.

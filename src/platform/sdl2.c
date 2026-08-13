@@ -152,6 +152,9 @@ int main(int argc, char **argv)
     {
         SDL_snprintf(sSavePath, sizeof(sSavePath), "%spokeemerald.sav", prefPath);
         SDL_snprintf(sConfigPath, sizeof(sConfigPath), "%spokeemerald.cfg", prefPath);
+        // Distributable builds: restore zeroed asset ranges before anything
+        // touches game data.
+        DualScreen_FillAssets(prefPath);
         SDL_free(prefPath);
     }
 #endif

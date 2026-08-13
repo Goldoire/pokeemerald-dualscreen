@@ -58,6 +58,74 @@ static SDL_SpinLock sVirtualKeyLock;
 static int sVirtualKeyHead;
 static int sVirtualKeyCount;
 
+#ifdef __ANDROID__
+#include <dlfcn.h>
+#include <sys/mman.h>
+#include <unistd.h>
+
+// Asset-hole support: distributable builds ship libmain.so with all
+// ROM-matching asset bytes zeroed plus a manifest of (vaddr, size,
+// romOffset) ranges (see tools/dualscreen/make_asset_holes.py). At first
+// launch the Java side extracts those ranges from the user's own ROM into
+// assets.bin; this restores them in memory before any game code runs,
+// reproducing the original library exactly.
+void DualScreen_FillAssets(const char *prefPath)
+{
+    char path[1024];
+    FILE *manifest;
+    FILE *assets;
+    Dl_info info;
+    unsigned char *base;
+    unsigned char header[24];
+    u32 count, i;
+    long pageSize = sysconf(_SC_PAGESIZE);
+
+    snprintf(path, sizeof(path), "%sasset_manifest.bin", prefPath);
+    manifest = fopen(path, "rb");
+    if (manifest == NULL)
+        return; // development build: assets are compiled in
+    snprintf(path, sizeof(path), "%sassets.bin", prefPath);
+    assets = fopen(path, "rb");
+    if (assets == NULL)
+    {
+        fclose(manifest);
+        printf("[Assets] manifest present but assets.bin missing\n");
+        return;
+    }
+
+    if (dladdr((void *)DualScreen_FillAssets, &info) == 0)
+    {
+        fclose(manifest);
+        fclose(assets);
+        return;
+    }
+    base = (unsigned char *)info.dli_fbase;
+
+    if (fread(header, 1, sizeof(header), manifest) != sizeof(header))
+        goto done;
+    count = header[20] | (header[21] << 8) | (header[22] << 16) | ((u32)header[23] << 24);
+    for (i = 0; i < count; i++)
+    {
+        u32 entry[3];
+        unsigned char *dest;
+        uintptr_t pageStart;
+        size_t protLen;
+        if (fread(entry, 1, sizeof(entry), manifest) != sizeof(entry))
+            break;
+        dest = base + entry[0];
+        pageStart = (uintptr_t)dest & ~(pageSize - 1);
+        protLen = ((uintptr_t)dest + entry[1] + pageSize - 1 - pageStart) & ~(pageSize - 1);
+        mprotect((void *)pageStart, protLen, PROT_READ | PROT_WRITE);
+        if (fread(dest, 1, entry[1], assets) != entry[1])
+            break;
+    }
+    printf("[Assets] filled %u asset ranges\n", (unsigned)count);
+done:
+    fclose(manifest);
+    fclose(assets);
+}
+#endif // __ANDROID__
+
 u32 DualScreen_BattleUiActive(void)
 {
     // User preference: keep the classic top-screen battle menus.
