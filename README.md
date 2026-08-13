@@ -1,11 +1,11 @@
-# Pokémon Emerald — Dual Screen
+# Pokémon Emerald Dual Screen
 
 ![Showcase](docs/screenshots/showcase.png)
 
 A dual-screen mod of the [Pokémon Emerald decompilation](https://github.com/pret/pokeemerald),
 built for the AYN Thor and other dual-screen Android devices. The game runs
 natively (no emulator) on the top screen while the bottom screen becomes a
-live touch companion — party, map, bag, trainer card, and a Gen 4-style
+live touch companion: party, map, bag, trainer card, and a Gen 4-style
 touch battle interface.
 
 Based on [pokeemerald-multiplatform](https://github.com/gradenGnostic/pokeemerald-multiplatform),
@@ -15,21 +15,21 @@ shows is decoded at runtime from the game's own data.
 
 ## Features
 
-- **Party** — animated icons, HP bars, status; tap a Pokémon for a detail
+- **Party**: animated icons, HP bars, status; tap a Pokémon for a detail
   page with stats, nature, ability, moves and exp.
-- **Battle, Gen 4 style** — during battles the bottom screen takes over:
+- **Battle, Gen 4 style**: during battles the bottom screen takes over:
   big FIGHT/BAG/POKéMON/RUN buttons and a touch move grid with PP and
   types, while the top screen shows only the scene and message box. The
-  game's battle engine stays fully authoritative — touches drive the real
+  game's battle engine stays fully authoritative; touches drive the real
   in-game cursor through a frame-timed virtual gamepad. (Classic top-screen
   menus are one settings toggle away, and are used automatically for
   Safari/link/tutorial battles.)
-- **Map** — the real Hoenn Pokénav map, composed from the game's tile data,
+- **Map**: the real Hoenn Pokénav map, composed from the game's tile data,
   with your live location and the in-game location name.
-- **Bag** — all five pockets, live quantities.
-- **Trainer card** — styled after the in-game card: star tint, IDNo., the
+- **Bag**: all five pockets, live quantities.
+- **Trainer card**: styled after the in-game card: star tint, IDNo., the
   actual badge sprites and your trainer's front pic.
-- **Settings** — background art/black/white, widescreen, touch-control
+- **Settings**: background art/black/white, widescreen, touch-control
   overlay, battle menu placement. Persisted with the port's config.
 - Everything renders in the game's own font, decoded from the ROM data at
   runtime.
@@ -37,7 +37,7 @@ shows is decoded at runtime from the game's own data.
 ## How it works
 
 The whole game compiles into a single native library, so game state is
-read in-process — no RAM peeking, no emulator hooks:
+read in-process, with no RAM peeking and no emulator hooks:
 
 - `src/platform/dualscreen_bridge.c` snapshots party/battle/overworld/bag
   state to JSON once per frame window (at vblank, while the game thread is
@@ -55,7 +55,7 @@ read in-process — no RAM peeking, no emulator hooks:
 Download the APK from the Releases page and install it. It is debug-signed,
 so Android will warn about an unknown developer.
 
-The APK contains **no game data** — every asset byte is zeroed out and
+The APK contains **no game data**: every asset byte is zeroed out and
 restored at runtime from your own copy of the game. On first launch, either
 pick your Pokémon Emerald (USA/Europe) ROM in the file picker, or place it
 beforehand at `Android/data/com.pokeemerald.experimental/files/baserom.gba`
@@ -63,7 +63,7 @@ beforehand at `Android/data/com.pokeemerald.experimental/files/baserom.gba`
 kept in app storage; later launches go straight to the game.
 
 Saves are standard 128KB flash format, stored in the app's private storage
-as `pokeemerald.sav` — cart and emulator saves work.
+as `pokeemerald.sav`, so cart and emulator saves work.
 
 ## Building (Linux / WSL)
 
@@ -86,7 +86,7 @@ JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
 ```
 
 The APK lands in `android/app/build/outputs/apk/debug/`. Saves live in the
-app's private storage as `pokeemerald.sav` (standard 128KB flash format —
+app's private storage as `pokeemerald.sav` (standard 128KB flash format;
 cart and emulator saves work).
 
 `tools/dualscreen/savetool.py` can inspect and edit saves for testing
@@ -98,10 +98,10 @@ for details).
 
 ## Credits
 
-- [pret/pokeemerald](https://github.com/pret/pokeemerald) — the decompilation.
-- [gradenGnostic/pokeemerald-multiplatform](https://github.com/gradenGnostic/pokeemerald-multiplatform) —
+- [pret/pokeemerald](https://github.com/pret/pokeemerald): the decompilation.
+- [gradenGnostic/pokeemerald-multiplatform](https://github.com/gradenGnostic/pokeemerald-multiplatform):
   the native SDL2 port this builds on.
-- [samyost1/tmc-android](https://github.com/samyost1/tmc-android) — the
+- [samyost1/tmc-android](https://github.com/samyost1/tmc-android): the
   dual-screen blueprint.
 
 This project builds on a decompilation of a copyrighted game. Build it
