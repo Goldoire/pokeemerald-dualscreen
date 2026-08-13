@@ -58,6 +58,9 @@ public final class DualScreenBridge {
     /** The player's 64x64 trainer front pic (gender 0 = Brendan, 1 = May). */
     public static native int[] nativeGetTrainerPic(int gender);
 
+    /** Fills asset holes from files/baserom.gba; called by the ROM gate. */
+    public static native void nativeFillAssets(String filesDir);
+
     public static native int nativeGetPlatformSetting(int setting);
 
     /** Persists to the port's config file. */

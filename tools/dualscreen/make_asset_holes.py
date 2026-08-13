@@ -11,8 +11,9 @@ Usage:
   make_asset_holes.py analyze <libmain.so> <rom.gba>  (rom is always argv[3])
   make_asset_holes.py build <unstripped.so> <rom.gba> <in.so> <out.so> <manifest.bin>
 
-Manifest format (little endian): u32 count, then per entry
-u32 vaddr, u32 size, u32 romOffset. Prefixed with the ROM's SHA-1 (20 bytes).
+Manifest format (little endian): ROM SHA-1 (20 bytes), target library's
+GNU build id (20 bytes; runtime refuses to fill a mismatched library),
+u32 count, then per entry u32 vaddr, u32 size, u32 romOffset.
 """
 import hashlib
 import struct
@@ -163,8 +164,14 @@ def main():
 
     _, rom_path, in_path, out_path, manifest_path = sys.argv[1:6] and sys.argv[2:7]
     data = bytearray(open(in_path, "rb").read())
+    build_id = None
     with open(in_path, "rb") as f:
         elf = ELFFile(f)
+        for section in elf.iter_sections():
+            if section.name == ".note.gnu.build-id":
+                for note in section.iter_notes():
+                    if note["n_type"] == "NT_GNU_BUILD_ID":
+                        build_id = bytes.fromhex(note["n_desc"])
         zeroed = 0
         for vaddr, size, _ in entries:
             off = vaddr_to_file_offset(elf, vaddr)
@@ -172,10 +179,13 @@ def main():
                 sys.exit(f"vaddr {vaddr:#x} not in a PT_LOAD segment")
             data[off : off + size] = bytes(size)
             zeroed += size
+    if build_id is None or len(build_id) != 20:
+        sys.exit("no 20-byte GNU build id in target library")
     open(out_path, "wb").write(data)
 
     with open(manifest_path, "wb") as m:
         m.write(hashlib.sha1(rom).digest())
+        m.write(build_id)
         m.write(struct.pack("<I", len(entries)))
         for vaddr, size, rom_off in entries:
             m.write(struct.pack("<III", vaddr, size, rom_off))

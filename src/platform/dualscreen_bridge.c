@@ -60,16 +60,57 @@ static int sVirtualKeyCount;
 
 #ifdef __ANDROID__
 #include <dlfcn.h>
+#include <elf.h>
+#include <link.h>
 #include <sys/mman.h>
 #include <unistd.h>
 
 // Asset-hole support: distributable builds ship libmain.so with all
 // ROM-matching asset bytes zeroed plus a manifest of (vaddr, size,
-// romOffset) ranges (see tools/dualscreen/make_asset_holes.py). At first
-// launch the Java side extracts those ranges from the user's own ROM into
-// assets.bin; this restores them in memory before any game code runs,
-// reproducing the original library exactly.
+// romOffset) ranges (see tools/dualscreen/make_asset_holes.py). The user's
+// own ROM is kept as baserom.gba; this restores the zeroed ranges in
+// memory before any game code runs, reproducing the original library
+// exactly. The manifest names the library it was built for by GNU build
+// id, so a stale manifest can never corrupt a different build.
 #define BASEROM_SIZE (16 * 1024 * 1024)
+
+// Finds this library's GNU build id note; returns length or 0.
+static int GetOwnBuildId(unsigned char *out, int outSize)
+{
+    Dl_info info;
+    int i;
+
+    if (dladdr((void *)GetOwnBuildId, &info) == 0)
+        return 0;
+
+    // Walk our own program headers via the ELF header at the load base.
+    {
+        const ElfW(Ehdr) *ehdr = (const ElfW(Ehdr) *)info.dli_fbase;
+        const ElfW(Phdr) *phdrs = (const ElfW(Phdr) *)((const char *)info.dli_fbase + ehdr->e_phoff);
+        for (i = 0; i < ehdr->e_phnum; i++)
+        {
+            const char *note = (const char *)info.dli_fbase + phdrs[i].p_vaddr;
+            const char *end = note + phdrs[i].p_filesz;
+            if (phdrs[i].p_type != PT_NOTE)
+                continue;
+            while (note + 12 <= end)
+            {
+                const ElfW(Nhdr) *nhdr = (const ElfW(Nhdr) *)note;
+                const char *name = note + sizeof(*nhdr);
+                const char *desc = name + ((nhdr->n_namesz + 3) & ~3);
+                if (nhdr->n_type == NT_GNU_BUILD_ID
+                 && nhdr->n_namesz == 4 && memcmp(name, "GNU", 4) == 0
+                 && (int)nhdr->n_descsz <= outSize)
+                {
+                    memcpy(out, desc, nhdr->n_descsz);
+                    return nhdr->n_descsz;
+                }
+                note = desc + ((nhdr->n_descsz + 3) & ~3);
+            }
+        }
+    }
+    return 0;
+}
 
 void DualScreen_FillAssets(const char *prefPath)
 {
@@ -79,7 +120,8 @@ void DualScreen_FillAssets(const char *prefPath)
     unsigned char *rom;
     Dl_info info;
     unsigned char *base;
-    unsigned char header[24];
+    unsigned char header[44];
+    unsigned char ownBuildId[20];
     u32 count, i;
     long pageSize = sysconf(_SC_PAGESIZE);
 
@@ -107,7 +149,18 @@ void DualScreen_FillAssets(const char *prefPath)
     }
     base = (unsigned char *)info.dli_fbase;
 
-    count = header[20] | (header[21] << 8) | (header[22] << 16) | ((u32)header[23] << 24);
+    // Never fill a library the manifest was not generated for.
+    if (GetOwnBuildId(ownBuildId, sizeof(ownBuildId)) != 20
+     || memcmp(ownBuildId, header + 20, 20) != 0)
+    {
+        printf("[Assets] manifest build id mismatch; refusing to fill\n");
+        free(rom);
+        fclose(manifest);
+        fclose(romFile);
+        return;
+    }
+
+    count = header[40] | (header[41] << 8) | (header[42] << 16) | ((u32)header[43] << 24);
     for (i = 0; i < count; i++)
     {
         u32 entry[3];
@@ -681,6 +734,21 @@ const char *DualScreen_GetSnapshotJson(void)
 // ---------------------------------------------------------------------------
 
 #ifdef __ANDROID__
+
+// Called by RomGateActivity right after System.loadLibrary, so asset holes
+// are filled before anything else in the process can read (and cache) them.
+// The fill in main() then re-copies the same bytes, which is harmless.
+JNIEXPORT void JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_nativeFillAssets(JNIEnv *env, jclass clazz, jstring filesDir)
+{
+    const char *dir = (*env)->GetStringUTFChars(env, filesDir, NULL);
+    char prefPath[1024];
+    if (dir != NULL)
+    {
+        snprintf(prefPath, sizeof(prefPath), "%s/", dir);
+        DualScreen_FillAssets(prefPath);
+        (*env)->ReleaseStringUTFChars(env, filesDir, dir);
+    }
+}
 
 // Enqueue synthetic button states, one entry per frame (0 = release).
 JNIEXPORT void JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_nativeQueueKeys(JNIEnv *env, jclass clazz, jintArray masks)

@@ -41,17 +41,22 @@ public final class RomGateActivity extends Activity {
 
         manifest = readAsset("asset_manifest.bin");
         if (manifest == null) {
-            launchGame(); // development build
+            // Development build: assets are compiled in. A manifest left over
+            // from a release install would make the fill corrupt this build's
+            // (differently laid out) library — remove it.
+            new File(getFilesDir(), "asset_manifest.bin").delete();
+            launchGame();
             return;
         }
         try {
-            writeFileIfMissing(new File(getFilesDir(), "asset_manifest.bin"), manifest);
+            // Always rewrite: the manifest must match this exact APK's library.
+            writeFile(new File(getFilesDir(), "asset_manifest.bin"), manifest);
         } catch (IOException ignored) {
         }
 
         File internalRom = new File(getFilesDir(), "baserom.gba");
         if (internalRom.length() == ROM_SIZE) {
-            launchGame();
+            fillAndLaunch();
             return;
         }
 
@@ -62,7 +67,7 @@ public final class RomGateActivity extends Activity {
                 byte[] rom = readFully(new FileInputStream(externalRom));
                 if (validate(rom)) {
                     writeFile(internalRom, rom);
-                    launchGame();
+                    fillAndLaunch();
                     return;
                 }
             } catch (Exception ignored) {
@@ -116,10 +121,22 @@ public final class RomGateActivity extends Activity {
                 return;
             }
             writeFile(new File(getFilesDir(), "baserom.gba"), rom);
-            launchGame();
+            fillAndLaunch();
         } catch (Exception e) {
             status.setText("Could not read that file: " + e.getMessage());
         }
+    }
+
+    /**
+     * Loads the game libraries and fills the asset holes before anything
+     * else in this process can read (and cache) zeroed data, then starts
+     * the game. The refill in the game's own startup is harmless.
+     */
+    private void fillAndLaunch() {
+        System.loadLibrary("SDL2");
+        System.loadLibrary("main");
+        DualScreenBridge.nativeFillAssets(getFilesDir().getAbsolutePath());
+        launchGame();
     }
 
     private boolean validate(byte[] rom) throws Exception {
