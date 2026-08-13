@@ -127,6 +127,16 @@ int main(int argc, char **argv)
     SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
     SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
 #endif
+#ifdef __ANDROID__
+    // Distributable builds: restore the zeroed asset ranges before anything
+    // reads game data. ModManager_Init's RAM shadows copy from holed .rodata,
+    // so this has to come first; the game normally reaches here already
+    // filled by RomGateActivity, but Android can restart the game activity
+    // straight into a fresh process without it.
+    char *prefPath = SDL_GetPrefPath("pokeemerald", "pokeemerald");
+    if (prefPath != NULL)
+        DualScreen_FillAssets(prefPath);
+#endif
     ModManager_Init();
     if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO
 #ifdef __ANDROID__
@@ -147,14 +157,13 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef __ANDROID__
-    char *prefPath = SDL_GetPrefPath("pokeemerald", "pokeemerald");
+    // Only now that the fill above has run: these buffers live in .data, and
+    // the zero padding past the string matches the ROM, so the fill holes
+    // cover everything past the first 32 bytes of each path.
     if (prefPath != NULL)
     {
         SDL_snprintf(sSavePath, sizeof(sSavePath), "%spokeemerald.sav", prefPath);
         SDL_snprintf(sConfigPath, sizeof(sConfigPath), "%spokeemerald.cfg", prefPath);
-        // Distributable builds: restore zeroed asset ranges before anything
-        // touches game data.
-        DualScreen_FillAssets(prefPath);
         SDL_free(prefPath);
     }
 #endif
@@ -371,6 +380,9 @@ int main(int argc, char **argv)
     mainLoopThread = SDL_CreateThread(DoMain, "AgbMain", NULL);
 
     double accumulator = 0.0;
+#ifdef __ANDROID__
+    bool needsPresent = false;
+#endif
 
     memset(&internalClock, 0, sizeof(internalClock));
     internalClock.status = SIIRTCINFO_24HOUR;
@@ -466,7 +478,11 @@ int main(int argc, char **argv)
 #endif
                     }
 #ifdef __ANDROID__
-                    if (sdlRenderer) SDL_RenderPresent(sdlRenderer);
+                    // Presenting here would block on vsync once per game
+                    // frame, capping the catch-up loop at the display's
+                    // refresh rate and cancelling out fast-forward. Present
+                    // once per outer iteration instead, after the catch-up.
+                    needsPresent = true;
 #endif
                     SDL_AtomicSet(&isFrameAvailable, 0);
 
@@ -506,7 +522,13 @@ int main(int argc, char **argv)
             }
         }
 
-#ifndef __ANDROID__
+#ifdef __ANDROID__
+        if (needsPresent)
+        {
+            if (sdlRenderer) SDL_RenderPresent(sdlRenderer);
+            needsPresent = false;
+        }
+#else
         #ifdef NATIVE_LINUX
         if (!gVoxelModeEnabled)
         #endif
