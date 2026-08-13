@@ -2,10 +2,15 @@
 #define GUARD_VOXEL_STRUCTURE_H
 
 #ifdef PLATFORM_SDL2
-#ifdef NATIVE_LINUX
+#if defined(NATIVE_LINUX) || defined(__ANDROID__)
 
 #include <stdbool.h>
+#ifdef __ANDROID__
+#include "gles1_compat.h"
+#else
 #include <GL/gl.h>
+#include <GL/glu.h>
+#endif
 #include "voxel_world.h"
 
 #define MAX_VOXEL_STRUCTURES 256

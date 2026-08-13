@@ -2,7 +2,7 @@
 #define GUARD_VOXEL_MESH_H
 
 #ifdef PLATFORM_SDL2
-#ifdef NATIVE_LINUX
+#if defined(NATIVE_LINUX) || defined(__ANDROID__)
 
 #include "voxel_world.h"
 

@@ -1,11 +1,15 @@
 #include "voxel_camera.h"
 
 #ifdef PLATFORM_SDL2
-#ifdef NATIVE_LINUX
+#if defined(NATIVE_LINUX) || defined(__ANDROID__)
 
 #include <math.h>
+#ifdef __ANDROID__
+#include "gles1_compat.h"
+#else
 #include <GL/gl.h>
 #include <GL/glu.h>
+#endif
 #include "voxel_world.h"
 
 void VoxelCamera_Init(VoxelCamera *cam)

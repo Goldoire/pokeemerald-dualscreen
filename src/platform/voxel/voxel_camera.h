@@ -2,7 +2,7 @@
 #define GUARD_VOXEL_CAMERA_H
 
 #ifdef PLATFORM_SDL2
-#ifdef NATIVE_LINUX
+#if defined(NATIVE_LINUX) || defined(__ANDROID__)
 
 typedef struct {
     float x, y, z;      // Camera position

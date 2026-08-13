@@ -17,14 +17,16 @@
 #endif
 #ifdef NATIVE_LINUX
 #include <SDL2/SDL_image.h>
-#include "voxel/voxel_renderer.h"
 #endif
-#include "mods/mod_manager.h"
-#ifdef PLATFORM_SDL2
-#ifdef NATIVE_LINUX
+
+// The voxel renderer runs on desktop Linux (OpenGL 2.1) and Android
+// (GLES 1.1 via the gles1_compat shim).
+#if defined(NATIVE_LINUX) || defined(__ANDROID__)
+#define VOXEL_CAPABLE 1
+#include "voxel/voxel_renderer.h"
 bool gVoxelModeEnabled = false;
 #endif
-#endif
+#include "mods/mod_manager.h"
 
 #include "global.h"
 #include "platform.h"
@@ -71,7 +73,7 @@ static bool sHasBorderBackgroundConfig;
 static u8 sBackgroundOrderVersion;
 // Dual-screen defaults: black background, touch controls hidden, battle
 // menus on the bottom screen.
-static u8 sPlatformSettings[PLATFORM_SETTING_COUNT] = {0, 4, 0, 1, 1, 10, 1, 0, 0, 0, 0};
+static u8 sPlatformSettings[PLATFORM_SETTING_COUNT] = {0, 4, 0, 1, 1, 10, 1, 0, 0, 0, 0, 0};
 #ifdef __ANDROID__
 static SDL_GameController *androidController;
 #endif
@@ -155,6 +157,9 @@ int main(int argc, char **argv)
 #endif
     ReadSaveFile(sSavePath);
     ReadConfigFile();
+#ifdef __ANDROID__
+    gVoxelModeEnabled = sPlatformSettings[PLATFORM_SETTING_VOXEL_RENDERER] != 0;
+#endif
 
 #ifdef __ANDROID__
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
@@ -172,7 +177,17 @@ int main(int argc, char **argv)
 #endif
     sdlWindow = SDL_CreateWindow("Pokemon Emerald", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, windowFlags);
 #else
-    sdlWindow = SDL_CreateWindow("pokeemerald", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, DISPLAY_WIDTH * videoScale, DISPLAY_HEIGHT * videoScale, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    Uint32 androidWindowFlags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
+    if (gVoxelModeEnabled)
+    {
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+        androidWindowFlags |= SDL_WINDOW_OPENGL;
+    }
+    sdlWindow = SDL_CreateWindow("pokeemerald", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, DISPLAY_WIDTH * videoScale, DISPLAY_HEIGHT * videoScale, androidWindowFlags);
 #endif
     if (sdlWindow == NULL)
     {
@@ -180,7 +195,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-#ifdef NATIVE_LINUX
+#ifdef VOXEL_CAPABLE
     SDL_GLContext glContext = NULL;
     if (gVoxelModeEnabled) {
         glContext = SDL_GL_CreateContext(sdlWindow);
@@ -194,7 +209,7 @@ int main(int argc, char **argv)
     }
 #endif
 
-#ifdef NATIVE_LINUX
+#ifdef VOXEL_CAPABLE
     if (!gVoxelModeEnabled)
     {
 #endif
@@ -208,7 +223,7 @@ int main(int argc, char **argv)
         DBGPRINTF("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
-#ifdef NATIVE_LINUX
+#ifdef VOXEL_CAPABLE
     } // end if (!gVoxelModeEnabled)
 #endif
 
@@ -380,7 +395,7 @@ int main(int argc, char **argv)
             {
                 if (SDL_AtomicGet(&isFrameAvailable))
                 {
-#ifdef NATIVE_LINUX
+#ifdef VOXEL_CAPABLE
                     if (gVoxelModeEnabled) {
                         VoxelRenderer_RenderFrame();
                     } else
@@ -507,12 +522,13 @@ int main(int argc, char **argv)
 
 #ifdef NATIVE_LINUX
     IMG_Quit();
+#endif
+#ifdef VOXEL_CAPABLE
     if (gVoxelModeEnabled) {
         VoxelRenderer_Shutdown();
     }
 #endif
     SDL_DestroyWindow(sdlWindow);
-    ModManager_Shutdown();
     ModManager_Shutdown();
     SDL_Quit();
     return 0;
@@ -590,6 +606,8 @@ static void ReadConfigFile(void)
             sPlatformSettings[PLATFORM_SETTING_BATTLE_UI_TOP] = value != 0;
         else if (sscanf(line, "fastForward=%u", &value) == 1 && value <= 3)
             sPlatformSettings[PLATFORM_SETTING_FAST_FORWARD] = value;
+        else if (sscanf(line, "voxelRenderer=%u", &value) == 1)
+            sPlatformSettings[PLATFORM_SETTING_VOXEL_RENDERER] = value != 0;
     }
     fclose(configFile);
 }
@@ -613,6 +631,7 @@ static void StoreConfigFile(void)
     fprintf(configFile, "touchControls=%u\n", sPlatformSettings[PLATFORM_SETTING_TOUCH_CONTROLS]);
     fprintf(configFile, "battleUiTop=%u\n", sPlatformSettings[PLATFORM_SETTING_BATTLE_UI_TOP]);
     fprintf(configFile, "fastForward=%u\n", sPlatformSettings[PLATFORM_SETTING_FAST_FORWARD]);
+    fprintf(configFile, "voxelRenderer=%u\n", sPlatformSettings[PLATFORM_SETTING_VOXEL_RENDERER]);
     fclose(configFile);
 }
 

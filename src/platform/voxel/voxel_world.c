@@ -1,7 +1,7 @@
 #include "voxel_world.h"
 
 #ifdef PLATFORM_SDL2
-#ifdef NATIVE_LINUX
+#if defined(NATIVE_LINUX) || defined(__ANDROID__)
 
 #include "global.h"
 #include "field_player_avatar.h"

@@ -139,6 +139,38 @@ public final class DualScreenView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        // Settings list: drag to scroll, tap to toggle.
+        if (tab == TAB_SETTINGS && !state.inBattle) {
+            switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                settingsTouchDownY = event.getY();
+                settingsScrollStart = settingsScroll;
+                settingsDragging = false;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if (settingsDragging || Math.abs(event.getY() - settingsTouchDownY) > 24) {
+                    settingsDragging = true;
+                    settingsScroll = Math.max(0, Math.min(settingsMaxScroll(),
+                            settingsScrollStart + (settingsTouchDownY - event.getY())));
+                    invalidate();
+                }
+                return true;
+            case MotionEvent.ACTION_UP:
+                if (!settingsDragging) {
+                    for (int i = 0; i < TAB_NAMES.length; i++) {
+                        if (tabRect(i).contains(event.getX(), event.getY())) {
+                            tab = i;
+                            detailMon = -1;
+                            invalidate();
+                            return true;
+                        }
+                    }
+                    handleSettingsTouch(event.getX(), event.getY());
+                }
+                return true;
+            }
+            return true;
+        }
         if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
             if (state.inBattle) {
                 handleBattleTouch(event.getX(), event.getY());
@@ -861,7 +893,12 @@ public final class DualScreenView extends View {
         new SettingRow("BATTLE MENUS", DualScreenBridge.SETTING_BATTLE_UI_TOP, 1, "BOTTOM", "TOP"),
         new SettingRow("FAST FORWARD", DualScreenBridge.SETTING_FAST_FORWARD, 1, "OFF", "2X", "3X", "4X"),
         new SettingRow("VOLUME", DualScreenBridge.SETTING_VOLUME, 2, "0", "2", "4", "6", "8", "10"),
+        new SettingRow("VOXEL 3D (RESTART)", DualScreenBridge.SETTING_VOXEL_RENDERER, 1, "OFF", "ON"),
     };
+    private float settingsScroll;
+    private float settingsTouchDownY;
+    private float settingsScrollStart;
+    private boolean settingsDragging;
 
     private void handleSettingsTouch(float x, float y) {
         for (SettingRow row : settingRows) {
@@ -878,6 +915,16 @@ public final class DualScreenView extends View {
         }
     }
 
+    private float settingsMaxScroll() {
+        float contentHeight = getHeight() - tabBarHeight();
+        float pad = getWidth() * 0.03f;
+        float scale = getWidth() / 440f;
+        float headerBottom = GbaFont.LINE_HEIGHT * scale * 1.6f;
+        float rowH = contentHeight * 0.145f;
+        float total = settingRows.length * (rowH + pad * 0.6f);
+        return Math.max(0, total + pad - (contentHeight - headerBottom));
+    }
+
     private void drawSettings(Canvas canvas) {
         GbaFont f = font();
         if (f == null) {
@@ -886,38 +933,37 @@ public final class DualScreenView extends View {
         float contentHeight = getHeight() - tabBarHeight();
         float pad = getWidth() * 0.03f;
         float scale = getWidth() / 440f;
-
-        drawHeader(canvas, "SETTINGS", scale);
         float headerBottom = GbaFont.LINE_HEIGHT * scale * 1.6f;
+        float rowH = contentHeight * 0.145f;
 
-        float rowH = (contentHeight - headerBottom - pad * 2) / 6f;
-        float top = headerBottom + pad;
+        float top = headerBottom + pad - settingsScroll;
         for (SettingRow row : settingRows) {
             RectF r = new RectF(pad, top, getWidth() - pad, top + rowH);
             row.rect.set(r);
-            drawBar(canvas, r, false, null, scale);
-            float inset = rowH * 0.2f;
-            f.draw(canvas, row.label, r.left + inset,
-                    r.centerY() - GbaFont.LINE_HEIGHT * scale / 2, scale, TEXT_DARK, TEXT_SHADOW);
+            if (r.bottom > headerBottom && r.top < contentHeight) {
+                drawBar(canvas, r, false, null, scale);
+                float inset = rowH * 0.2f;
+                f.draw(canvas, row.label, r.left + inset,
+                        r.centerY() - GbaFont.LINE_HEIGHT * scale / 2, scale, TEXT_DARK, TEXT_SHADOW);
 
-            int value = DualScreenBridge.nativeGetPlatformSetting(row.setting) / row.valueScale;
-            String valueText = row.values[Math.min(value, row.values.length - 1)];
-            float chipScale = scale * 0.9f;
-            float chipTextW = f.measure(valueText, chipScale);
-            float chipH = rowH * 0.62f;
-            RectF chip = new RectF(r.right - inset - chipTextW - chipH,
-                    r.centerY() - chipH / 2, r.right - inset, r.centerY() + chipH / 2);
-            paint.setColor(HEADER_GREEN);
-            canvas.drawRoundRect(chip, 8, 8, paint);
-            f.draw(canvas, valueText, chip.centerX() - chipTextW / 2,
-                    chip.centerY() - GbaFont.LINE_HEIGHT * chipScale / 2,
-                    chipScale, TEXT_WHITE, TEXT_GREEN_SHADOW);
+                int value = DualScreenBridge.nativeGetPlatformSetting(row.setting) / row.valueScale;
+                String valueText = row.values[Math.min(value, row.values.length - 1)];
+                float chipScale = scale * 0.9f;
+                float chipTextW = f.measure(valueText, chipScale);
+                float chipH = rowH * 0.62f;
+                RectF chip = new RectF(r.right - inset - chipTextW - chipH,
+                        r.centerY() - chipH / 2, r.right - inset, r.centerY() + chipH / 2);
+                paint.setColor(HEADER_GREEN);
+                canvas.drawRoundRect(chip, 8, 8, paint);
+                f.draw(canvas, valueText, chip.centerX() - chipTextW / 2,
+                        chip.centerY() - GbaFont.LINE_HEIGHT * chipScale / 2,
+                        chipScale, TEXT_WHITE, TEXT_GREEN_SHADOW);
+            }
             top += rowH + pad * 0.6f;
         }
 
-        f.draw(canvas, "Tap a setting to change it.", pad,
-                contentHeight - GbaFont.LINE_HEIGHT * scale - pad,
-                scale * 0.85f, TEXT_DARK, TEXT_SHADOW);
+        // Header drawn last so rows scroll underneath it.
+        drawHeader(canvas, "SETTINGS", scale);
     }
 
     private Bitmap[] badgeSprites;
