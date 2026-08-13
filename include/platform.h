@@ -24,6 +24,7 @@ enum PlatformSetting
     PLATFORM_SETTING_WIDESCREEN,      // 0 aspect-correct, 1 stretch to fill
     PLATFORM_SETTING_TOUCH_CONTROLS,  // 0 hidden, 1 shown (Android)
     PLATFORM_SETTING_BATTLE_UI_TOP,   // 0 battle menus on bottom screen, 1 classic top
+    PLATFORM_SETTING_FAST_FORWARD,    // 0 off, 1..3 = 2x..4x game speed
     PLATFORM_SETTING_COUNT,
 };
 

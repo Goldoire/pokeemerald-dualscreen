@@ -71,7 +71,7 @@ static bool sHasBorderBackgroundConfig;
 static u8 sBackgroundOrderVersion;
 // Dual-screen defaults: black background, touch controls hidden, battle
 // menus on the bottom screen.
-static u8 sPlatformSettings[PLATFORM_SETTING_COUNT] = {0, 4, 0, 1, 1, 10, 1, 0, 0, 0};
+static u8 sPlatformSettings[PLATFORM_SETTING_COUNT] = {0, 4, 0, 1, 1, 10, 1, 0, 0, 0, 0};
 #ifdef __ANDROID__
 static SDL_GameController *androidController;
 #endif
@@ -364,6 +364,8 @@ int main(int argc, char **argv)
 
         if (!paused)
         {
+            // Fast-forward setting: 0 = 1x .. 3 = 4x game speed.
+            timeScale = 1.0 + sPlatformSettings[PLATFORM_SETTING_FAST_FORWARD];
             double dt = fixedTimestep / timeScale; // TODO: Fix speedup
 
             curGameTime = SDL_GetPerformanceCounter();
@@ -586,6 +588,8 @@ static void ReadConfigFile(void)
             sPlatformSettings[PLATFORM_SETTING_TOUCH_CONTROLS] = value != 0;
         else if (sscanf(line, "battleUiTop=%u", &value) == 1)
             sPlatformSettings[PLATFORM_SETTING_BATTLE_UI_TOP] = value != 0;
+        else if (sscanf(line, "fastForward=%u", &value) == 1 && value <= 3)
+            sPlatformSettings[PLATFORM_SETTING_FAST_FORWARD] = value;
     }
     fclose(configFile);
 }
@@ -608,6 +612,7 @@ static void StoreConfigFile(void)
     fprintf(configFile, "widescreen=%u\n", sPlatformSettings[PLATFORM_SETTING_WIDESCREEN]);
     fprintf(configFile, "touchControls=%u\n", sPlatformSettings[PLATFORM_SETTING_TOUCH_CONTROLS]);
     fprintf(configFile, "battleUiTop=%u\n", sPlatformSettings[PLATFORM_SETTING_BATTLE_UI_TOP]);
+    fprintf(configFile, "fastForward=%u\n", sPlatformSettings[PLATFORM_SETTING_FAST_FORWARD]);
     fclose(configFile);
 }
 

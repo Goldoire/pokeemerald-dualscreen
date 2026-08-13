@@ -48,6 +48,8 @@ public final class DualScreenBridge {
     public static final int SETTING_WIDESCREEN = 7;
     public static final int SETTING_TOUCH_CONTROLS = 8;
     public static final int SETTING_BATTLE_UI_TOP = 9;
+    public static final int SETTING_FAST_FORWARD = 10;
+    public static final int SETTING_VOLUME = 5;
 
     /** All 8 badge sprites: 8 x 16x16 ARGB pixels, badge-major. */
     public static native int[] nativeGetBadges();

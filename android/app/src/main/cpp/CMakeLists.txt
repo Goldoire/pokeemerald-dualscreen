@@ -20,6 +20,8 @@ file(GLOB_RECURSE GAME_C CONFIGURE_DEPENDS
     "${ROOT}/src/*.c"
     "${ROOT}/gflib/*.c")
 list(FILTER GAME_C EXCLUDE REGEX "\\.inc\\.c$")
+# The voxel renderer is desktop-Linux-only OpenGL code.
+list(FILTER GAME_C EXCLUDE REGEX "src/platform/voxel/")
 
 set(GENERATED_C)
 foreach(SOURCE IN LISTS GAME_C)

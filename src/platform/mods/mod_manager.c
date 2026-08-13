@@ -407,7 +407,9 @@ u8 ModManager_GetStarterLevel(u8 slot, u8 vanillaLevel) {
 bool8 gModsEnabled = FALSE;
 char *gActiveModSelector = NULL;
 
-void ModManager_Init(void) {}
+// The RAM shadows must be populated even without the mod system, or the
+// game data tables stay zeroed (and gWildMonHeaders NULL) on this platform.
+void ModManager_Init(void) { InitRAMShadows(); }
 void ModManager_Shutdown(void) {}
 char *ModManager_ReadFileToString(const char *path) { return NULL; }
 const struct Trainer *ModManager_GetTrainer(u16 trainerId) { return &gTrainers[trainerId]; }

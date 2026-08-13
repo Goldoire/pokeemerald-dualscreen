@@ -368,7 +368,12 @@ public final class DualScreenView extends View {
         super.onDraw(canvas);
         drawBackground(canvas);
         if (!state.inGame) {
-            drawCenteredMessage(canvas, "Waiting for the adventure to start~");
+            // Settings work regardless of game state; other tabs need data.
+            if (tab == TAB_SETTINGS) {
+                drawSettings(canvas);
+            } else {
+                drawCenteredMessage(canvas, "Waiting for the adventure to start~");
+            }
             drawTabBar(canvas);
             return;
         }
@@ -837,29 +842,33 @@ public final class DualScreenView extends View {
     private static final class SettingRow {
         final String label;
         final int setting;
+        final int valueScale; // stored value = index * valueScale
         final String[] values;
         final RectF rect = new RectF();
 
-        SettingRow(String label, int setting, String... values) {
+        SettingRow(String label, int setting, int valueScale, String... values) {
             this.label = label;
             this.setting = setting;
+            this.valueScale = valueScale;
             this.values = values;
         }
     }
 
     private final SettingRow[] settingRows = {
-        new SettingRow("BACKGROUND", DualScreenBridge.SETTING_BACKGROUND_MODE, "ART", "BLACK", "WHITE"),
-        new SettingRow("WIDESCREEN", DualScreenBridge.SETTING_WIDESCREEN, "OFF", "ON"),
-        new SettingRow("TOUCH CONTROLS", DualScreenBridge.SETTING_TOUCH_CONTROLS, "OFF", "ON"),
-        new SettingRow("BATTLE MENUS", DualScreenBridge.SETTING_BATTLE_UI_TOP, "BOTTOM", "TOP"),
+        new SettingRow("BACKGROUND", DualScreenBridge.SETTING_BACKGROUND_MODE, 1, "ART", "BLACK", "WHITE"),
+        new SettingRow("WIDESCREEN", DualScreenBridge.SETTING_WIDESCREEN, 1, "OFF", "ON"),
+        new SettingRow("TOUCH CONTROLS", DualScreenBridge.SETTING_TOUCH_CONTROLS, 1, "OFF", "ON"),
+        new SettingRow("BATTLE MENUS", DualScreenBridge.SETTING_BATTLE_UI_TOP, 1, "BOTTOM", "TOP"),
+        new SettingRow("FAST FORWARD", DualScreenBridge.SETTING_FAST_FORWARD, 1, "OFF", "2X", "3X", "4X"),
+        new SettingRow("VOLUME", DualScreenBridge.SETTING_VOLUME, 2, "0", "2", "4", "6", "8", "10"),
     };
 
     private void handleSettingsTouch(float x, float y) {
         for (SettingRow row : settingRows) {
             if (row.rect.contains(x, y)) {
-                int value = DualScreenBridge.nativeGetPlatformSetting(row.setting);
-                value = (value + 1) % row.values.length;
-                DualScreenBridge.nativeSetPlatformSetting(row.setting, value);
+                int index = DualScreenBridge.nativeGetPlatformSetting(row.setting) / row.valueScale;
+                index = (index + 1) % row.values.length;
+                DualScreenBridge.nativeSetPlatformSetting(row.setting, index * row.valueScale);
                 if (settingsListener != null) {
                     settingsListener.run();
                 }
@@ -891,7 +900,7 @@ public final class DualScreenView extends View {
             f.draw(canvas, row.label, r.left + inset,
                     r.centerY() - GbaFont.LINE_HEIGHT * scale / 2, scale, TEXT_DARK, TEXT_SHADOW);
 
-            int value = DualScreenBridge.nativeGetPlatformSetting(row.setting);
+            int value = DualScreenBridge.nativeGetPlatformSetting(row.setting) / row.valueScale;
             String valueText = row.values[Math.min(value, row.values.length - 1)];
             float chipScale = scale * 0.9f;
             float chipTextW = f.measure(valueText, chipScale);
