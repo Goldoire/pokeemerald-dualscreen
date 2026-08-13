@@ -69,11 +69,14 @@ static int sVirtualKeyCount;
 // launch the Java side extracts those ranges from the user's own ROM into
 // assets.bin; this restores them in memory before any game code runs,
 // reproducing the original library exactly.
+#define BASEROM_SIZE (16 * 1024 * 1024)
+
 void DualScreen_FillAssets(const char *prefPath)
 {
     char path[1024];
     FILE *manifest;
-    FILE *assets;
+    FILE *romFile;
+    unsigned char *rom;
     Dl_info info;
     unsigned char *base;
     unsigned char header[24];
@@ -84,25 +87,26 @@ void DualScreen_FillAssets(const char *prefPath)
     manifest = fopen(path, "rb");
     if (manifest == NULL)
         return; // development build: assets are compiled in
-    snprintf(path, sizeof(path), "%sassets.bin", prefPath);
-    assets = fopen(path, "rb");
-    if (assets == NULL)
+    snprintf(path, sizeof(path), "%sbaserom.gba", prefPath);
+    romFile = fopen(path, "rb");
+    if (romFile == NULL)
     {
         fclose(manifest);
-        printf("[Assets] manifest present but assets.bin missing\n");
+        printf("[Assets] manifest present but baserom.gba missing\n");
         return;
     }
-
-    if (dladdr((void *)DualScreen_FillAssets, &info) == 0)
+    rom = malloc(BASEROM_SIZE);
+    if (rom == NULL || fread(rom, 1, BASEROM_SIZE, romFile) != BASEROM_SIZE
+     || fread(header, 1, sizeof(header), manifest) != sizeof(header)
+     || dladdr((void *)DualScreen_FillAssets, &info) == 0)
     {
+        free(rom);
         fclose(manifest);
-        fclose(assets);
+        fclose(romFile);
         return;
     }
     base = (unsigned char *)info.dli_fbase;
 
-    if (fread(header, 1, sizeof(header), manifest) != sizeof(header))
-        goto done;
     count = header[20] | (header[21] << 8) | (header[22] << 16) | ((u32)header[23] << 24);
     for (i = 0; i < count; i++)
     {
@@ -112,17 +116,18 @@ void DualScreen_FillAssets(const char *prefPath)
         size_t protLen;
         if (fread(entry, 1, sizeof(entry), manifest) != sizeof(entry))
             break;
+        if (entry[2] + entry[1] > BASEROM_SIZE)
+            continue;
         dest = base + entry[0];
         pageStart = (uintptr_t)dest & ~(pageSize - 1);
         protLen = ((uintptr_t)dest + entry[1] + pageSize - 1 - pageStart) & ~(pageSize - 1);
         mprotect((void *)pageStart, protLen, PROT_READ | PROT_WRITE);
-        if (fread(dest, 1, entry[1], assets) != entry[1])
-            break;
+        memcpy(dest, rom + entry[2], entry[1]);
     }
-    printf("[Assets] filled %u asset ranges\n", (unsigned)count);
-done:
+    printf("[Assets] filled %u asset ranges from baserom\n", (unsigned)count);
+    free(rom);
     fclose(manifest);
-    fclose(assets);
+    fclose(romFile);
 }
 #endif // __ANDROID__
 
