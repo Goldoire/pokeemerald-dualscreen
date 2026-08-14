@@ -432,11 +432,17 @@ int main(int argc, char **argv)
         {
             // Fast-forward setting: 0 = 1x .. 3 = 4x game speed.
             timeScale = 1.0 + sPlatformSettings[PLATFORM_SETTING_FAST_FORWARD];
-            double dt = fixedTimestep / timeScale; // TODO: Fix speedup
+            double dt = fixedTimestep / timeScale;
 
             curGameTime = SDL_GetPerformanceCounter();
             double deltaTime = (double)((curGameTime - lastGameTime) / (double)SDL_GetPerformanceFrequency());
-            if (deltaTime > (dt * 5))
+            // Bail out of the catch-up only after a real stall, and measure that
+            // against the wall clock rather than dt: dt shrinks with the speed
+            // factor, so a dt-relative bound tightens to ~21ms at 4x, which a
+            // vsynced ~17ms iteration trips on any hitch. Discarding the elapsed
+            // time then drops the loop to one game frame, which starves the
+            // sound engine of its frame too and stutters the music.
+            if (deltaTime > (fixedTimestep * 5))
                 deltaTime = dt;
             lastGameTime = curGameTime;
 
