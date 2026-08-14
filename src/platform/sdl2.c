@@ -525,14 +525,34 @@ int main(int argc, char **argv)
                         {
                             // Widescreen stretches to the full surface; otherwise
                             // the 240x160 logical size letterboxes to 3:2.
+                            // Clearing the logical size freezes the viewport at
+                            // whatever the output size is right then, so this has
+                            // to be re-applied when the surface size changes too:
+                            // on a cold start the GL surface can still be at its
+                            // initial size on the first frame, which otherwise
+                            // leaves the game stretched into a stale, too-small
+                            // viewport with black bars around it for the session.
                             static u8 sAppliedWidescreen = 0xFF;
+                            static int sAppliedOutputWidth = -1;
+                            static int sAppliedOutputHeight = -1;
                             u8 widescreen = sPlatformSettings[PLATFORM_SETTING_WIDESCREEN];
-                            if (sdlRenderer != NULL && widescreen != sAppliedWidescreen)
+                            int outputWidth = 0;
+                            int outputHeight = 0;
+                            if (sdlRenderer != NULL)
+                                SDL_GetRendererOutputSize(sdlRenderer, &outputWidth, &outputHeight);
+                            if (sdlRenderer != NULL
+                             && (widescreen != sAppliedWidescreen
+                              || outputWidth != sAppliedOutputWidth
+                              || outputHeight != sAppliedOutputHeight))
                             {
                                 SDL_RenderSetLogicalSize(sdlRenderer,
                                         widescreen ? 0 : DISPLAY_WIDTH,
                                         widescreen ? 0 : DISPLAY_HEIGHT);
+                                if (!widescreen)
+                                    SDL_RenderSetIntegerScale(sdlRenderer, SDL_TRUE);
                                 sAppliedWidescreen = widescreen;
+                                sAppliedOutputWidth = outputWidth;
+                                sAppliedOutputHeight = outputHeight;
                             }
                         }
                         if (sdlRenderer) SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
