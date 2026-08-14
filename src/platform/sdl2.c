@@ -893,6 +893,36 @@ void Platform_QueueAudio(float *audioBuffer, s32 samplesPerFrame)
         sAudioFrameBytes = samplesPerFrame;
         for (int i = 0; i < floatCount; i++)
             adjustedAudio[i] = audioBuffer[i] * volume;
+
+        // Sped-up mode mixes a full frame per fast-forwarded game frame, which
+        // is more audio than the device plays in that time. Resample it down by
+        // the speed factor so it comes out pitched up like an emulator's
+        // fast-forward instead of piling up in the queue as growing latency.
+        if (sPlatformSettings[PLATFORM_SETTING_FF_AUDIO] != 0 && timeScale > 1.0)
+        {
+            int inFrames = floatCount / 2;
+            int outFrames = (int)(inFrames / timeScale);
+            if (outFrames < 1)
+                outFrames = 1;
+            float resampled[outFrames * 2];
+            for (int i = 0; i < outFrames; i++)
+            {
+                double srcPos = i * timeScale;
+                int src = (int)srcPos;
+                float frac = (float)(srcPos - src);
+                int next = (src + 1 < inFrames) ? src + 1 : src;
+                for (int ch = 0; ch < 2; ch++)
+                {
+                    float a = adjustedAudio[src * 2 + ch];
+                    float b = adjustedAudio[next * 2 + ch];
+                    resampled[i * 2 + ch] = a + (b - a) * frac;
+                }
+            }
+            if (SDL_QueueAudio(sdlAudioDevice, resampled, outFrames * 2 * sizeof(float)) < 0)
+                SDL_Log("Failed to queue audio: %s", SDL_GetError());
+            return;
+        }
+
         if (SDL_QueueAudio(sdlAudioDevice, adjustedAudio, samplesPerFrame) < 0)
             SDL_Log("Failed to queue audio: %s", SDL_GetError());
     }
