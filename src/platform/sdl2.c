@@ -1297,6 +1297,45 @@ static void DrawTouchControls(void)
     SDL_RenderSetIntegerScale(sdlRenderer, SDL_TRUE);
 }
 
+// R2 toggles fast-forward on and off without disturbing the speed picked in the
+// SET tab. R1 is not free: the game maps it to GBA R, which pages list menus,
+// multi-selects in the PC boxes and stops a slot reel. R2 has no GBA
+// equivalent, so nothing in the game ever sees it.
+#define FF_HOTKEY_DEFAULT_SPEED 1 // 2x, when the toggle is used before any speed is chosen
+static u8 sFastForwardResume = FF_HOTKEY_DEFAULT_SPEED;
+static bool sFastForwardHotkeyHeld;
+static bool sFastForwardTriggerHeld; // R2 seen as an analog trigger axis
+static bool sFastForwardButtonHeld;  // R2 seen as a digital button
+// SDL's Android backend hands AKEYCODE_BUTTON_R2 to raw joystick index 16, and
+// the GameController layer has no standard button for a trigger, so pads that
+// report R2 digitally only ever surface it here.
+#define ANDROID_JOY_BUTTON_R2 16
+
+static void ToggleFastForward(void)
+{
+    if (sPlatformSettings[PLATFORM_SETTING_FAST_FORWARD] != 0)
+    {
+        sFastForwardResume = sPlatformSettings[PLATFORM_SETTING_FAST_FORWARD];
+        sPlatformSettings[PLATFORM_SETTING_FAST_FORWARD] = 0;
+    }
+    else
+    {
+        sPlatformSettings[PLATFORM_SETTING_FAST_FORWARD] = sFastForwardResume;
+    }
+    // Deliberately not persisted: the hotkey is a momentary override, so
+    // quitting while toggled off still comes back at the speed set in the SET
+    // tab. Changing it from the tab goes through Platform_SetSetting and saves.
+}
+
+// Called from every source that can report R2, edge-triggered so the toggle
+// fires once per press however many of them are reporting it.
+static void SetFastForwardHotkey(bool held)
+{
+    if (held && !sFastForwardHotkeyHeld)
+        ToggleFastForward();
+    sFastForwardHotkeyHeld = held;
+}
+
 static u16 ControllerButtonMask(Uint8 button)
 {
     switch (button)
@@ -1350,11 +1389,29 @@ void ProcessEvents(void)
         case SDL_CONTROLLERBUTTONUP:
             controllerKeys &= ~ControllerButtonMask(event.cbutton.button);
             break;
+        case SDL_JOYBUTTONDOWN:
+        case SDL_JOYBUTTONUP:
+            if (event.jbutton.button == ANDROID_JOY_BUTTON_R2)
+            {
+                sFastForwardButtonHeld = (event.type == SDL_JOYBUTTONDOWN);
+                SetFastForwardHotkey(sFastForwardTriggerHeld || sFastForwardButtonHeld);
+            }
+            break;
         case SDL_CONTROLLERAXISMOTION:
             if (event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX)
                 controllerAxisX = event.caxis.value;
             else if (event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTY)
                 controllerAxisY = event.caxis.value;
+            else if (event.caxis.axis == SDL_CONTROLLER_AXIS_TRIGGERRIGHT)
+            {
+                // Hysteresis so a trigger resting near the threshold cannot
+                // chatter the toggle.
+                if (event.caxis.value > 20000)
+                    sFastForwardTriggerHeld = true;
+                else if (event.caxis.value < 10000)
+                    sFastForwardTriggerHeld = false;
+                SetFastForwardHotkey(sFastForwardTriggerHeld || sFastForwardButtonHeld);
+            }
 
             controllerAxisKeys = 0;
             if (controllerAxisX < -16000) controllerAxisKeys |= DPAD_LEFT;
