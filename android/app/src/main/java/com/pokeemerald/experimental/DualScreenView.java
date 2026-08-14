@@ -892,6 +892,7 @@ public final class DualScreenView extends View {
         new SettingRow("TOUCH CONTROLS", DualScreenBridge.SETTING_TOUCH_CONTROLS, 1, "OFF", "ON"),
         new SettingRow("BATTLE MENUS", DualScreenBridge.SETTING_BATTLE_UI_TOP, 1, "BOTTOM", "TOP"),
         new SettingRow("FAST FORWARD", DualScreenBridge.SETTING_FAST_FORWARD, 1, "OFF", "2X", "3X", "4X"),
+        new SettingRow("FF MUSIC", DualScreenBridge.SETTING_FF_AUDIO, 1, "NORMAL", "SPED UP"),
         new SettingRow("VOLUME", DualScreenBridge.SETTING_VOLUME, 2, "0", "2", "4", "6", "8", "10"),
         new SettingRow("VOXEL 3D (RESTART)", DualScreenBridge.SETTING_VOXEL_RENDERER, 1, "OFF", "ON"),
     };

@@ -582,6 +582,11 @@ void Platform_QueueAudio(float *audioBuffer, s32 samplesPerFrame)
     return;
 }
 
+bool32 Platform_SkipAudioFrame(void)
+{
+    return FALSE;
+}
+
 static void CloseSaveFile()
 {
     if (sSaveFile != NULL || sSaveFile != INVALID_HANDLE_VALUE)

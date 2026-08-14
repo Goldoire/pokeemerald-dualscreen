@@ -3,6 +3,7 @@
 
 #ifdef PORTABLE
     #include "cgb_audio.h"
+    #include "platform.h"
 #endif
 
 extern const u8 gCgb3Vol[];
@@ -119,6 +120,12 @@ void m4aSoundMain(void)
 #ifndef PORTABLE
     SoundMain();
 #else
+    // One RunMixerFrame call advances the song by one 1/60s tick and mixes one
+    // frame of samples, so the platform layer skips the extra game frames that
+    // fast-forward adds. Paired with the m4aSoundVSync skip below: both have to
+    // sit out the same frame or the mixer's DMA buffer rotation desyncs.
+    if (Platform_SkipAudioFrame())
+        return;
     RunMixerFrame();
 #endif
 }

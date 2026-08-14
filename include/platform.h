@@ -7,6 +7,9 @@
 void Platform_StoreSaveFile(void);
 void Platform_ReadFlash(u16 sectorNum, u32 offset, u8 *dest, u32 size);
 void Platform_QueueAudio(float *audioBuffer, s32 samplesPerFrame);
+// TRUE on the game frames that the sound engine has to sit out so that music
+// keeps playing at its normal tempo while the game is fast-forwarded.
+bool32 Platform_SkipAudioFrame(void);
 u16 Platform_GetKeyInput(void);
 u8 Platform_GetBorderBackgroundCount(void);
 u8 Platform_GetBorderBackground(void);
@@ -26,6 +29,7 @@ enum PlatformSetting
     PLATFORM_SETTING_BATTLE_UI_TOP,   // 0 battle menus on bottom screen, 1 classic top
     PLATFORM_SETTING_FAST_FORWARD,    // 0 off, 1..3 = 2x..4x game speed
     PLATFORM_SETTING_VOXEL_RENDERER,  // 0 classic 2D, 1 voxel 3D (applies on restart)
+    PLATFORM_SETTING_FF_AUDIO,        // 0 music keeps its normal tempo while fast-forwarding, 1 music speeds up too
     PLATFORM_SETTING_COUNT,
 };
 

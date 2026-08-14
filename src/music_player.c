@@ -751,6 +751,10 @@ void m4aSoundVSync(void)
 {
     struct SoundMixerState *mixer = (struct SoundMixerState *)SOUND_INFO_PTR;
 #ifdef PORTABLE
+    // See m4aSoundMain: skipped on the frames fast-forward added, so the device
+    // is fed exactly one frame of samples per 1/60s of real time.
+    if (Platform_SkipAudioFrame())
+        return;
     if(mixer->lockStatus-PLAYER_UNLOCKED <= 1)
     {
         s32 samplesPerFrame = mixer->samplesPerFrame * 2;

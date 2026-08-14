@@ -50,6 +50,7 @@ public final class DualScreenBridge {
     public static final int SETTING_BATTLE_UI_TOP = 9;
     public static final int SETTING_FAST_FORWARD = 10;
     public static final int SETTING_VOXEL_RENDERER = 11;
+    public static final int SETTING_FF_AUDIO = 12;
     public static final int SETTING_VOLUME = 5;
 
     /** All 8 badge sprites: 8 x 16x16 ARGB pixels, badge-major. */

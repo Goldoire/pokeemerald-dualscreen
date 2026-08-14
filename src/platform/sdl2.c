@@ -72,8 +72,16 @@ static u8 sBorderBackground;
 static bool sHasBorderBackgroundConfig;
 static u8 sBackgroundOrderVersion;
 // Dual-screen defaults: black background, touch controls hidden, battle
-// menus on the bottom screen.
-static u8 sPlatformSettings[PLATFORM_SETTING_COUNT] = {0, 4, 0, 1, 1, 10, 1, 0, 0, 0, 0, 0};
+// menus on the bottom screen, fast-forward leaves the music at normal tempo.
+static u8 sPlatformSettings[PLATFORM_SETTING_COUNT] = {0, 4, 0, 1, 1, 10, 1, 0, 0, 0, 0, 0, 0};
+// Set for each game frame the catch-up loop runs; see Platform_SkipAudioFrame.
+static bool sSkipAudioFrame = false;
+// How much audio to keep buffered ahead while fast-forwarding. Enough to ride
+// out a hitch or a heavier mixer frame (two songs crossfading on a map change),
+// small enough that the latency it leaves behind afterwards is inaudible.
+#define AUDIO_QUEUE_TARGET_FRAMES 3
+// Byte size of one mixed frame, learned from the first queued frame.
+static Uint32 sAudioFrameBytes = 0;
 #ifdef __ANDROID__
 static SDL_GameController *androidController;
 #endif
@@ -438,6 +446,25 @@ int main(int argc, char **argv)
             {
                 if (SDL_AtomicGet(&isFrameAvailable))
                 {
+                    // Fast-forward runs extra game frames per second, but the
+                    // sound engine still only gets to run ~60 times a second, so
+                    // the music keeps its normal tempo and pitch. Which frames
+                    // it runs on is driven by how much audio is still queued
+                    // rather than by a fixed 1-in-N count: the device drains the
+                    // queue at exactly real time, so topping it up to a small
+                    // target paces the music correctly at any speed factor and,
+                    // unlike an open-loop count, refills on the frames after a
+                    // hitch instead of leaving the queue short for good.
+                    // sAudioFrameBytes is 0 until the first frame is queued, so
+                    // never skip before then or the mixer could never run and
+                    // would never learn the size.
+                    if (sPlatformSettings[PLATFORM_SETTING_FF_AUDIO] == 0
+                     && timeScale > 1.0 && sdlAudioDevice != 0 && sAudioFrameBytes != 0)
+                        sSkipAudioFrame = SDL_GetQueuedAudioSize(sdlAudioDevice)
+                                        >= sAudioFrameBytes * AUDIO_QUEUE_TARGET_FRAMES;
+                    else
+                        sSkipAudioFrame = false;
+
 #ifdef VOXEL_CAPABLE
                     if (gVoxelModeEnabled) {
                         VoxelRenderer_RenderFrame();
@@ -768,6 +795,8 @@ static void ReadConfigFile(void)
             sPlatformSettings[PLATFORM_SETTING_FAST_FORWARD] = value;
         else if (sscanf(line, "voxelRenderer=%u", &value) == 1)
             sPlatformSettings[PLATFORM_SETTING_VOXEL_RENDERER] = value != 0;
+        else if (sscanf(line, "fastForwardAudio=%u", &value) == 1)
+            sPlatformSettings[PLATFORM_SETTING_FF_AUDIO] = value != 0;
     }
     fclose(configFile);
 }
@@ -792,6 +821,7 @@ static void StoreConfigFile(void)
     fprintf(configFile, "battleUiTop=%u\n", sPlatformSettings[PLATFORM_SETTING_BATTLE_UI_TOP]);
     fprintf(configFile, "fastForward=%u\n", sPlatformSettings[PLATFORM_SETTING_FAST_FORWARD]);
     fprintf(configFile, "voxelRenderer=%u\n", sPlatformSettings[PLATFORM_SETTING_VOXEL_RENDERER]);
+    fprintf(configFile, "fastForwardAudio=%u\n", sPlatformSettings[PLATFORM_SETTING_FF_AUDIO]);
     fclose(configFile);
 }
 
@@ -848,6 +878,11 @@ void Platform_ReadFlash(u16 sectorNum, u32 offset, u8 *dest, u32 size)
     fclose(savefile);
 }
 
+bool32 Platform_SkipAudioFrame(void)
+{
+    return sSkipAudioFrame;
+}
+
 void Platform_QueueAudio(float *audioBuffer, s32 samplesPerFrame)
 {
     if (sdlAudioDevice != 0)
@@ -855,6 +890,7 @@ void Platform_QueueAudio(float *audioBuffer, s32 samplesPerFrame)
         int floatCount = samplesPerFrame / sizeof(float);
         float adjustedAudio[floatCount];
         float volume = sPlatformSettings[PLATFORM_SETTING_VOLUME] / 10.0f;
+        sAudioFrameBytes = samplesPerFrame;
         for (int i = 0; i < floatCount; i++)
             adjustedAudio[i] = audioBuffer[i] * volume;
         if (SDL_QueueAudio(sdlAudioDevice, adjustedAudio, samplesPerFrame) < 0)
