@@ -104,6 +104,7 @@ void VDraw(SDL_Texture *texture);
 static void ReadSaveFile(const char *path);
 static void ReadConfigFile(void);
 static void StoreConfigFile(void);
+static void ApplyDisplayMode(void);
 static void ApplyPlatformSettings(void);
 static void StoreSaveFile(void);
 static void CloseSaveFile(void);
@@ -366,12 +367,12 @@ int main(int argc, char **argv)
             SDL_FreeSurface(borderSurface);
         }
     }
-#else
-    if (sdlRenderer != NULL)
-    {
-        SDL_RenderSetLogicalSize(sdlRenderer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
-        SDL_RenderSetIntegerScale(sdlRenderer, SDL_TRUE);
-    }
+#endif
+#ifdef __ANDROID__
+    // Release builds spend time in DualScreen_FillAssets before the
+    // window exists; drain any surface-size events that landed then
+    // so ApplyDisplayMode sees the settled output size.
+    SDL_PumpEvents();
 #endif
     ApplyPlatformSettings();
 
@@ -530,65 +531,50 @@ int main(int argc, char **argv)
                             SDL_RenderCopy(sdlRenderer, sdlBorderTexture, &borderSource, &borderViewport);
                         }
 #else
+                        if (sdlRenderer)
                         {
-                            // Widescreen stretches to the full surface; otherwise
-                            // the 240x160 logical size letterboxes to 3:2.
-                            // Clearing the logical size freezes the viewport at
-                            // whatever the output size is right then, so this has
-                            // to be re-applied when the surface size changes too:
-                            // on a cold start the GL surface can still be at its
-                            // initial size on the first frame, which otherwise
-                            // leaves the game stretched into a stale, too-small
-                            // viewport with black bars around it for the session.
-                            // Tracking the output size is not enough on its own:
-                            // the surface can settle without SDL's reported
-                            // output size ever changing, which left widescreen
-                            // stuck on the pre-rotation portrait viewport
-                            // (logcat: a 970x1920 buffer before 1920x1080), so
-                            // the frame overflowed the screen vertically with
-                            // black down one side. Intermittent, because it
-                            // depends on whether the surface settled before the
-                            // first frame. So check the viewport SDL is actually
-                            // using and repair it whenever it disagrees with the
-                            // output size, whatever the cause.
-                            static u8 sAppliedWidescreen = 0xFF;
-                            static int sAppliedOutputWidth = -1;
-                            static int sAppliedOutputHeight = -1;
-                            u8 widescreen = sPlatformSettings[PLATFORM_SETTING_WIDESCREEN];
                             int outputWidth = 0;
                             int outputHeight = 0;
-                            bool viewportStale = false;
-                            if (sdlRenderer != NULL)
+                            SDL_GetRendererOutputSize(sdlRenderer, &outputWidth, &outputHeight);
+                            if (outputWidth <= 0 || outputHeight <= 0)
+                                SDL_GetWindowSize(sdlWindow, &outputWidth, &outputHeight);
+
+                            // Logical size is how the 1620x1080 pillarbox
+                            // freezes in. Always blit in real pixels.
+                            SDL_RenderSetLogicalSize(sdlRenderer, 0, 0);
+                            SDL_RenderSetIntegerScale(sdlRenderer, SDL_FALSE);
+                            SDL_Rect surface = {0, 0, outputWidth, outputHeight};
+                            SDL_RenderSetViewport(sdlRenderer, &surface);
+
+                            SDL_Rect dest = surface;
+                            if (!sPlatformSettings[PLATFORM_SETTING_WIDESCREEN]
+                             && outputWidth > 0 && outputHeight > 0)
                             {
-                                SDL_GetRendererOutputSize(sdlRenderer, &outputWidth, &outputHeight);
-                                // With no logical size the viewport is in real
-                                // pixels and should cover the whole output.
-                                if (widescreen)
+                                int scaleW = outputWidth / DISPLAY_WIDTH;
+                                int scaleH = outputHeight / DISPLAY_HEIGHT;
+                                int scale = scaleW < scaleH ? scaleW : scaleH;
+                                if (sPlatformSettings[PLATFORM_SETTING_INTEGER_SCALE])
                                 {
-                                    SDL_Rect viewport;
-                                    SDL_RenderGetViewport(sdlRenderer, &viewport);
-                                    viewportStale = viewport.x != 0 || viewport.y != 0
-                                                 || viewport.w != outputWidth
-                                                 || viewport.h != outputHeight;
+                                    if (scale < 1)
+                                        scale = 1;
+                                    dest.w = DISPLAY_WIDTH * scale;
+                                    dest.h = DISPLAY_HEIGHT * scale;
                                 }
+                                else
+                                {
+                                    dest.h = outputHeight;
+                                    dest.w = dest.h * DISPLAY_WIDTH / DISPLAY_HEIGHT;
+                                    if (dest.w > outputWidth)
+                                    {
+                                        dest.w = outputWidth;
+                                        dest.h = dest.w * DISPLAY_HEIGHT / DISPLAY_WIDTH;
+                                    }
+                                }
+                                dest.x = (outputWidth - dest.w) / 2;
+                                dest.y = (outputHeight - dest.h) / 2;
                             }
-                            if (sdlRenderer != NULL
-                             && (widescreen != sAppliedWidescreen
-                              || outputWidth != sAppliedOutputWidth
-                              || outputHeight != sAppliedOutputHeight
-                              || viewportStale))
-                            {
-                                SDL_RenderSetLogicalSize(sdlRenderer,
-                                        widescreen ? 0 : DISPLAY_WIDTH,
-                                        widescreen ? 0 : DISPLAY_HEIGHT);
-                                if (!widescreen)
-                                    SDL_RenderSetIntegerScale(sdlRenderer, SDL_TRUE);
-                                sAppliedWidescreen = widescreen;
-                                sAppliedOutputWidth = outputWidth;
-                                sAppliedOutputHeight = outputHeight;
-                            }
+                            SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, &dest);
                         }
-                        if (sdlRenderer) SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
 #endif
                     }
 #ifdef __ANDROID__
@@ -639,6 +625,10 @@ int main(int argc, char **argv)
 #ifdef __ANDROID__
         if (needsPresent)
         {
+            // Re-apply immediately before present so a Java-thread
+            // window event cannot leave a stale glViewport in the
+            // queue after this frame's copy.
+            ApplyDisplayMode();
             if (sdlRenderer) SDL_RenderPresent(sdlRenderer);
             needsPresent = false;
         }
@@ -884,6 +874,29 @@ static void StoreConfigFile(void)
     fclose(configFile);
 }
 
+// Widescreen: stretch to the surface. Off: 240x160 at integer scale.
+// Integer scale must be set before the 240x160 logical size — the other
+// order leaves a 1620x1080 fit-to-height viewport that Android's
+// window-event watcher can freeze into GL. That is the cold-start crop:
+// widescreen content drawn into a leftover 3:2 window.
+static void ApplyDisplayMode(void)
+{
+    if (sdlRenderer == NULL)
+        return;
+#ifdef __ANDROID__
+    if (sPlatformSettings[PLATFORM_SETTING_WIDESCREEN])
+    {
+        SDL_RenderSetLogicalSize(sdlRenderer, 0, 0);
+        SDL_RenderSetIntegerScale(sdlRenderer, SDL_FALSE);
+    }
+    else
+    {
+        SDL_RenderSetIntegerScale(sdlRenderer, SDL_TRUE);
+        SDL_RenderSetLogicalSize(sdlRenderer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    }
+#endif
+}
+
 static void ApplyPlatformSettings(void)
 {
     if (sdlRenderer == NULL)
@@ -899,6 +912,7 @@ static void ApplyPlatformSettings(void)
         SDL_SetWindowPosition(sdlWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     }
 #endif
+    ApplyDisplayMode();
 }
 
 static void StoreSaveFile()
@@ -1032,6 +1046,8 @@ void Platform_SetSetting(enum PlatformSetting setting, u8 value)
     }
     if (setting == PLATFORM_SETTING_VSYNC && sdlRenderer != NULL)
         SDL_RenderSetVSync(sdlRenderer, value);
+    else if (setting == PLATFORM_SETTING_WIDESCREEN)
+        ApplyDisplayMode();
 #if defined(NATIVE_LINUX) || defined(_WIN32)
     else if (setting == PLATFORM_SETTING_FULLSCREEN)
     {
@@ -1334,8 +1350,7 @@ static void DrawTouchControls(void)
 
     SDL_SetRenderDrawColor(sdlRenderer, 0, 0, 0, 255);
     SDL_SetRenderDrawBlendMode(sdlRenderer, SDL_BLENDMODE_NONE);
-    SDL_RenderSetLogicalSize(sdlRenderer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    SDL_RenderSetIntegerScale(sdlRenderer, SDL_TRUE);
+    ApplyDisplayMode();
 }
 
 // R2 toggles fast-forward on and off without disturbing the speed picked in the
@@ -1406,6 +1421,11 @@ void ProcessEvents(void)
             isRunning = false;
             break;
 #ifdef __ANDROID__
+        case SDL_WINDOWEVENT:
+            if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED
+             || event.window.event == SDL_WINDOWEVENT_RESIZED)
+                ApplyDisplayMode();
+            break;
         case SDL_CONTROLLERDEVICEADDED:
             if (androidController == NULL && SDL_IsGameController(event.cdevice.which))
                 androidController = SDL_GameControllerOpen(event.cdevice.which);
