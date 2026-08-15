@@ -540,18 +540,43 @@ int main(int argc, char **argv)
                             // initial size on the first frame, which otherwise
                             // leaves the game stretched into a stale, too-small
                             // viewport with black bars around it for the session.
+                            // Tracking the output size is not enough on its own:
+                            // the surface can settle without SDL's reported
+                            // output size ever changing, which left widescreen
+                            // stuck on the pre-rotation portrait viewport
+                            // (logcat: a 970x1920 buffer before 1920x1080), so
+                            // the frame overflowed the screen vertically with
+                            // black down one side. Intermittent, because it
+                            // depends on whether the surface settled before the
+                            // first frame. So check the viewport SDL is actually
+                            // using and repair it whenever it disagrees with the
+                            // output size, whatever the cause.
                             static u8 sAppliedWidescreen = 0xFF;
                             static int sAppliedOutputWidth = -1;
                             static int sAppliedOutputHeight = -1;
                             u8 widescreen = sPlatformSettings[PLATFORM_SETTING_WIDESCREEN];
                             int outputWidth = 0;
                             int outputHeight = 0;
+                            bool viewportStale = false;
                             if (sdlRenderer != NULL)
+                            {
                                 SDL_GetRendererOutputSize(sdlRenderer, &outputWidth, &outputHeight);
+                                // With no logical size the viewport is in real
+                                // pixels and should cover the whole output.
+                                if (widescreen)
+                                {
+                                    SDL_Rect viewport;
+                                    SDL_RenderGetViewport(sdlRenderer, &viewport);
+                                    viewportStale = viewport.x != 0 || viewport.y != 0
+                                                 || viewport.w != outputWidth
+                                                 || viewport.h != outputHeight;
+                                }
+                            }
                             if (sdlRenderer != NULL
                              && (widescreen != sAppliedWidescreen
                               || outputWidth != sAppliedOutputWidth
-                              || outputHeight != sAppliedOutputHeight))
+                              || outputHeight != sAppliedOutputHeight
+                              || viewportStale))
                             {
                                 SDL_RenderSetLogicalSize(sdlRenderer,
                                         widescreen ? 0 : DISPLAY_WIDTH,
