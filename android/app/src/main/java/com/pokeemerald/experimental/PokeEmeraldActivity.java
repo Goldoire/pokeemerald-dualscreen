@@ -33,6 +33,13 @@ public class PokeEmeraldActivity extends SDLActivity {
                 String json = DualScreenBridge.nativeGetSnapshotJson();
                 presentation.updateState(DualScreenState.parse(json));
             }
+            // The overlay paints letterbox bars from the live setting. On a
+            // release cold start DualScreen_FillAssets runs before the config
+            // is read, so the first draw sees widescreen=0 and those bars
+            // stick until something invalidates this view.
+            if (controls != null) {
+                controls.postInvalidate();
+            }
             snapshotHandler.postDelayed(this, SNAPSHOT_INTERVAL_MS);
         }
     };

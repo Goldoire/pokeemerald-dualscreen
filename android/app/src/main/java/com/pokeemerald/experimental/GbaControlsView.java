@@ -37,6 +37,7 @@ public final class GbaControlsView extends View {
     private int backgroundCount;
     private Bitmap border;
     private int pressed;
+    private final long createdAt = android.os.SystemClock.uptimeMillis();
 
     public GbaControlsView(Context context) {
         super(context);
@@ -236,6 +237,12 @@ public final class GbaControlsView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         drawBorder(canvas);
+        // Release cold start reads the config only after the asset-hole
+        // fill. Keep checking for a few seconds so a first draw with the
+        // default widescreen=0 cannot leave stale letterbox bars up.
+        if (android.os.SystemClock.uptimeMillis() - createdAt < 15000) {
+            postInvalidateDelayed(200);
+        }
         if (!touchControlsEnabled()) {
             return;
         }
