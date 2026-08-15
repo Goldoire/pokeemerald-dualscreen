@@ -5,7 +5,7 @@ plugins {
 // Monotonic versionCode derived from the dotted version, so a sideloaded
 // update installs over the previous release instead of being refused as a
 // downgrade: a.b.c -> a*1_000_000 + b*10_000 + c*100. Components stay < 100.
-def dualScreenVersion = '0.2.0'
+def dualScreenVersion = '0.2.1'
 def dualScreenVersionCode = {
     def parts = dualScreenVersion.tokenize('.').collect { it.isInteger() ? it.toInteger() : 0 }
     while (parts.size() < 3) parts << 0
