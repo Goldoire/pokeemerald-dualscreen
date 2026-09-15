@@ -600,7 +600,11 @@ static void BuildCells(VoxelInstance *inst)
             if (mi->topOpaque >= 64)
                 c->flags |= VCF_ABOVE;
 
-            if (mi->allBlack)
+            // Interior filler is black, and a room's outermost columns are
+            // often a blocked strip of near-black wall shadow: both are the
+            // void the room shell should stand at, not a floor or a column.
+            if (mi->allBlack
+                || (inst->indoor && (c->flags & VCF_BLOCKED) && mi->avgR + mi->avgG + mi->avgB < 72))
             {
                 c->cls = VC_VOID;
                 continue;
@@ -809,6 +813,19 @@ static void BuildCells(VoxelInstance *inst)
             {
                 top = base + rows;
             }
+            // Indoors a wall stub on the room's edge (the Pokemon Center's
+            // entrance jambs) is part of the wall around the room: give it
+            // the shell's two courses rather than a one-course block.
+            if (inst->indoor && top < base + 2.0f)
+            {
+                for (k = 0; k < rows; k++)
+                {
+                    VoxelCell *e = CellPtr(inst, x + 1, y - k);
+                    VoxelCell *wc = CellPtr(inst, x - 1, y - k);
+                    if (e == NULL || e->cls == VC_VOID || wc == NULL || wc->cls == VC_VOID)
+                        top = base + 2.0f;
+                }
+            }
             for (k = 0; k < rows; k++)
             {
                 VoxelCell *n = CellPtr(inst, x, y - k);
@@ -889,13 +906,22 @@ static void BuildCells(VoxelInstance *inst)
                 case VC_BUILDING: ch = 'B'; break;
                 default: ch = 'f'; break;
                 }
-                if (c->flags & VCF_SHELL_W) ch = 'w';
-                else if (c->flags & VCF_SHELL_E) ch = 'e';
-                else if (c->flags & VCF_SHELL_N) ch = 'n';
                 line[x] = ch;
             }
             line[x] = 0;
             printf("[Voxel] %3d |%s|\n", y, line);
+        }
+        if (inst->indoor)
+        {
+            for (y = 0; y < h; y++)
+            {
+                const VoxelCell *a = &inst->cells[y * w];
+                const VoxelCell *b = &inst->cells[y * w + w - 1];
+                printf("[Voxel] edge row %d: west meta %d cls %d flags %02x avg %d | east meta %d cls %d flags %02x avg %d\n",
+                       y, a->metatile, a->cls, a->flags, inst->meta[a->metatile].avgR + inst->meta[a->metatile].avgG + inst->meta[a->metatile].avgB,
+                       b->metatile, b->cls, b->flags, inst->meta[b->metatile].avgR + inst->meta[b->metatile].avgG + inst->meta[b->metatile].avgB);
+            }
+            printf("[Voxel] shell metatile %d\n", inst->shellMeta);
         }
     }
 }

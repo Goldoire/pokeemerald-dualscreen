@@ -673,11 +673,28 @@ void VoxelRenderer_RenderFrame(void)
     glViewport(0, 0, winW, winH);
     FadeColor(&fr, &fg, &fb);
     {
-        float sr = 0.55f, sg = 0.78f, sb = 0.94f;
-        if (gVoxelInstanceCount > 0 && gVoxelInstances[0].indoor) { sr = 0.05f; sg = 0.05f; sb = 0.07f; }
+        bool indoor = gVoxelInstanceCount > 0 && gVoxelInstances[0].indoor;
+        float sr = 0.05f, sg = 0.05f, sb = 0.07f;
         glClearColor(sr + (fr - sr) * fade, sg + (fg - sg) * fade, sb + (fb - sb) * fade, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        if (!indoor)
+        {
+            // Outdoors the backdrop is a sky: deeper blue above, hazy at the
+            // horizon, tinted like everything else by a palette fade.
+            float tr = 0.36f, tg = 0.62f, tb = 0.92f;
+            float br = 0.78f, bg = 0.89f, bb = 0.98f;
+            Begin2D();
+            glDisable(GL_TEXTURE_2D);
+            glDisable(GL_BLEND);
+            glBegin(GL_QUADS);
+            glColor4f(tr + (fr - tr) * fade, tg + (fg - tg) * fade, tb + (fb - tb) * fade, 1.0f);
+            glVertex2f(0.0f, 0.0f); glVertex2f(1.0f, 0.0f);
+            glColor4f(br + (fr - br) * fade, bg + (fg - bg) * fade, bb + (fb - bb) * fade, 1.0f);
+            glVertex2f(1.0f, 1.0f); glVertex2f(0.0f, 1.0f);
+            glEnd();
+            glEnable(GL_TEXTURE_2D);
+        }
     }
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);

@@ -176,7 +176,9 @@ static void Decode(const struct MapLayout *layout, const TileSource *src, const 
             mi->avgR = sr / 256;
             mi->avgG = sg / 256;
             mi->avgB = sb / 256;
-            mi->allBlack = dark == 256;
+            // Interior filler is drawn black; a Pokemon Center's cut-off
+            // corners keep a stray lit pixel or two, so ask for nearly all.
+            mi->allBlack = dark >= 244;
         }
     }
 }

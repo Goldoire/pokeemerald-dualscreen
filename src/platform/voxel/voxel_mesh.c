@@ -228,12 +228,13 @@ static void ShellFaces(VoxelMesh *mesh, const VoxelInstance *inst, const VoxelCe
 {
     UvRect s;
     float shellTop = floor + 2.0f;
+    float skirt = floor - 1.0f;   // carry on below the floor: the camera looks down past its edge
     if (!inst->indoor || !(c->flags & (VCF_SHELL_N | VCF_SHELL_E | VCF_SHELL_W)))
         return;
     s = UvFor(inst->shellMeta);
     if (c->flags & VCF_SHELL_N) NorthFace(mesh, x, z - 1.0f, floor, shellTop, s, SHADE_SOUTH - 60);
-    if (c->flags & VCF_SHELL_E) WestFace(mesh, x + 1.0f, z, floor, shellTop, s, SHADE_WEST);
-    if (c->flags & VCF_SHELL_W) EastFace(mesh, x - 1.0f, z, floor, shellTop, s, SHADE_EAST);
+    if (c->flags & VCF_SHELL_E) WestFace(mesh, x + 1.0f, z, skirt, shellTop, s, SHADE_WEST);
+    if (c->flags & VCF_SHELL_W) EastFace(mesh, x - 1.0f, z, skirt, shellTop, s, SHADE_EAST);
 }
 
 // ---------------------------------------------------------------------------
