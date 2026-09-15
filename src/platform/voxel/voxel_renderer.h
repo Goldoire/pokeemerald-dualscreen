@@ -22,6 +22,10 @@ void VoxelRenderer_InvalidateGL(void);
 // Free-fly camera (desktop debugging).
 void VoxelRenderer_HandleMouseMotion(int dx, int dy);
 
+// Runtime debug switches (bit set = feature off): 1 x-ray silhouettes,
+// 2 ghosting, 4 billboard tilt, 8 shadows, 16 overlay, 32 live atlas.
+extern unsigned gVoxelDebugFlags;
+
 // Write the next frame to `path` as a binary PPM (debug harness).
 void VoxelRenderer_RequestScreenshot(const char *path);
 

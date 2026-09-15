@@ -1646,7 +1646,7 @@ u16 GetXInputKeys()
 
 u16 Platform_GetKeyInput(void)
 {
-#ifdef NATIVE_LINUX
+#if defined(NATIVE_LINUX) || defined(__ANDROID__)
     {
         extern void DebugHarness_Tick(void);
         DebugHarness_Tick();

@@ -11,12 +11,16 @@
 //   quit                    exit the game
 //
 // Debug only; compiled into NATIVE_LINUX builds and inert without the env var.
-#if defined(PLATFORM_SDL2) && defined(NATIVE_LINUX)
+#if defined(PLATFORM_SDL2) && (defined(NATIVE_LINUX) || defined(__ANDROID__))
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __ANDROID__
+#include <SDL.h>
+#else
 #include <SDL2/SDL.h>
+#endif
 #include "global.h"
 #include "main.h"
 #include "overworld.h"
@@ -33,6 +37,16 @@ static bool sWarpPending = false;
 static int sWarpGroup, sWarpNum, sWarpX, sWarpY;
 static int sWarpCooldown = 0;
 
+// Any thread may ask for a warp; the game thread performs it.
+void DebugHarness_RequestWarp(int group, int num, int x, int y)
+{
+    SDL_AtomicLock(&sWarpLock);
+    sWarpGroup = group; sWarpNum = num; sWarpX = x; sWarpY = y;
+    sWarpPending = true;
+    SDL_AtomicUnlock(&sWarpLock);
+}
+
+#ifdef NATIVE_LINUX
 static int ReaderThread(void *param)
 {
     const char *path = (const char *)param;
@@ -62,10 +76,11 @@ static int ReaderThread(void *param)
             }
             else if (sscanf(line, "warp %d %d %d %d", &g, &n, &x, &y) == 4)
             {
-                SDL_AtomicLock(&sWarpLock);
-                sWarpGroup = g; sWarpNum = n; sWarpX = x; sWarpY = y;
-                sWarpPending = true;
-                SDL_AtomicUnlock(&sWarpLock);
+                DebugHarness_RequestWarp(g, n, x, y);
+            }
+            else if (sscanf(line, "flags %u", &mask) == 1)
+            {
+                gVoxelDebugFlags = mask;
             }
             else if (strncmp(line, "quit", 4) == 0)
             {
@@ -86,6 +101,7 @@ void DebugHarness_Init(void)
     printf("[Harness] reading commands from %s\n", path);
     SDL_CreateThread(ReaderThread, "KeyFeed", (void *)path);
 }
+#endif // NATIVE_LINUX
 
 // Runs on the game thread once per frame (from Platform_GetKeyInput).
 void DebugHarness_Tick(void)
@@ -106,7 +122,7 @@ void DebugHarness_Tick(void)
     SDL_AtomicUnlock(&sWarpLock);
     if (!go)
         return;
-    printf("[Harness] warp to %d:%d (%d,%d)\n", g, n, x, y);
+    SDL_Log("[Harness] warp to %d:%d (%d,%d)", g, n, x, y);
     SetWarpDestination(g, n, -1, x, y);
     DoWarp();
     ResetInitialPlayerAvatarState();

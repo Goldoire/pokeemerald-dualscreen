@@ -32,6 +32,13 @@ extern unsigned char VRAM_[];
 extern void DrawFrame(uint16_t *pixels);
 
 bool gVoxelFirstPersonMode = false;
+unsigned gVoxelDebugFlags = 0;
+#define DBG_NO_XRAY    1u
+#define DBG_NO_GHOST   2u
+#define DBG_NO_TILT    4u
+#define DBG_NO_SHADOW  8u
+#define DBG_NO_OVERLAY 16u
+#define DBG_NO_LIVEATLAS 32u
 
 // ---------------------------------------------------------------------------
 // State
@@ -41,6 +48,7 @@ static bool sNeedCameraSnap = true;
 static u8 sLastGroup = 0xFF, sLastNum = 0xFF;
 
 static GLuint sAtlasTex[MAX_VOXEL_MAP_INSTANCES];
+static GLuint sLiveAtlasSpare = 0;        // the current map's atlas alternates with this
 static const struct MapLayout *sAtlasLayout[MAX_VOXEL_MAP_INSTANCES];
 static VoxelMesh sMeshes[MAX_VOXEL_MAP_INSTANCES];
 static uint32_t *sAtlasPixels = NULL;     // 512x512 scratch
@@ -48,12 +56,16 @@ static uint32_t sVramChecksum = 0;
 static bool sGlInvalid = true;
 
 static GLuint sScreenTex = 0;             // 2D fallback / UI overlay
+static GLuint sOverlayTex[2] = {0, 0};    // ping-pong: never re-specify an in-flight texture
+static int sOverlayFlip = 0;
 static GLuint sShadowTex = 0;
 static GLuint sObjTex[OBJECT_EVENTS_COUNT];
 static int sObjW[OBJECT_EVENTS_COUNT], sObjH[OBJECT_EVENTS_COUNT];
+static uint32_t sObjHash[OBJECT_EVENTS_COUNT];   // what the texture currently holds
 
 static char sScreenshotPath[512];
 static bool sScreenshotPending = false;
+static int sAtlasUploads = 0, sSpriteUploads = 0, sOverlayUploads = 0;   // telemetry
 
 static uint16_t sGbaImage[MAX_RENDER_WIDTH * DISPLAY_HEIGHT];
 static uint32_t sRgbaImage[MAX_RENDER_WIDTH * DISPLAY_HEIGHT];
@@ -73,7 +85,30 @@ static void GetSpriteDimensions(u8 shape, u8 size, int *w, int *h)
     *h = dims[shape][size & 3][1];
 }
 
-static void UpdateObjectSpriteTexture(const struct Sprite *sprite, GLuint *texOut, int *wOut, int *hOut)
+// Re-specifying a texture the GPU is still reading from the previous frame
+// stalls the driver, so a sprite is only uploaded when its OAM, palette or
+// tile bytes actually changed (animation frames are copied into the same
+// VRAM slot, hence the byte hash).
+static uint32_t SpriteContentHash(const struct Sprite *sprite, int w, int h)
+{
+    uint32_t hash = 2166136261u;
+    const u8 *tiles = VRAM_ + 0x10000 + sprite->oam.tileNum * 32;
+    const u8 *pal = PLTT + 0x200 + sprite->oam.paletteNum * 32;
+    int bytes = w * h / 2, i;
+    if (sprite->oam.tileNum * 32 + bytes > 0x8000)
+        bytes = 0;
+    for (i = 0; i < bytes; i += 4)
+        hash = (hash ^ *(const uint32_t *)(tiles + i)) * 16777619u;
+    for (i = 0; i < 32; i += 4)
+        hash = (hash ^ *(const uint32_t *)(pal + i)) * 16777619u;
+    hash = (hash ^ sprite->oam.tileNum) * 16777619u;
+    hash = (hash ^ sprite->oam.paletteNum) * 16777619u;
+    hash = (hash ^ (sprite->oam.matrixNum & ST_OAM_MNUM_FLIP_MASK)) * 16777619u;
+    hash = (hash ^ (sprite->oam.shape | (sprite->oam.size << 2))) * 16777619u;
+    return hash ? hash : 1;
+}
+
+static void UpdateObjectSpriteTexture(const struct Sprite *sprite, GLuint *texOut, int *wOut, int *hOut, uint32_t *hashInOut)
 {
     int w, h, tilesX, tilesY, tx, ty, px, py;
     u8 *pixels;
@@ -82,10 +117,16 @@ static void UpdateObjectSpriteTexture(const struct Sprite *sprite, GLuint *texOu
     const u16 *palData = (const u16 *)(PLTT + 0x200 + palBase * 32);
     const u8 *vramBase = VRAM_ + 0x10000;
     bool hFlip = false, vFlip = false;
+    uint32_t hash;
 
     GetSpriteDimensions(sprite->oam.shape, sprite->oam.size, &w, &h);
     *wOut = w;
     *hOut = h;
+    hash = SpriteContentHash(sprite, w, h);
+    if (*texOut != 0 && hash == *hashInOut)
+        return;
+    *hashInOut = hash;
+    sSpriteUploads++;
     pixels = malloc(w * h * 4);
     if (pixels == NULL)
         return;
@@ -229,13 +270,21 @@ static void DropGlResources(void)
         sAtlasTex[i] = 0;
         sAtlasLayout[i] = NULL;
     }
+    if (sLiveAtlasSpare) glDeleteTextures(1, &sLiveAtlasSpare);
+    sLiveAtlasSpare = 0;
     for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
     {
         if (sObjTex[i]) glDeleteTextures(1, &sObjTex[i]);
         sObjTex[i] = 0;
+        sObjHash[i] = 0;
     }
     if (sScreenTex) glDeleteTextures(1, &sScreenTex);
     if (sShadowTex) glDeleteTextures(1, &sShadowTex);
+    for (i = 0; i < 2; i++)
+    {
+        if (sOverlayTex[i]) glDeleteTextures(1, &sOverlayTex[i]);
+        sOverlayTex[i] = 0;
+    }
     sScreenTex = 0;
     sShadowTex = 0;
     sVramChecksum = 0;
@@ -247,7 +296,9 @@ void VoxelRenderer_InvalidateGL(void)
     // rebuild on the next frame.
     int i;
     for (i = 0; i < MAX_VOXEL_MAP_INSTANCES; i++) { sAtlasTex[i] = 0; sAtlasLayout[i] = NULL; }
-    for (i = 0; i < OBJECT_EVENTS_COUNT; i++) sObjTex[i] = 0;
+    sLiveAtlasSpare = 0;
+    for (i = 0; i < OBJECT_EVENTS_COUNT; i++) { sObjTex[i] = 0; sObjHash[i] = 0; }
+    sOverlayTex[0] = sOverlayTex[1] = 0;
     sScreenTex = 0;
     sShadowTex = 0;
     sVramChecksum = 0;
@@ -267,6 +318,14 @@ static void UploadAtlas(int i, const VoxelInstance *inst, bool fromVram)
         VoxelAtlas_DecodeFromVram(inst->header->mapLayout, live, liveCount, sAtlasPixels);
     else
         VoxelAtlas_DecodeFromRom(inst->header->mapLayout, live, liveCount, sAtlasPixels, NULL);
+    sAtlasUploads++;
+    if (i == 0 && sAtlasTex[0] != 0)
+    {
+        // swap in the spare so the upload never hits the texture in flight
+        GLuint t = sLiveAtlasSpare ? sLiveAtlasSpare : MakeTexture();
+        sLiveAtlasSpare = sAtlasTex[0];
+        sAtlasTex[0] = t;
+    }
     if (sAtlasTex[i] == 0)
         sAtlasTex[i] = MakeTexture();
     glBindTexture(GL_TEXTURE_2D, sAtlasTex[i]);
@@ -374,6 +433,8 @@ static void RenderUiOverlay(int winW, int winH)
     uint16_t backdrop = *(uint16_t *)PLTT;
     int i, pixelCount = gRenderWidth * DISPLAY_HEIGHT;
     float x0, y0, x1, y1;
+    bool anyVisible = false;
+    GLuint tex;
 
     // BG1-3 and OBJ off: only the text layer.
     REG_DISPCNT &= ~(DISPCNT_BG1_ON | DISPCNT_BG2_ON | DISPCNT_BG3_ON | DISPCNT_OBJ_ON);
@@ -392,13 +453,23 @@ static void RenderUiOverlay(int winW, int winH)
             uint32_t g = ((c >> 5) & 0x1F) * 255 / 31;
             uint32_t b = ((c >> 10) & 0x1F) * 255 / 31;
             sRgbaImage[i] = r | (g << 8) | (b << 16) | (255u << 24);
+            anyVisible = true;
         }
     }
+    if (!anyVisible)
+        return;   // nothing on the text layer: no upload, no draw
     Begin2D();
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    UploadScreenTexture(gRenderWidth);
+    sOverlayFlip ^= 1;
+    if (sOverlayTex[sOverlayFlip] == 0)
+        sOverlayTex[sOverlayFlip] = MakeTexture();
+    tex = sOverlayTex[sOverlayFlip];
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gRenderWidth, DISPLAY_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, sRgbaImage);
+    sOverlayUploads++;
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     FrameRect(winW, winH, &x0, &y0, &x1, &y1);
     ScreenQuad(x0, y0, x1, y1);
@@ -428,8 +499,9 @@ static void FadeColor(float *r, float *g, float *b)
 static void DrawBillboard(float wx, float wy, float wz, GLuint tex, int w, int h, float alpha)
 {
     float width = w / 16.0f, height = h / 16.0f, hw = width * 0.5f;
-    float topZ = wz - height * sinf(BILLBOARD_TILT);
-    float topY = wy + height * cosf(BILLBOARD_TILT);
+    float tilt = (gVoxelDebugFlags & DBG_NO_TILT) ? 0.0f : BILLBOARD_TILT;
+    float topZ = wz - height * sinf(tilt);
+    float topY = wy + height * cosf(tilt);
     // Emerald draws an object's feet a few pixels above its cell's bottom
     // edge; a 16px sprite's origin sits at the cell centre.
     float z = wz + 0.5f;
@@ -440,8 +512,8 @@ static void DrawBillboard(float wx, float wy, float wz, GLuint tex, int w, int h
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 1.0f); glVertex3f(wx - hw, wy, z);
     glTexCoord2f(1.0f, 1.0f); glVertex3f(wx + hw, wy, z);
-    glTexCoord2f(1.0f, 0.0f); glVertex3f(wx + hw, topY, z - height * sinf(BILLBOARD_TILT));
-    glTexCoord2f(0.0f, 0.0f); glVertex3f(wx - hw, topY, z - height * sinf(BILLBOARD_TILT));
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(wx + hw, topY, z - height * sinf(tilt));
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(wx - hw, topY, z - height * sinf(tilt));
     glEnd();
 }
 
@@ -478,7 +550,7 @@ static void CollectObjects(ObjectDraw *draws)
         sprite = &gSprites[obj->spriteId];
         if (!sprite->inUse || sprite->invisible)
             continue;
-        UpdateObjectSpriteTexture(sprite, &sObjTex[i], &sObjW[i], &sObjH[i]);
+        UpdateObjectSpriteTexture(sprite, &sObjTex[i], &sObjW[i], &sObjH[i], &sObjHash[i]);
         if (!GetObjectWorldPos(obj, &d->x, &d->y, &d->z))
             continue;
         d->x += 0.5f;
@@ -565,20 +637,25 @@ static void HandleMapChange(void)
 
 // Frame-time telemetry: printed every 600 frames so a device log answers
 // whether the port keeps up (SDL_Log reaches logcat; printf does not).
-static Uint64 sFrameTicks = 0, sFrameMax = 0;
+static Uint64 sFrameTicks = 0, sFrameMax = 0, sWallStart = 0;
 static int sFrameSamples = 0;
 
 static void NoteFrameTime(Uint64 start)
 {
-    Uint64 dt = SDL_GetPerformanceCounter() - start;
+    Uint64 now = SDL_GetPerformanceCounter();
+    Uint64 dt = now - start;
+    if (sWallStart == 0) sWallStart = start;
     sFrameTicks += dt;
     if (dt > sFrameMax) sFrameMax = dt;
     if (++sFrameSamples == 600)
     {
         double freq = (double)SDL_GetPerformanceFrequency();
-        SDL_Log("[Voxel] render avg %.2f ms, max %.2f ms over %d frames",
-                (double)sFrameTicks / sFrameSamples * 1000.0 / freq, (double)sFrameMax * 1000.0 / freq, sFrameSamples);
-        sFrameTicks = 0; sFrameMax = 0; sFrameSamples = 0;
+        double wall = (double)(now - sWallStart) / freq;
+        SDL_Log("[Voxel] render avg %.2f ms, max %.2f ms, %.1f fps; uploads atlas %d sprite %d overlay %d",
+                (double)sFrameTicks / sFrameSamples * 1000.0 / freq, (double)sFrameMax * 1000.0 / freq,
+                wall > 0.0 ? sFrameSamples / wall : 0.0, sAtlasUploads, sSpriteUploads, sOverlayUploads);
+        sFrameTicks = 0; sFrameMax = 0; sFrameSamples = 0; sWallStart = 0;
+        sAtlasUploads = sSpriteUploads = sOverlayUploads = 0;
     }
 }
 
@@ -635,7 +712,7 @@ void VoxelRenderer_RenderFrame(void)
     // The current map's art comes from VRAM/palette RAM so tile animations
     // and fades show; re-decode only when they changed.
     {
-        uint32_t sum = VoxelAtlas_VramChecksum();
+        uint32_t sum = (gVoxelDebugFlags & DBG_NO_LIVEATLAS) ? 1u : VoxelAtlas_VramChecksum();
         if (sum != sVramChecksum && gVoxelInstanceCount > 0)
         {
             UploadAtlas(0, &gVoxelInstances[0], true);
@@ -722,7 +799,7 @@ void VoxelRenderer_RenderFrame(void)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDepthMask(GL_FALSE);
     for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
-        if (draws[i].valid)
+        if (draws[i].valid && !(gVoxelDebugFlags & DBG_NO_SHADOW))
             DrawShadow(draws[i].x, draws[i].y, draws[i].z, 0.45f);
     glDepthMask(GL_TRUE);
     glEnable(GL_ALPHA_TEST);
@@ -734,21 +811,25 @@ void VoxelRenderer_RenderFrame(void)
 
     // ---- ghosted geometry (what stands between the camera and the player) ----
     glDepthMask(GL_FALSE);
-    for (i = 0; i < gVoxelInstanceCount; i++)
-    {
-        glBindTexture(GL_TEXTURE_2D, sAtlasTex[i]);
-        VoxelMesh_DrawGhosted(&sMeshes[i]);
-    }
+    if (!(gVoxelDebugFlags & DBG_NO_GHOST))
+        for (i = 0; i < gVoxelInstanceCount; i++)
+        {
+            glBindTexture(GL_TEXTURE_2D, sAtlasTex[i]);
+            VoxelMesh_DrawGhosted(&sMeshes[i]);
+        }
     // x-ray silhouettes through anything still hiding an object
-    glDepthFunc(GL_GREATER);
-    glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_GREATER, 0.5f);
-    glColor4f(0.55f, 0.75f, 1.0f, 0.55f);
-    for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
-        if (draws[i].valid)
-            DrawBillboard(draws[i].x, draws[i].y, draws[i].z, draws[i].tex, draws[i].w, draws[i].h, -1.0f);
-    glDisable(GL_ALPHA_TEST);
-    glDepthFunc(GL_LEQUAL);
+    if (!(gVoxelDebugFlags & DBG_NO_XRAY))
+    {
+        glDepthFunc(GL_GREATER);
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(GL_GREATER, 0.5f);
+        glColor4f(0.55f, 0.75f, 1.0f, 0.55f);
+        for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
+            if (draws[i].valid)
+                DrawBillboard(draws[i].x, draws[i].y, draws[i].z, draws[i].tex, draws[i].w, draws[i].h, -1.0f);
+        glDisable(GL_ALPHA_TEST);
+        glDepthFunc(GL_LEQUAL);
+    }
     glDepthMask(GL_TRUE);
 
     // ---- fade tint for the ROM-drawn neighbours and the sky ----
@@ -765,7 +846,8 @@ void VoxelRenderer_RenderFrame(void)
     }
 
     // ---- GBA text layer ----
-    RenderUiOverlay(winW, winH);
+    if (!(gVoxelDebugFlags & DBG_NO_OVERLAY))
+        RenderUiOverlay(winW, winH);
 
     if (sScreenshotPending)
         SaveScreenshot(winW, winH);

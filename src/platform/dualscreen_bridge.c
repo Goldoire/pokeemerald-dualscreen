@@ -1194,6 +1194,20 @@ JNIEXPORT void JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_native
 }
 
 // Enqueue synthetic button states, one entry per frame (0 = release).
+JNIEXPORT void JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_nativeSetVoxelDebugFlags(JNIEnv *env, jclass clazz, jint flags)
+{
+    extern unsigned gVoxelDebugFlags;
+    (void)env; (void)clazz;
+    gVoxelDebugFlags = (unsigned)flags;
+}
+
+JNIEXPORT void JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_nativeDebugWarp(JNIEnv *env, jclass clazz, jint group, jint num, jint x, jint y)
+{
+    extern void DebugHarness_RequestWarp(int group, int num, int x, int y);
+    (void)env; (void)clazz;
+    DebugHarness_RequestWarp(group, num, x, y);
+}
+
 JNIEXPORT void JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_nativeQueueKeys(JNIEnv *env, jclass clazz, jintArray masks)
 {
     jint buffer[VIRTUAL_KEY_QUEUE_SIZE];

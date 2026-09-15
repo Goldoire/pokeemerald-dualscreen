@@ -61,6 +61,12 @@ public final class DualScreenBridge {
      */
     public static native void nativeQueueKeys(int[] frameMasks);
 
+    /** Debug: warp the player to map group/num at (x, y) on the next overworld frame. */
+    public static native void nativeDebugWarp(int group, int num, int x, int y);
+
+    /** Debug: voxel renderer switches (1 x-ray, 2 ghost, 4 tilt, 8 shadows, 16 overlay, 32 live atlas; set = off). */
+    public static native void nativeSetVoxelDebugFlags(int flags);
+
     // Platform setting indices (see include/platform.h).
     public static final int SETTING_BACKGROUND_MODE = 6;
     public static final int SETTING_WIDESCREEN = 7;

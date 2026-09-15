@@ -651,12 +651,18 @@ void VoxelMesh_BuildInstance(VoxelMesh *mesh, const VoxelInstance *inst)
 void VoxelMesh_ComputeGhosts(VoxelMesh *mesh, float px, float py, float pz, float camTanPitch)
 {
     int i;
+    extern unsigned gVoxelDebugFlags;
     for (i = 0; i < mesh->rangeCount; i++)
     {
         const VoxelMeshRange *r = &mesh->ranges[i];
         float headY = py + 1.6f;
         float dz, rayY;
         bool ghost = false;
+        if (gVoxelDebugFlags & 2u)
+        {
+            mesh->ghost[i] = false;
+            continue;
+        }
         if (r->building >= 0)
         {
             // buildings: the mass starts at its north edge; that is where

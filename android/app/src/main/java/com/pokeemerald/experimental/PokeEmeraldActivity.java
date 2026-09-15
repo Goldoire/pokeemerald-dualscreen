@@ -48,6 +48,7 @@ public class PokeEmeraldActivity extends SDLActivity {
     };
 
     private GbaControlsView controls;
+    private DebugControlReceiver debugControl;
 
     // Button presses for an open battle takeover panel. The native side
     // queues them off the game's own input; this just hands them over,
@@ -77,6 +78,7 @@ public class PokeEmeraldActivity extends SDLActivity {
         mLayout.addView(controls, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
+        debugControl = DebugControlReceiver.register(this);
     }
 
     @Override
