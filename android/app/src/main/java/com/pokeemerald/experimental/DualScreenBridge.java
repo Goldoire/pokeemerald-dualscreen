@@ -67,8 +67,7 @@ public final class DualScreenBridge {
     public static final int SETTING_TOUCH_CONTROLS = 8;
     public static final int SETTING_BATTLE_UI_TOP = 9;
     public static final int SETTING_FAST_FORWARD = 10;
-    // 11 is the voxel renderer, held out of the SET tab while it is
-    // experimental; the index stays reserved so the others keep their values.
+    public static final int SETTING_VOXEL_RENDERER = 11;
     public static final int SETTING_FF_AUDIO = 12;
     public static final int SETTING_BATTLE_HINTS = 13;
     public static final int SETTING_VOLUME = 5;

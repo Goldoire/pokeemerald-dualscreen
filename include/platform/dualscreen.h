@@ -25,6 +25,7 @@ u32 DualScreen_BattleUiActive(void);
 // One frame's worth of synthetic GBA button state, consumed by
 // Platform_GetKeyInput. Returns 0 when the queue is empty.
 u16 DualScreen_ConsumeVirtualKeys(void);
+u32 DualScreen_DebugQueueKeys(u16 keys);
 
 // Implemented in battle_controller_player.c: whether the player-controlled
 // battler is currently on the action menu / move menu, and which battler

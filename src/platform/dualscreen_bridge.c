@@ -277,6 +277,22 @@ static void QueueVirtualKeys(u16 keys)
     SDL_AtomicUnlock(&sVirtualKeyLock);
 }
 
+// The debug harness's way in: one frame of button state, or FALSE when the
+// queue is full and the caller should wait a frame.
+u32 DualScreen_DebugQueueKeys(u16 keys)
+{
+    u32 queued;
+    SDL_AtomicLock(&sVirtualKeyLock);
+    queued = sVirtualKeyCount < VIRTUAL_KEY_QUEUE_SIZE;
+    if (queued)
+    {
+        sVirtualKeys[(sVirtualKeyHead + sVirtualKeyCount) % VIRTUAL_KEY_QUEUE_SIZE] = keys;
+        sVirtualKeyCount++;
+    }
+    SDL_AtomicUnlock(&sVirtualKeyLock);
+    return queued;
+}
+
 // ---------------------------------------------------------------------------
 // Battle bag/party takeover: pending-choice mailbox between the bottom
 // screen and the player battle controller (see platform/dualscreen.h).

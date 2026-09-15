@@ -217,6 +217,12 @@ int main(int argc, char **argv)
 #ifdef __ANDROID__
     gVoxelModeEnabled = sPlatformSettings[PLATFORM_SETTING_VOXEL_RENDERER] != 0;
 #endif
+#ifdef NATIVE_LINUX
+    {
+        extern void DebugHarness_Init(void);
+        DebugHarness_Init();
+    }
+#endif
 
 #ifdef __ANDROID__
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
@@ -840,11 +846,7 @@ static void ReadConfigFile(void)
         else if (sscanf(line, "fastForward=%u", &value) == 1 && value <= 3)
             sPlatformSettings[PLATFORM_SETTING_FAST_FORWARD] = sFastForwardSetting = value;
         else if (sscanf(line, "voxelRenderer=%u", &value) == 1)
-            // Consumed but forced off: the voxel renderer is not shipping yet,
-            // so the SET tab no longer offers it and a config left over from a
-            // build that did must not strand anyone in 3D. StoreConfigFile
-            // writes the cleared value back out.
-            sPlatformSettings[PLATFORM_SETTING_VOXEL_RENDERER] = 0;
+            sPlatformSettings[PLATFORM_SETTING_VOXEL_RENDERER] = value != 0;
         else if (sscanf(line, "fastForwardAudio=%u", &value) == 1)
             sPlatformSettings[PLATFORM_SETTING_FF_AUDIO] = value != 0;
         else if (sscanf(line, "battleHints=%u", &value) == 1)
@@ -1438,6 +1440,14 @@ void ProcessEvents(void)
              || event.window.event == SDL_WINDOWEVENT_RESIZED)
                 ApplyDisplayMode();
             break;
+        case SDL_APP_DIDENTERFOREGROUND:
+        case SDL_RENDER_DEVICE_RESET:
+#ifdef VOXEL_CAPABLE
+            // The EGL context may not have survived the background trip.
+            if (gVoxelModeEnabled)
+                VoxelRenderer_InvalidateGL();
+#endif
+            break;
         case SDL_CONTROLLERDEVICEADDED:
             if (androidController == NULL && SDL_IsGameController(event.cdevice.which))
                 androidController = SDL_GameControllerOpen(event.cdevice.which);
@@ -1636,6 +1646,12 @@ u16 GetXInputKeys()
 
 u16 Platform_GetKeyInput(void)
 {
+#ifdef NATIVE_LINUX
+    {
+        extern void DebugHarness_Tick(void);
+        DebugHarness_Tick();
+    }
+#endif
 #ifdef _WIN32
     u16 gamepadKeys = GetXInputKeys();
     return gamepadKeys | keyboardKeys | DualScreen_ConsumeVirtualKeys();

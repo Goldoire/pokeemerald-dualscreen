@@ -6,20 +6,28 @@
 
 #include <stdbool.h>
 
-// Initialize the voxel renderer. Call after OpenGL context is created.
-// Returns true on success, false on failure.
+// Initialize the voxel renderer. Call after the OpenGL context is created.
 bool VoxelRenderer_Init(void);
 
-// Render one frame of the 3D voxel world.
+// Render one frame: the 3D overworld, or the flat GBA frame anywhere else.
 void VoxelRenderer_RenderFrame(void);
 
-// Shut down the voxel renderer and free resources.
+// Shut down the renderer and free resources.
 void VoxelRenderer_Shutdown(void);
 
-// External flag set by main() from command-line args
+// The GL context may have been recreated (Android resume): drop every GL
+// name and rebuild on the next frame.
+void VoxelRenderer_InvalidateGL(void);
+
+// Free-fly camera (desktop debugging).
+void VoxelRenderer_HandleMouseMotion(int dx, int dy);
+
+// Write the next frame to `path` as a binary PPM (debug harness).
+void VoxelRenderer_RequestScreenshot(const char *path);
+
 extern bool gVoxelModeEnabled;
 extern bool gVoxelFirstPersonMode;
 
-#endif // NATIVE_LINUX
-#endif // PLATFORM_SDL2
+#endif
+#endif
 #endif // GUARD_VOXEL_RENDERER_H

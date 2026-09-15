@@ -7,595 +7,751 @@
 #include "gles1_compat.h"
 #else
 #include <GL/gl.h>
-#include <GL/glu.h>
 #endif
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "global.h"
-#include "fieldmap.h"
+#include "voxel_atlas.h"
 
-bool *gVoxelWallConsumed = NULL;
+// ---------------------------------------------------------------------------
+// Geometry helpers
+// ---------------------------------------------------------------------------
+#define ATLAS_TEXEL (1.0f / VOXEL_ATLAS_SIZE)
+#define UV_INSET (0.5f * ATLAS_TEXEL)
 
-bool VoxelMesh_IsWallConsumed(int worldX, int worldY)
+// Face shading. Light from the south-east and above.
+#define SHADE_TOP   255
+#define SHADE_SOUTH 236
+#define SHADE_EAST  200
+#define SHADE_WEST  178
+#define SHADE_NORTH 150
+
+typedef struct { float u0, v0, u1, v1; } UvRect;
+
+static UvRect UvFor(int metatile)
 {
-    // A simple coordinate hash map for consumed walls since the world coordinate space can be negative and large
-    if (!gVoxelWallConsumed) return false;
-    int hash = ((worldY + 4096) * 8192 + (worldX + 4096)) % (8192 * 8192); // naive hash mapped into a 1D array index (just an offset, assuming a bounded world area)
-    // Wait, the coordinates can be from -500 to +500. A 2048x2048 array centered at 1024,1024 is enough!
-    int cx = worldX + 1024;
-    int cy = worldY + 1024;
-    if (cx < 0 || cx >= 2048 || cy < 0 || cy >= 2048) return false;
-    return gVoxelWallConsumed[cy * 2048 + cx];
+    UvRect r;
+    r.u0 = (metatile % VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE * ATLAS_TEXEL + UV_INSET;
+    r.v0 = (metatile / VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE * ATLAS_TEXEL + UV_INSET;
+    r.u1 = r.u0 + VOXEL_ATLAS_TILE * ATLAS_TEXEL - 2 * UV_INSET;
+    r.v1 = r.v0 + VOXEL_ATLAS_TILE * ATLAS_TEXEL - 2 * UV_INSET;
+    return r;
 }
 
-void VoxelMesh_SetWallConsumed(int worldX, int worldY, bool consumed)
+// A vertical slice of a metatile's art: rows [t0..t1] of 16 (0 = top).
+static UvRect UvSlice(int metatile, float t0, float t1)
 {
-    if (!gVoxelWallConsumed) return;
-    int cx = worldX + 1024;
-    int cy = worldY + 1024;
-    if (cx < 0 || cx >= 2048 || cy < 0 || cy >= 2048) return;
-    gVoxelWallConsumed[cy * 2048 + cx] = consumed;
+    UvRect r = UvFor(metatile);
+    float h = r.v1 - r.v0;
+    UvRect s;
+    s.u0 = r.u0; s.u1 = r.u1;
+    s.v0 = r.v0 + h * t0;
+    s.v1 = r.v0 + h * t1;
+    return s;
 }
 
-void VoxelMesh_BuildWallsForInstance(int instIdx, GLuint tex)
+void VoxelMesh_Init(VoxelMesh *mesh)
 {
-    if (gVoxelWallConsumed == NULL) {
-        gVoxelWallConsumed = calloc(2048 * 2048, sizeof(bool));
-    }
-
-    if (instIdx == 0) {
-        // clear array once per frame on the first instance
-        memset(gVoxelWallConsumed, 0, 2048 * 2048 * sizeof(bool));
-    }
-
-    const struct VoxelMapInstance *inst = &gVoxelMapInstances[instIdx];
-    int w = inst->header->mapLayout->width;
-    int h = inst->header->mapLayout->height;
-
-    float atlasW = 512.0f;
-    float atlasH = 512.0f;
-
-    glBindTexture(GL_TEXTURE_2D, tex);
-
-    for (int ly = 0; ly < h; ly++) {
-        for (int lx = 0; lx < w; lx++) {
-            int x = lx + inst->originX;
-            int y = ly + inst->originY;
-            if (VoxelMesh_IsWallConsumed(x, y)) continue;
-
-            extern bool VoxelStructure_IsTileInStructure(int worldX, int worldY);
-            if (VoxelStructure_IsTileInStructure(x, y)) continue;
-
-            VoxelVisualShape shape = VoxelWorld_ClassifyTile(x, y);
-
-            if (shape == VOXEL_SHAPE_WALL || shape == VOXEL_SHAPE_BUILDING || shape == VOXEL_SHAPE_TREE) {
-                // Find height of this vertical structure
-                int heightInTiles = 1;
-                while (true) {
-                    VoxelVisualShape nShape = VoxelWorld_ClassifyTile(x, y - heightInTiles);
-                    if (nShape == VOXEL_SHAPE_WALL || nShape == VOXEL_SHAPE_ROOF) {
-                        heightInTiles++;
-                        if (nShape == VOXEL_SHAPE_ROOF) break; 
-                    } else {
-                        break;
-                    }
-                }
-                
-                VoxelVisualShape sS = VoxelWorld_ClassifyTile(x, y + 1);
-                VoxelVisualShape sN = VoxelWorld_ClassifyTile(x, y - heightInTiles);
-                VoxelVisualShape sE = VoxelWorld_ClassifyTile(x + 1, y);
-                VoxelVisualShape sW = VoxelWorld_ClassifyTile(x - 1, y);
-                
-                bool faceSouth = (sS != VOXEL_SHAPE_WALL && sS != VOXEL_SHAPE_ROOF && sS != VOXEL_SHAPE_VOID);
-                bool faceNorth = (sN != VOXEL_SHAPE_WALL && sN != VOXEL_SHAPE_ROOF && sN != VOXEL_SHAPE_VOID);
-                bool faceEast = (sE != VOXEL_SHAPE_WALL && sE != VOXEL_SHAPE_ROOF && sE != VOXEL_SHAPE_VOID);
-                bool faceWest = (sW != VOXEL_SHAPE_WALL && sW != VOXEL_SHAPE_ROOF && sW != VOXEL_SHAPE_VOID);
-                
-                if (!faceSouth && !faceEast && !faceWest && !faceNorth) faceSouth = true; 
-                
-                float wx = (float)x;
-                float wz = (float)y;
-                float totalH = heightInTiles * 1.0f;
-                
-                float pWX = 0.0f, pWZ = 0.0f;
-                VoxelWorld_GetPlayerWorldCoords(&pWX, &pWZ);
-                bool isCutaway = (faceSouth && y > pWZ + 0.5f && shape != VOXEL_SHAPE_TREE);
-                
-                for (int i = 0; i < heightInTiles; i++) {
-                    VoxelMesh_SetWallConsumed(x, y - i, true);
-                }
-
-                int topTileY = y - heightInTiles + 1;
-                
-                // Get the texture from the instance's own atlas!
-                int topM;
-                const struct VoxelMapInstance *topInst = VoxelWorld_GetMetatileIdAndInstance(x, topTileY, &topM);
-                
-                // If it belongs to a different instance, the atlas coordinates might be wrong.
-                // For now, we assume it's in the current instance's atlas or just use the UVs.
-                // In a perfect world, we'd bind topInst's texture here.
-                float t_u0 = (topM % 32) * 16.0f / atlasW;
-                float t_v0 = (topM / 32) * 16.0f / atlasH;
-                float t_u1 = t_u0 + (16.0f / atlasW);
-                float t_v1 = t_v0 + (16.0f / atlasH);
-
-                glEnable(GL_TEXTURE_2D);
-                glColor3f(1.0f, 1.0f, 1.0f);
-                
-                // TOP FACE (Textured with top-most tile)
-                if (!isCutaway) {
-                    glBegin(GL_QUADS);
-                    glTexCoord2f(t_u0, t_v0); glVertex3f(wx,      totalH, wz);
-                    glTexCoord2f(t_u1, t_v0); glVertex3f(wx+1.0f, totalH, wz);
-                    glTexCoord2f(t_u1, t_v1); glVertex3f(wx+1.0f, totalH, wz+1.0f);
-                    glTexCoord2f(t_u0, t_v1); glVertex3f(wx,      totalH, wz+1.0f);
-                    glEnd();
-                }
-
-                glBegin(GL_QUADS);
-                for (int i = 0; i < heightInTiles; i++) {
-                    if (isCutaway && i > 0) continue;
-                    int m = VoxelWorld_GetMetatileId(x, y - i);
-                    float u0 = (m % 32) * 16.0f / atlasW;
-                    float v0 = (m / 32) * 16.0f / atlasH;
-                    float u1 = u0 + (16.0f / atlasW);
-                    float v1 = v0 + (16.0f / atlasH);
-                    
-                    float yBottom = i * 1.0f;
-                    float yTop = (i + 1) * 1.0f;
-                    
-                    if (faceSouth) {
-                        glTexCoord2f(u0, v1); glVertex3f(wx,      yBottom, wz+1.0f);
-                        glTexCoord2f(u1, v1); glVertex3f(wx+1.0f, yBottom, wz+1.0f);
-                        glTexCoord2f(u1, v0); glVertex3f(wx+1.0f, yTop,    wz+1.0f);
-                        glTexCoord2f(u0, v0); glVertex3f(wx,      yTop,    wz+1.0f);
-                    }
-                    if (faceNorth) {
-                        glTexCoord2f(u1, v1); glVertex3f(wx,      yBottom, wz);
-                        glTexCoord2f(u0, v1); glVertex3f(wx+1.0f, yBottom, wz);
-                        glTexCoord2f(u0, v0); glVertex3f(wx+1.0f, yTop,    wz);
-                        glTexCoord2f(u1, v0); glVertex3f(wx,      yTop,    wz);
-                    }
-                    if (faceEast) {
-                        glTexCoord2f(u0, v1); glVertex3f(wx+1.0f, yBottom, wz+1.0f);
-                        glTexCoord2f(u1, v1); glVertex3f(wx+1.0f, yBottom, wz);
-                        glTexCoord2f(u1, v0); glVertex3f(wx+1.0f, yTop,    wz);
-                        glTexCoord2f(u0, v0); glVertex3f(wx+1.0f, yTop,    wz+1.0f);
-                    }
-                    if (faceWest) {
-                        glTexCoord2f(u1, v1); glVertex3f(wx, yBottom, wz+1.0f);
-                        glTexCoord2f(u0, v1); glVertex3f(wx, yBottom, wz);
-                        glTexCoord2f(u0, v0); glVertex3f(wx, yTop,    wz);
-                        glTexCoord2f(u1, v0); glVertex3f(wx, yTop,    wz+1.0f);
-                    }
-                }
-                glEnd();
-            }
-        }
-    }
+    memset(mesh, 0, sizeof(*mesh));
 }
 
-static void VoxelMesh_DrawFurniture(int mapX, int mapY, VoxelVisualShape shape, float u0, float v0, float u1, float v1)
+void VoxelMesh_Free(VoxelMesh *mesh)
 {
-    float wx = (float)mapX;
-    float wz = (float)mapY;
-    
-    // Check neighbors for multi-tile furniture connection
-    bool n_is_same = VoxelWorld_ClassifyTile(mapX, mapY - 1) == shape;
-    bool s_is_same = VoxelWorld_ClassifyTile(mapX, mapY + 1) == shape;
-    bool e_is_same = VoxelWorld_ClassifyTile(mapX + 1, mapY) == shape;
-    bool w_is_same = VoxelWorld_ClassifyTile(mapX - 1, mapY) == shape;
-
-    if (shape == VOXEL_SHAPE_TABLE) {
-        float tHeight = 0.5f;
-        float tThick = 0.1f;
-        
-        // Table top
-        glColor3f(1.0f, 1.0f, 1.0f);
-        glEnable(GL_TEXTURE_2D);
-        glBegin(GL_QUADS);
-        glTexCoord2f(u0, v0); glVertex3f(wx,      tHeight, wz);
-        glTexCoord2f(u1, v0); glVertex3f(wx+1.0f, tHeight, wz);
-        glTexCoord2f(u1, v1); glVertex3f(wx+1.0f, tHeight, wz+1.0f);
-        glTexCoord2f(u0, v1); glVertex3f(wx,      tHeight, wz+1.0f);
-        glEnd();
-        
-        // Table top sides
-        glDisable(GL_TEXTURE_2D);
-        glColor3f(0.4f, 0.3f, 0.2f); // Dark wood color
-        glBegin(GL_QUADS);
-        if (!n_is_same) {
-            glVertex3f(wx+1.0f, tHeight-tThick, wz); glVertex3f(wx,      tHeight-tThick, wz);
-            glVertex3f(wx,      tHeight,        wz); glVertex3f(wx+1.0f, tHeight,        wz);
-        }
-        if (!s_is_same) {
-            glVertex3f(wx,      tHeight-tThick, wz+1.0f); glVertex3f(wx+1.0f, tHeight-tThick, wz+1.0f);
-            glVertex3f(wx+1.0f, tHeight,        wz+1.0f); glVertex3f(wx,      tHeight,        wz+1.0f);
-        }
-        if (!e_is_same) {
-            glVertex3f(wx+1.0f, tHeight-tThick, wz+1.0f); glVertex3f(wx+1.0f, tHeight-tThick, wz);
-            glVertex3f(wx+1.0f, tHeight,        wz);      glVertex3f(wx+1.0f, tHeight,        wz+1.0f);
-        }
-        if (!w_is_same) {
-            glVertex3f(wx,      tHeight-tThick, wz);      glVertex3f(wx,      tHeight-tThick, wz+1.0f);
-            glVertex3f(wx,      tHeight,        wz+1.0f); glVertex3f(wx,      tHeight,        wz);
-        }
-        glEnd();
-        
-        // Legs (only on absolute corners of the connected structure)
-        glColor3f(0.3f, 0.2f, 0.15f);
-        float lW = 0.1f; // leg width
-        glBegin(GL_QUADS);
-        // Top-left leg
-        if (!n_is_same && !w_is_same) {
-            glVertex3f(wx,      0.0f, wz); glVertex3f(wx+lW,   0.0f, wz);
-            glVertex3f(wx+lW,   tHeight-tThick, wz); glVertex3f(wx,      tHeight-tThick, wz);
-            glVertex3f(wx,      0.0f, wz+lW); glVertex3f(wx+lW,   0.0f, wz+lW);
-            glVertex3f(wx+lW,   tHeight-tThick, wz+lW); glVertex3f(wx,      tHeight-tThick, wz+lW);
-            glVertex3f(wx+lW,   0.0f, wz); glVertex3f(wx+lW,   0.0f, wz+lW);
-            glVertex3f(wx+lW,   tHeight-tThick, wz+lW); glVertex3f(wx+lW,   tHeight-tThick, wz);
-        }
-        // Top-right leg
-        if (!n_is_same && !e_is_same) {
-            glVertex3f(wx+1.0f-lW, 0.0f, wz); glVertex3f(wx+1.0f,    0.0f, wz);
-            glVertex3f(wx+1.0f,    tHeight-tThick, wz); glVertex3f(wx+1.0f-lW, tHeight-tThick, wz);
-            glVertex3f(wx+1.0f-lW, 0.0f, wz+lW); glVertex3f(wx+1.0f,    0.0f, wz+lW);
-            glVertex3f(wx+1.0f,    tHeight-tThick, wz+lW); glVertex3f(wx+1.0f-lW, tHeight-tThick, wz+lW);
-            glVertex3f(wx+1.0f-lW, 0.0f, wz); glVertex3f(wx+1.0f-lW, 0.0f, wz+lW);
-            glVertex3f(wx+1.0f-lW, tHeight-tThick, wz+lW); glVertex3f(wx+1.0f-lW, tHeight-tThick, wz);
-        }
-        // Bottom-left leg
-        if (!s_is_same && !w_is_same) {
-            glVertex3f(wx,      0.0f, wz+1.0f-lW); glVertex3f(wx+lW,   0.0f, wz+1.0f-lW);
-            glVertex3f(wx+lW,   tHeight-tThick, wz+1.0f-lW); glVertex3f(wx,      tHeight-tThick, wz+1.0f-lW);
-            glVertex3f(wx,      0.0f, wz+1.0f); glVertex3f(wx+lW,   0.0f, wz+1.0f);
-            glVertex3f(wx+lW,   tHeight-tThick, wz+1.0f); glVertex3f(wx,      tHeight-tThick, wz+1.0f);
-            glVertex3f(wx+lW,   0.0f, wz+1.0f-lW); glVertex3f(wx+lW,   0.0f, wz+1.0f);
-            glVertex3f(wx+lW,   tHeight-tThick, wz+1.0f); glVertex3f(wx+lW,   tHeight-tThick, wz+1.0f-lW);
-        }
-        // Bottom-right leg
-        if (!s_is_same && !e_is_same) {
-            glVertex3f(wx+1.0f-lW, 0.0f, wz+1.0f-lW); glVertex3f(wx+1.0f,    0.0f, wz+1.0f-lW);
-            glVertex3f(wx+1.0f,    tHeight-tThick, wz+1.0f-lW); glVertex3f(wx+1.0f-lW, tHeight-tThick, wz+1.0f-lW);
-            glVertex3f(wx+1.0f-lW, 0.0f, wz+1.0f); glVertex3f(wx+1.0f,    0.0f, wz+1.0f);
-            glVertex3f(wx+1.0f,    tHeight-tThick, wz+1.0f); glVertex3f(wx+1.0f-lW, tHeight-tThick, wz+1.0f);
-            glVertex3f(wx+1.0f-lW, 0.0f, wz+1.0f-lW); glVertex3f(wx+1.0f-lW, 0.0f, wz+1.0f);
-            glVertex3f(wx+1.0f-lW, tHeight-tThick, wz+1.0f); glVertex3f(wx+1.0f-lW, tHeight-tThick, wz+1.0f-lW);
-        }
-        glEnd();
-        glEnable(GL_TEXTURE_2D);
-        glColor3f(1.0f, 1.0f, 1.0f);
-    }
-    else if (shape == VOXEL_SHAPE_FURNITURE) {
-        float bHeight = 0.3f; // base height
-        float tHeight = 1.0f; // tv height
-        
-        // Base / Stand
-        glDisable(GL_TEXTURE_2D);
-        glColor3f(0.2f, 0.2f, 0.2f);
-        glBegin(GL_QUADS);
-        // Base top
-        glVertex3f(wx,      bHeight, wz);
-        glVertex3f(wx+1.0f, bHeight, wz);
-        glVertex3f(wx+1.0f, bHeight, wz+1.0f);
-        glVertex3f(wx,      bHeight, wz+1.0f);
-        // Base front
-        glVertex3f(wx,      0.0f, wz+1.0f); glVertex3f(wx+1.0f, 0.0f, wz+1.0f);
-        glVertex3f(wx+1.0f, bHeight, wz+1.0f); glVertex3f(wx,      bHeight, wz+1.0f);
-        // Base sides
-        if (!w_is_same) {
-            glVertex3f(wx, 0.0f, wz); glVertex3f(wx, 0.0f, wz+1.0f);
-            glVertex3f(wx, bHeight, wz+1.0f); glVertex3f(wx, bHeight, wz);
-        }
-        if (!e_is_same) {
-            glVertex3f(wx+1.0f, 0.0f, wz+1.0f); glVertex3f(wx+1.0f, 0.0f, wz);
-            glVertex3f(wx+1.0f, bHeight, wz); glVertex3f(wx+1.0f, bHeight, wz+1.0f);
-        }
-        glEnd();
-        
-        // TV Screen (textured front)
-        glEnable(GL_TEXTURE_2D);
-        glColor3f(1.0f, 1.0f, 1.0f);
-        glBegin(GL_QUADS);
-        glTexCoord2f(u0, v1); glVertex3f(wx,      bHeight, wz+0.8f);
-        glTexCoord2f(u1, v1); glVertex3f(wx+1.0f, bHeight, wz+0.8f);
-        glTexCoord2f(u1, v0); glVertex3f(wx+1.0f, tHeight, wz+0.8f);
-        glTexCoord2f(u0, v0); glVertex3f(wx,      tHeight, wz+0.8f);
-        glEnd();
-        
-        // TV Body (solid)
-        glDisable(GL_TEXTURE_2D);
-        glColor3f(0.1f, 0.1f, 0.1f);
-        glBegin(GL_QUADS);
-        // Top
-        glVertex3f(wx,      tHeight, wz+0.3f);
-        glVertex3f(wx+1.0f, tHeight, wz+0.3f);
-        glVertex3f(wx+1.0f, tHeight, wz+0.8f);
-        glVertex3f(wx,      tHeight, wz+0.8f);
-        // Sides
-        if (!w_is_same) {
-            glVertex3f(wx, bHeight, wz+0.3f); glVertex3f(wx, bHeight, wz+0.8f);
-            glVertex3f(wx, tHeight, wz+0.8f); glVertex3f(wx, tHeight, wz+0.3f);
-        }
-        if (!e_is_same) {
-            glVertex3f(wx+1.0f, bHeight, wz+0.8f); glVertex3f(wx+1.0f, bHeight, wz+0.3f);
-            glVertex3f(wx+1.0f, tHeight, wz+0.3f); glVertex3f(wx+1.0f, tHeight, wz+0.8f);
-        }
-        glEnd();
-        glEnable(GL_TEXTURE_2D);
-        glColor3f(1.0f, 1.0f, 1.0f);
-    }
-    else if (shape == VOXEL_SHAPE_WALL) {
-        float sHeight = 1.6f;
-        // Textured front
-        glEnable(GL_TEXTURE_2D);
-        glColor3f(1.0f, 1.0f, 1.0f);
-        glBegin(GL_QUADS);
-        glTexCoord2f(u0, v1); glVertex3f(wx,      0.0f, wz+1.0f);
-        glTexCoord2f(u1, v1); glVertex3f(wx+1.0f, 0.0f, wz+1.0f);
-        glTexCoord2f(u1, v0); glVertex3f(wx+1.0f, sHeight, wz+1.0f);
-        glTexCoord2f(u0, v0); glVertex3f(wx,      sHeight, wz+1.0f);
-        glEnd();
-        
-        // Solid body
-        glDisable(GL_TEXTURE_2D);
-        glColor3f(0.3f, 0.2f, 0.1f);
-        glBegin(GL_QUADS);
-        // Top
-        glVertex3f(wx,      sHeight, wz);
-        glVertex3f(wx+1.0f, sHeight, wz);
-        glVertex3f(wx+1.0f, sHeight, wz+1.0f);
-        glVertex3f(wx,      sHeight, wz+1.0f);
-        // Sides
-        if (!w_is_same) {
-            glVertex3f(wx, 0.0f, wz); glVertex3f(wx, 0.0f, wz+1.0f);
-            glVertex3f(wx, sHeight, wz+1.0f); glVertex3f(wx, sHeight, wz);
-        }
-        if (!e_is_same) {
-            glVertex3f(wx+1.0f, 0.0f, wz+1.0f); glVertex3f(wx+1.0f, 0.0f, wz);
-            glVertex3f(wx+1.0f, sHeight, wz); glVertex3f(wx+1.0f, sHeight, wz+1.0f);
-        }
-        glEnd();
-        glEnable(GL_TEXTURE_2D);
-        glColor3f(1.0f, 1.0f, 1.0f);
-    }
-    else if (shape == VOXEL_SHAPE_FURNITURE) { // Fallback chair logic
-        float sHeight = 0.4f;
-        // Seat top (textured)
-        glEnable(GL_TEXTURE_2D);
-        glColor3f(1.0f, 1.0f, 1.0f);
-        glBegin(GL_QUADS);
-        glTexCoord2f(u0, v0); glVertex3f(wx+0.1f, sHeight, wz+0.1f);
-        glTexCoord2f(u1, v0); glVertex3f(wx+0.9f, sHeight, wz+0.1f);
-        glTexCoord2f(u1, v1); glVertex3f(wx+0.9f, sHeight, wz+0.9f);
-        glTexCoord2f(u0, v1); glVertex3f(wx+0.1f, sHeight, wz+0.9f);
-        glEnd();
-        
-        // Base block
-        glDisable(GL_TEXTURE_2D);
-        glColor3f(0.4f, 0.4f, 0.4f);
-        glBegin(GL_QUADS);
-        // Front
-        glVertex3f(wx+0.2f, 0.0f, wz+0.8f); glVertex3f(wx+0.8f, 0.0f, wz+0.8f);
-        glVertex3f(wx+0.8f, sHeight, wz+0.8f); glVertex3f(wx+0.2f, sHeight, wz+0.8f);
-        // Backrest (solid tall part on North side)
-        glVertex3f(wx+0.1f, sHeight, wz+0.2f); glVertex3f(wx+0.9f, sHeight, wz+0.2f);
-        glVertex3f(wx+0.9f, sHeight+0.4f, wz+0.2f); glVertex3f(wx+0.1f, sHeight+0.4f, wz+0.2f);
-        glEnd();
-        glEnable(GL_TEXTURE_2D);
-        glColor3f(1.0f, 1.0f, 1.0f);
-    }
+    free(mesh->verts);
+    free(mesh->ranges);
+    free(mesh->ghost);
+    memset(mesh, 0, sizeof(*mesh));
 }
 
-
-void VoxelMesh_DrawTile(int mapX, int mapY, VoxelVisualShape shape, int metatileId)
+void VoxelMesh_Clear(VoxelMesh *mesh)
 {
-    if (shape == VOXEL_SHAPE_VOID) return;
-    
-    // If this tile was consumed by VoxelMesh_BuildWalls (i.e. drawn as a vertical face),
-    // we still want to draw it as a flat floor so there's ground underneath/behind it.
-    if (VoxelMesh_IsWallConsumed(mapX, mapY)) {
-        shape = VOXEL_SHAPE_FLAT;
+    mesh->count = 0;
+    mesh->rangeCount = 0;
+}
+
+static VoxelVertex *Reserve(VoxelMesh *mesh, int n)
+{
+    if (mesh->count + n > mesh->capacity)
+    {
+        int cap = mesh->capacity ? mesh->capacity * 2 : 4096;
+        while (cap < mesh->count + n)
+            cap *= 2;
+        mesh->verts = realloc(mesh->verts, cap * sizeof(VoxelVertex));
+        mesh->capacity = cap;
+    }
+    return &mesh->verts[mesh->count];
+}
+
+static void Vtx(VoxelVertex *v, float x, float y, float z, float u, float tv, int shade, int a)
+{
+    v->x = x; v->y = y; v->z = z;
+    v->u = u; v->v = tv;
+    v->r = v->g = v->b = (uint8_t)shade;
+    v->a = (uint8_t)a;
+}
+
+// A quad from four corners (counter-clockwise as seen from its front) with
+// per-corner UVs.
+static void Quad(VoxelMesh *mesh,
+                 float x0, float y0, float z0, float u0, float v0,
+                 float x1, float y1, float z1, float u1, float v1,
+                 float x2, float y2, float z2, float u2, float v2,
+                 float x3, float y3, float z3, float u3, float v3,
+                 int shade)
+{
+    VoxelVertex *v = Reserve(mesh, 6);
+    Vtx(&v[0], x0, y0, z0, u0, v0, shade, 255);
+    Vtx(&v[1], x1, y1, z1, u1, v1, shade, 255);
+    Vtx(&v[2], x2, y2, z2, u2, v2, shade, 255);
+    Vtx(&v[3], x0, y0, z0, u0, v0, shade, 255);
+    Vtx(&v[4], x2, y2, z2, u2, v2, shade, 255);
+    Vtx(&v[5], x3, y3, z3, u3, v3, shade, 255);
+    mesh->count += 6;
+}
+
+// Horizontal quad covering cell (x, z) at height y with art `uv`.
+static void TopQuad(VoxelMesh *mesh, float x, float z, float y, UvRect uv, int shade)
+{
+    Quad(mesh,
+         x,        y, z,        uv.u0, uv.v0,
+         x + 1.0f, y, z,        uv.u1, uv.v0,
+         x + 1.0f, y, z + 1.0f, uv.u1, uv.v1,
+         x,        y, z + 1.0f, uv.u0, uv.v1,
+         shade);
+}
+
+// Vertical faces of cell (x, z) between heights y0 (bottom) and y1 (top).
+// `uv` maps its v0 to the top and v1 to the bottom.
+static void SouthFace(VoxelMesh *mesh, float x, float z, float y0, float y1, UvRect uv, int shade)
+{
+    Quad(mesh,
+         x,        y0, z + 1.0f, uv.u0, uv.v1,
+         x + 1.0f, y0, z + 1.0f, uv.u1, uv.v1,
+         x + 1.0f, y1, z + 1.0f, uv.u1, uv.v0,
+         x,        y1, z + 1.0f, uv.u0, uv.v0,
+         shade);
+}
+
+static void NorthFace(VoxelMesh *mesh, float x, float z, float y0, float y1, UvRect uv, int shade)
+{
+    Quad(mesh,
+         x + 1.0f, y0, z, uv.u0, uv.v1,
+         x,        y0, z, uv.u1, uv.v1,
+         x,        y1, z, uv.u1, uv.v0,
+         x + 1.0f, y1, z, uv.u0, uv.v0,
+         shade);
+}
+
+static void EastFace(VoxelMesh *mesh, float x, float z, float y0, float y1, UvRect uv, int shade)
+{
+    Quad(mesh,
+         x + 1.0f, y0, z + 1.0f, uv.u0, uv.v1,
+         x + 1.0f, y0, z,        uv.u1, uv.v1,
+         x + 1.0f, y1, z,        uv.u1, uv.v0,
+         x + 1.0f, y1, z + 1.0f, uv.u0, uv.v0,
+         shade);
+}
+
+static void WestFace(VoxelMesh *mesh, float x, float z, float y0, float y1, UvRect uv, int shade)
+{
+    Quad(mesh,
+         x, y0, z,        uv.u0, uv.v1,
+         x, y0, z + 1.0f, uv.u1, uv.v1,
+         x, y1, z + 1.0f, uv.u1, uv.v0,
+         x, y1, z,        uv.u0, uv.v0,
+         shade);
+}
+
+// ---------------------------------------------------------------------------
+// Ranges
+// ---------------------------------------------------------------------------
+static void BeginRange(VoxelMesh *mesh, VoxelMeshRange *r, int worldX, int worldZ, int building, float base, float top)
+{
+    r->first = mesh->count;
+    r->count = 0;
+    r->worldX = worldX;
+    r->worldZ = worldZ;
+    r->building = building;
+    r->base = base;
+    r->top = top;
+    r->rows = 1;
+    r->cols = 1;
+}
+
+static void EndRange(VoxelMesh *mesh, const VoxelMeshRange *r)
+{
+    VoxelMeshRange *dst;
+    if (mesh->count == r->first)
+        return;
+    if (mesh->rangeCount + 1 > mesh->rangeCapacity)
+    {
+        int cap = mesh->rangeCapacity ? mesh->rangeCapacity * 2 : 256;
+        mesh->ranges = realloc(mesh->ranges, cap * sizeof(VoxelMeshRange));
+        mesh->ghost = realloc(mesh->ghost, cap * sizeof(bool));
+        mesh->rangeCapacity = cap;
+    }
+    dst = &mesh->ranges[mesh->rangeCount++];
+    *dst = *r;
+    dst->count = mesh->count - r->first;
+}
+
+// ---------------------------------------------------------------------------
+// Neighbour queries in instance-local space
+// ---------------------------------------------------------------------------
+static const VoxelCell *Nb(const VoxelInstance *inst, int lx, int ly)
+{
+    if (lx < 0 || ly < 0 || lx >= inst->width || ly >= inst->height)
+        return VoxelWorld_CellAt(lx + inst->originX, ly + inst->originY);
+    return &inst->cells[ly * inst->width + lx];
+}
+
+// The height a neighbour presents on its side facing us: a column's top, a
+// building's roof, or a surface's top.
+static float SideHeight(const VoxelCell *n)
+{
+    if (n == NULL || n->cls == VC_VOID)
+        return -1000.0f;
+    return n->topH;
+}
+
+static bool IsColumn(const VoxelCell *c)
+{
+    return c && (c->cls == VC_WALL || c->cls == VC_CLIFF || c->cls == VC_BUILDING
+                 || (c->cls >= VC_COUNTER && c->cls < VC_COUNT && (c->flags & VCF_BLOCKED)));
+}
+
+// Interior room shell: the walls the GBA never draws, two courses tall
+// along every edge that borders the void (north, east and west; the south
+// edge stays open for the camera).
+static void ShellFaces(VoxelMesh *mesh, const VoxelInstance *inst, const VoxelCell *c, float x, float z, float floor)
+{
+    UvRect s;
+    float shellTop = floor + 2.0f;
+    if (!inst->indoor || !(c->flags & (VCF_SHELL_N | VCF_SHELL_E | VCF_SHELL_W)))
+        return;
+    s = UvFor(inst->shellMeta);
+    if (c->flags & VCF_SHELL_N) NorthFace(mesh, x, z - 1.0f, floor, shellTop, s, SHADE_SOUTH - 60);
+    if (c->flags & VCF_SHELL_E) WestFace(mesh, x + 1.0f, z, floor, shellTop, s, SHADE_WEST);
+    if (c->flags & VCF_SHELL_W) EastFace(mesh, x - 1.0f, z, floor, shellTop, s, SHADE_EAST);
+}
+
+// ---------------------------------------------------------------------------
+// Surfaces: ground, grass, water, ledges, decks, walkable pins
+// ---------------------------------------------------------------------------
+static void BuildSurface(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
+{
+    const VoxelCell *c = &inst->cells[ly * inst->width + lx];
+    float x = (float)(lx + inst->originX);
+    float z = (float)(ly + inst->originY);
+    UvRect uv = UvFor(c->metatile);
+    float top = c->topH;
+    int d;
+    static const int dx[4] = {0, 0, 1, -1};
+    static const int dy[4] = {1, -1, 0, 0};
+
+    if (c->cls == VC_BRIDGE || c->cls == VC_LOG)
+    {
+        // The world continues under the deck.
+        UvRect under = UvFor(c->underMeta);
+        TopQuad(mesh, x, z, c->underH, under, SHADE_TOP - 40);
     }
 
-    float wx = (float)mapX;
-    float wz = (float)mapY;
-    
-    float atlasW = 512.0f;
-    float atlasH = 512.0f;
-    float u0 = (metatileId % 32) * 16.0f / atlasW;
-    float v0 = (metatileId / 32) * 16.0f / atlasH;
-    float u1 = u0 + (16.0f / atlasW);
-    float v1 = v0 + (16.0f / atlasH);
+    TopQuad(mesh, x, z, top, uv, SHADE_TOP);
 
-    float h = 0.0f;
-    float bottomH = 0.0f;
-    bool isSprite = false;
-    float inset = 0.0f;
-
-    switch (shape) {
-        case VOXEL_SHAPE_FLAT: h = 0.0f; break;
-        case VOXEL_SHAPE_DECAL: h = 0.02f; break; // Slight offset for rugs
-        case VOXEL_SHAPE_WATER: h = -0.1f; break; // Slight recess for water
-        case VOXEL_SHAPE_LOW: h = 0.4f; break;
-        case VOXEL_SHAPE_LEDGE: h = 0.4f; break; // Ledges drawn as half-height block
-        case VOXEL_SHAPE_COUNTER: h = 0.7f; break;
-        case VOXEL_SHAPE_SIGN: h = 1.0f; isSprite = true; break; // Render sign as a vertical sprite billboard
-        case VOXEL_SHAPE_STAIRS: h = 0.2f; break; // Simple stairs representation
-        case VOXEL_SHAPE_WALL: h = 0.0f; break; // Handled by VoxelMesh_BuildWalls
-        case VOXEL_SHAPE_TREE: h = 0.0f; break; // Handled by VoxelMesh_BuildWalls
-        case VOXEL_SHAPE_BUILDING: h = 0.0f; break; // Handled by VoxelMesh_BuildWalls
-        case VOXEL_SHAPE_ROOF: h = 0.0f; break; // Handled by VoxelMesh_BuildWalls
-        // Furniture
-        case VOXEL_SHAPE_TABLE:
-        case VOXEL_SHAPE_FURNITURE:
-        case VOXEL_SHAPE_BED:
-            VoxelMesh_DrawFurniture(mapX, mapY, shape, u0, v0, u1, v1);
-            return;
-        default: h = 1.0f; break;
+    // Fascias down to lower neighbours, wearing this cell's own art.
+    for (d = 0; d < 4; d++)
+    {
+        const VoxelCell *n = Nb(inst, lx + dx[d], ly + dy[d]);
+        float nh;
+        float bottom;
+        if (n == NULL || n->cls == VC_VOID)
+        {
+            if (!inst->indoor && top > 0.01f)
+                nh = 0.0f;       // the map edge: drop to the world floor
+            else
+                continue;
+        }
+        else
+        {
+            nh = (n->cls == VC_BRIDGE || n->cls == VC_LOG) && n->underH < n->topH ? n->underH : n->topH;
+            if (IsColumn(n))
+                nh = n->groundH < top ? n->groundH : top;
+            if (n->cls == VC_WATER && (c->cls == VC_BRIDGE || c->cls == VC_LOG))
+                nh = n->topH;
+        }
+        if (nh >= top - 0.01f)
+            continue;
+        bottom = nh;
+        if (c->cls == VC_LEDGE || c->cls == VC_BRIDGE || c->cls == VC_LOG)
+        {
+            // a ledge's lip / a deck's plank edge: the art's bottom rows
+            UvRect s = UvSlice(c->metatile, 0.6f, 1.0f);
+            if (c->cls != VC_LEDGE && bottom < top - 0.25f)
+                bottom = top - 0.25f;
+            if (d == 0) SouthFace(mesh, x, z, bottom, top, s, SHADE_SOUTH - 30);
+            else if (d == 1) NorthFace(mesh, x, z, bottom, top, s, SHADE_NORTH);
+            else if (d == 2) EastFace(mesh, x, z, bottom, top, s, SHADE_EAST);
+            else WestFace(mesh, x, z, bottom, top, s, SHADE_WEST);
+        }
+        else
+        {
+            // a terrace step with no cliff art: the ground's own texture, dark
+            if (d == 0) SouthFace(mesh, x, z, bottom, top, uv, SHADE_SOUTH - 70);
+            else if (d == 1) NorthFace(mesh, x, z, bottom, top, uv, SHADE_NORTH - 40);
+            else if (d == 2) EastFace(mesh, x, z, bottom, top, uv, SHADE_EAST - 60);
+            else WestFace(mesh, x, z, bottom, top, uv, SHADE_WEST - 60);
+        }
     }
 
-    static int frame_count = 0;
-    if (frame_count++ < 400 && h > 0.5f) {
-        printf("[VoxelGeom] local=(%d,%d) metatile=%d shape=%d height=%.2f\n", mapX, mapY, metatileId, shape, h);
-    }
+    ShellFaces(mesh, inst, c, x, z, c->groundH);
+}
 
-    if (isSprite) {
-        glColor3f(1.0f, 1.0f, 1.0f);
-        glEnable(GL_TEXTURE_2D);
-        glBegin(GL_QUADS);
-        glTexCoord2f(u0, v1); glVertex3f(wx,      0.0f, wz + 0.5f);
-        glTexCoord2f(u1, v1); glVertex3f(wx+1.0f, 0.0f, wz + 0.5f);
-        glTexCoord2f(u1, v0); glVertex3f(wx+1.0f, h,    wz + 0.5f);
-        glTexCoord2f(u0, v0); glVertex3f(wx,      h,    wz + 0.5f);
-        glEnd();
-        glDisable(GL_TEXTURE_2D);
+// ---------------------------------------------------------------------------
+// Columns: stacked blocked rows (landscape, trees, fences, interior walls)
+// ---------------------------------------------------------------------------
+static void BuildColumn(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
+{
+    const VoxelCell *c = &inst->cells[ly * inst->width + lx];
+    int rows = c->stack, j, k;
+    float x = (float)(lx + inst->originX);
+    float z = (float)(ly + inst->originY);
+    float base = c->groundH, top = c->topH;
+    float height = top - base;
+    float courseH;
+    VoxelMeshRange r;
+    float hS, hN;
+    int topMeta;
+    int rowMeta[4];
+
+    if (rows <= 0 || rows > 4 || height <= 0.01f)
+        return;
+    courseH = height / rows;
+    for (k = 0; k < rows; k++)
+    {
+        const VoxelCell *ck = Nb(inst, lx, ly - k);
+        rowMeta[k] = ck ? ck->metatile : c->metatile;
+    }
+    topMeta = rowMeta[rows - 1];
+
+    BeginRange(mesh, &r, (int)x, (int)z, -1, base, top);
+    r.rows = rows;
+
+    // The stack is one mass standing on every row it claimed. Its lid wears
+    // the northmost row's art (a tree's crown, a wall's top trim) over the
+    // whole footprint, and each side shows the rows stacked as courses:
+    // trunk below crown, wall body below its cornice.
+    for (j = 0; j < rows; j++)
+        TopQuad(mesh, x, z - j, top, UvFor(topMeta), SHADE_TOP);
+
+    hS = SideHeight(Nb(inst, lx, ly + 1));
+    hN = SideHeight(Nb(inst, lx, ly - rows));
+    for (k = 0; k < rows; k++)
+    {
+        float y0 = base + courseH * k;
+        float y1 = base + courseH * (k + 1);
+        float lo;
+        lo = hS > y0 ? hS : y0;
+        if (lo < y1 - 0.01f)
+            SouthFace(mesh, x, z, lo, y1, UvSlice(rowMeta[k], (lo - y0) / courseH, 1.0f), SHADE_SOUTH);
+        lo = hN > y0 ? hN : y0;
+        if (lo < y1 - 0.01f)
+            NorthFace(mesh, x, z - (rows - 1), lo, y1, UvSlice(rowMeta[k], (lo - y0) / courseH, 1.0f), SHADE_NORTH);
+    }
+    for (j = 0; j < rows; j++)
+    {
+        const VoxelCell *cj = Nb(inst, lx, ly - j);
+        float hE = SideHeight(Nb(inst, lx + 1, ly - j));
+        float hW = SideHeight(Nb(inst, lx - 1, ly - j));
+        if (cj)
+            ShellFaces(mesh, inst, cj, x, z - j, base);
+        for (k = 0; k < rows; k++)
+        {
+            float y0 = base + courseH * k;
+            float y1 = base + courseH * (k + 1);
+            float lo;
+            lo = hE > y0 ? hE : y0;
+            if (lo < y1 - 0.01f)
+                EastFace(mesh, x, z - j, lo, y1, UvSlice(rowMeta[k], (lo - y0) / courseH, 1.0f), SHADE_EAST);
+            lo = hW > y0 ? hW : y0;
+            if (lo < y1 - 0.01f)
+                WestFace(mesh, x, z - j, lo, y1, UvSlice(rowMeta[k], (lo - y0) / courseH, 1.0f), SHADE_WEST);
+        }
+    }
+    EndRange(mesh, &r);
+}
+
+// ---------------------------------------------------------------------------
+// Furniture: a box of its class height wearing its art on top and front
+// ---------------------------------------------------------------------------
+static void BuildFurniture(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
+{
+    const VoxelCell *c = &inst->cells[ly * inst->width + lx];
+    float x = (float)(lx + inst->originX);
+    float z = (float)(ly + inst->originY);
+    float base = c->groundH, top = c->topH;
+    UvRect uv = UvFor(c->metatile);
+    const VoxelCell *n;
+    float nh;
+    bool faceOn = c->cls == VC_CONSOLE || c->cls == VC_TV || c->cls == VC_APPLIANCE
+               || c->cls == VC_CABINET || c->cls == VC_WORKTOP || c->cls == VC_SINK || c->cls == VC_PROP
+               || c->cls == VC_BOOKCASE;
+
+    ShellFaces(mesh, inst, c, x, z, base);
+    if (top <= base + 0.01f)
+    {
+        TopQuad(mesh, x, z, top, uv, SHADE_TOP);
         return;
     }
-
-    bool textureOnFront = false;
-    
-    // Top face
-    if (textureOnFront) {
-        glDisable(GL_TEXTURE_2D);
-        glColor3f(0.2f, 0.2f, 0.2f); // Dark color
-    } else {
-        glEnable(GL_TEXTURE_2D);
-        glColor3f(1.0f, 1.0f, 1.0f);
+    if (faceOn)
+    {
+        // The drawing is a front elevation: fold it up the south face and
+        // give the top a plain lid from the art's top rows.
+        TopQuad(mesh, x, z, top, UvSlice(c->metatile, 0.0f, 0.2f), SHADE_TOP - 20);
+        n = Nb(inst, lx, ly + 1); nh = SideHeight(n);
+        if (nh < top - 0.01f) SouthFace(mesh, x, z, base, top, uv, SHADE_SOUTH);
     }
-    
-    glBegin(GL_QUADS);
-    if (textureOnFront) {
-        glVertex3f(wx+inset,      h, wz+inset);
-        glVertex3f(wx+1.0f-inset, h, wz+inset);
-        glVertex3f(wx+1.0f-inset, h, wz+1.0f-inset);
-        glVertex3f(wx+inset,      h, wz+1.0f-inset);
-    } else {
-        glTexCoord2f(u0, v0); glVertex3f(wx+inset,      h, wz+inset);
-        glTexCoord2f(u1, v0); glVertex3f(wx+1.0f-inset, h, wz+inset);
-        glTexCoord2f(u1, v1); glVertex3f(wx+1.0f-inset, h, wz+1.0f-inset);
-        glTexCoord2f(u0, v1); glVertex3f(wx+inset,      h, wz+1.0f-inset);
+    else
+    {
+        TopQuad(mesh, x, z, top, uv, SHADE_TOP);
+        n = Nb(inst, lx, ly + 1); nh = SideHeight(n);
+        if (nh < top - 0.01f) SouthFace(mesh, x, z, base, top, UvSlice(c->metatile, 0.7f, 1.0f), SHADE_SOUTH - 40);
     }
-    glEnd();
-    
-    if (h > 0.0f) {
-        bool cullFront = false, cullBack = false, cullLeft = false, cullRight = false;
-        
-        if (inset == 0.0f && bottomH == 0.0f) {
-            VoxelVisualShape fShape = VoxelWorld_ClassifyTile(mapX, mapY + 1);
-            VoxelVisualShape bShape = VoxelWorld_ClassifyTile(mapX, mapY - 1);
-            VoxelVisualShape lShape = VoxelWorld_ClassifyTile(mapX - 1, mapY);
-            VoxelVisualShape rShape = VoxelWorld_ClassifyTile(mapX + 1, mapY);
-            
-            if (fShape == VOXEL_SHAPE_VOID) cullFront = true;
-            if (bShape == VOXEL_SHAPE_VOID) cullBack = true;
-            if (lShape == VOXEL_SHAPE_VOID) cullLeft = true;
-            if (rShape == VOXEL_SHAPE_VOID) cullRight = true;
-            
-            if (shape == fShape) cullFront = true;
-            if (shape == bShape) cullBack = true;
-            if (shape == lShape) cullLeft = true;
-            if (shape == rShape) cullRight = true;
-        }
-
-        // Front Face
-        if (!cullFront) {
-            if (textureOnFront) {
-                glEnable(GL_TEXTURE_2D);
-                glColor3f(1.0f, 1.0f, 1.0f);
-            } else {
-                glDisable(GL_TEXTURE_2D);
-                glColor3f(0.6f, 0.6f, 0.6f);
-            }
-            glBegin(GL_QUADS);
-            if (textureOnFront) {
-                glTexCoord2f(u0, v1); glVertex3f(wx+inset,      bottomH, wz+1.0f-inset);
-                glTexCoord2f(u1, v1); glVertex3f(wx+1.0f-inset, bottomH, wz+1.0f-inset);
-                glTexCoord2f(u1, v0); glVertex3f(wx+1.0f-inset, h,       wz+1.0f-inset);
-                glTexCoord2f(u0, v0); glVertex3f(wx+inset,      h,       wz+1.0f-inset);
-            } else {
-                glVertex3f(wx+inset,      bottomH, wz+1.0f-inset);
-                glVertex3f(wx+1.0f-inset, bottomH, wz+1.0f-inset);
-                glVertex3f(wx+1.0f-inset, h,       wz+1.0f-inset);
-                glVertex3f(wx+inset,      h,       wz+1.0f-inset);
-            }
-            glEnd();
-        }
-
-        glDisable(GL_TEXTURE_2D);
-
-        // Back Face
-        if (!cullBack) {
-            glColor3f(0.5f, 0.5f, 0.5f);
-            glBegin(GL_QUADS);
-            glVertex3f(wx+1.0f-inset, bottomH, wz+inset);
-            glVertex3f(wx+inset,      bottomH, wz+inset);
-            glVertex3f(wx+inset,      h,       wz+inset);
-            glVertex3f(wx+1.0f-inset, h,       wz+inset);
-            glEnd();
-        }
-        
-        // Left Face
-        if (!cullLeft) {
-            glColor3f(0.65f, 0.65f, 0.65f);
-            glBegin(GL_QUADS);
-            glVertex3f(wx+inset, bottomH, wz+inset);
-            glVertex3f(wx+inset, bottomH, wz+1.0f-inset);
-            glVertex3f(wx+inset, h,       wz+1.0f-inset);
-            glVertex3f(wx+inset, h,       wz+inset);
-            glEnd();
-        }
-        
-        // Right Face
-        if (!cullRight) {
-            glColor3f(0.55f, 0.55f, 0.55f);
-            glBegin(GL_QUADS);
-            glVertex3f(wx+1.0f-inset, bottomH, wz+1.0f-inset);
-            glVertex3f(wx+1.0f-inset, bottomH, wz+inset);
-            glVertex3f(wx+1.0f-inset, h,       wz+inset);
-            glVertex3f(wx+1.0f-inset, h,       wz+1.0f-inset);
-            glEnd();
-        }
-    }
+    n = Nb(inst, lx, ly - 1); nh = SideHeight(n);
+    if (nh < top - 0.01f) NorthFace(mesh, x, z, base, top, UvSlice(c->metatile, 0.0f, 0.3f), SHADE_NORTH);
+    n = Nb(inst, lx + 1, ly); nh = SideHeight(n);
+    if (nh < top - 0.01f) EastFace(mesh, x, z, base, top, UvSlice(c->metatile, 0.2f, 1.0f), SHADE_EAST - 30);
+    n = Nb(inst, lx - 1, ly); nh = SideHeight(n);
+    if (nh < top - 0.01f) WestFace(mesh, x, z, base, top, UvSlice(c->metatile, 0.2f, 1.0f), SHADE_WEST - 30);
 }
 
-void VoxelMesh_DrawPlayerBillboard(float wx, float wy, float wz, float camX, float camY, float camZ, GLuint tex, int w, int h)
+// ---------------------------------------------------------------------------
+// Buildings: a vertical facade of the wall rows, a roof laid back over the
+// footprint from the drawing's roof rows, textured flanks.
+// ---------------------------------------------------------------------------
+static void BuildBuilding(VoxelMesh *mesh, const VoxelInstance *inst, int b)
 {
-    (void)camX;
-    (void)camY;
-    (void)camZ;
+    const VoxelBuilding *bd = &inst->buildings[b];
+    int K = bd->wallRows;
+    float rise = bd->roofRows > 0 ? 1.0f : 0.0f;
+    float base = bd->baseH;
+    float wallTop = base + K;
+    int col, k;
+    VoxelMeshRange r;
+    float zFront = (float)(bd->facadeRow + inst->originY) + 1.0f;
 
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    
-    if (tex != 0) {
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, tex);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    } else {
-        glDisable(GL_TEXTURE_2D);
+    BeginRange(mesh, &r, bd->minX + inst->originX, bd->facadeRow + inst->originY, b, base, wallTop + rise);
+    r.rows = bd->facadeRow - bd->minTop + 1;
+    r.cols = bd->maxX - bd->minX + 1;
+
+    for (col = bd->minX; col <= bd->maxX; col++)
+    {
+        int top = bd->colTop[col - bd->minX];
+        int rows = bd->facadeRow - top + 1;
+        int wallRows = rows < K ? rows : K;
+        int roofRows = rows - wallRows;
+        float x = (float)(col + inst->originX);
+        float zBack = (float)(top + inst->originY);
+        float depth = zFront - zBack;
+        float colWallTop = base + wallRows;
+        float colPeak = colWallTop + (roofRows > 0 ? rise : 0.0f);
+        int rowAt;
+        float zz;
+
+        // facade: rows facadeRow .. facadeRow-wallRows+1, bottom up
+        for (k = 0; k < wallRows; k++)
+        {
+            const VoxelCell *cellK = Nb(inst, col, bd->facadeRow - k);
+            SouthFace(mesh, x, zFront - 1.0f, base + k, base + k + 1, UvFor(cellK->metatile), SHADE_SOUTH);
+        }
+
+        // roof: a plane from the facade top at the front to the peak at the
+        // back, one cell of the drawing per cell of depth, the eave row
+        // repeated where the footprint is deeper than the drawing's roof.
+        for (zz = zBack; zz < zFront - 0.01f; zz += 1.0f)
+        {
+            float t0 = (zz - zBack) / depth;
+            float t1 = (zz + 1.0f - zBack) / depth;
+            float y0 = colPeak - (colPeak - colWallTop) * t0;   // north edge (higher)
+            float y1 = colPeak - (colPeak - colWallTop) * t1;   // south edge
+            UvRect uv;
+            rowAt = (int)(zz - inst->originY);
+            if (roofRows > 0)
+            {
+                int lastRoof = bd->facadeRow - wallRows;   // southmost roof row
+                if (rowAt > lastRoof)
+                    rowAt = lastRoof;
+                if (rowAt < top)
+                    rowAt = top;
+            }
+            else
+            {
+                rowAt = top;
+            }
+            uv = UvFor(Nb(inst, col, rowAt)->metatile);
+            Quad(mesh,
+                 x,        y0, zz,        uv.u0, uv.v0,
+                 x + 1.0f, y0, zz,        uv.u1, uv.v0,
+                 x + 1.0f, y1, zz + 1.0f, uv.u1, uv.v1,
+                 x,        y1, zz + 1.0f, uv.u0, uv.v1,
+                 SHADE_TOP);
+        }
+
+        // back face (north)
+        {
+            const VoxelCell *n = Nb(inst, col, top - 1);
+            float nh = SideHeight(n);
+            const VoxelCell *edge = Nb(inst, col, bd->facadeRow - (wallRows - 1));
+            if (nh < colPeak - 0.01f)
+            {
+                float lo = nh > base ? nh : base;
+                NorthFace(mesh, x, zBack, lo, colPeak, UvFor(edge->metatile), SHADE_NORTH);
+            }
+        }
+
+        // flanks: only where the neighbouring column is not this building
+        {
+            bool westOpen = (col == bd->minX);
+            bool eastOpen = (col == bd->maxX);
+            int nTop;
+            if (!westOpen)
+            {
+                nTop = bd->colTop[col - 1 - bd->minX];
+                if (nTop > top) westOpen = true;   // our column reaches further north
+            }
+            if (!eastOpen)
+            {
+                nTop = bd->colTop[col + 1 - bd->minX];
+                if (nTop > top) eastOpen = true;
+            }
+            if (westOpen || eastOpen)
+            {
+                for (zz = zBack; zz < zFront - 0.01f; zz += 1.0f)
+                {
+                    float t0 = (zz - zBack) / depth;
+                    float t1 = (zz + 1.0f - zBack) / depth;
+                    float yN = colPeak - (colPeak - colWallTop) * t0;
+                    float yS = colPeak - (colPeak - colWallTop) * t1;
+                    int rowHere = (int)(zz - inst->originY);
+                    const VoxelCell *side;
+                    const VoxelCell *nb;
+                    float nh, lo;
+                    UvRect uv;
+                    int wallRowMeta;
+                    // the wall part of the flank wears the facade's edge row art
+                    side = Nb(inst, col, bd->facadeRow);
+                    wallRowMeta = side->metatile;
+                    if (westOpen)
+                    {
+                        nb = Nb(inst, col - 1, rowHere);
+                        nh = SideHeight(nb);
+                        if (nb && nb->building == b) nh = 1000.0f;
+                        lo = nh > base ? nh : base;
+                        if (lo < colWallTop - 0.01f)
+                            WestFace(mesh, x, zz, lo, colWallTop, UvSlice(wallRowMeta, 0.0f, 1.0f), SHADE_WEST);
+                        if (roofRows > 0 && lo < yN - 0.01f)
+                        {
+                            uv = UvFor(Nb(inst, col, top)->metatile);
+                            Quad(mesh,
+                                 x, colWallTop, zz,        uv.u0, uv.v1,
+                                 x, colWallTop, zz + 1.0f, uv.u1, uv.v1,
+                                 x, yS,         zz + 1.0f, uv.u1, uv.v0,
+                                 x, yN,         zz,        uv.u0, uv.v0,
+                                 SHADE_WEST);
+                        }
+                    }
+                    if (eastOpen)
+                    {
+                        nb = Nb(inst, col + 1, rowHere);
+                        nh = SideHeight(nb);
+                        if (nb && nb->building == b) nh = 1000.0f;
+                        lo = nh > base ? nh : base;
+                        if (lo < colWallTop - 0.01f)
+                            EastFace(mesh, x, zz, lo, colWallTop, UvSlice(wallRowMeta, 0.0f, 1.0f), SHADE_EAST);
+                        if (roofRows > 0 && lo < yN - 0.01f)
+                        {
+                            uv = UvFor(Nb(inst, col, top)->metatile);
+                            Quad(mesh,
+                                 x + 1.0f, colWallTop, zz + 1.0f, uv.u0, uv.v1,
+                                 x + 1.0f, colWallTop, zz,        uv.u1, uv.v1,
+                                 x + 1.0f, yN,         zz,        uv.u1, uv.v0,
+                                 x + 1.0f, yS,         zz + 1.0f, uv.u0, uv.v0,
+                                 SHADE_EAST);
+                        }
+                    }
+                }
+            }
+        }
     }
-    
-    // Scale based on sprite width/height. 16 pixels = 1.0 world unit
-    float width_world = w / 16.0f;
-    float height_world = h / 16.0f;
-    float hw = width_world / 2.0f;
-
-    // Enable alpha testing so transparent pixels don't write to depth buffer
-    glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_GREATER, 0.5f);
-
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 1.0f); glVertex3f(wx - hw, wy,     wz);
-    glTexCoord2f(1.0f, 1.0f); glVertex3f(wx + hw, wy,     wz);
-    glTexCoord2f(1.0f, 0.0f); glVertex3f(wx + hw, wy + height_world, wz);
-    glTexCoord2f(0.0f, 0.0f); glVertex3f(wx - hw, wy + height_world, wz);
-    glEnd();
-
-    glDisable(GL_ALPHA_TEST);
-    glDisable(GL_BLEND);
+    EndRange(mesh, &r);
 }
 
-#endif // NATIVE_LINUX
-#endif // PLATFORM_SDL2
+// ---------------------------------------------------------------------------
+// Instance build
+// ---------------------------------------------------------------------------
+void VoxelMesh_BuildInstance(VoxelMesh *mesh, const VoxelInstance *inst)
+{
+    int x, y, b;
+    VoxelMesh_Clear(mesh);
+    if (inst->cells == NULL)
+        return;
+
+    for (y = 0; y < inst->height; y++)
+        for (x = 0; x < inst->width; x++)
+        {
+            const VoxelCell *c = &inst->cells[y * inst->width + x];
+            if (c->cls == VC_VOID || c->building >= 0)
+                continue;
+            if (c->cls == VC_WALL || c->cls == VC_CLIFF)
+                continue;   // columns below
+            if (c->cls >= VC_COUNTER && c->cls < VC_COUNT && (c->flags & VCF_BLOCKED))
+                continue;   // furniture below
+            BuildSurface(mesh, inst, x, y);
+        }
+    for (y = inst->height - 1; y >= 0; y--)
+        for (x = 0; x < inst->width; x++)
+        {
+            const VoxelCell *c = &inst->cells[y * inst->width + x];
+            if (c->building >= 0)
+                continue;
+            if ((c->cls == VC_WALL || c->cls == VC_CLIFF) && c->stack > 0)
+                BuildColumn(mesh, inst, x, y);
+            else if (c->cls >= VC_COUNTER && c->cls < VC_COUNT && (c->flags & VCF_BLOCKED))
+                BuildFurniture(mesh, inst, x, y);
+        }
+    for (b = 0; b < inst->buildingCount; b++)
+        BuildBuilding(mesh, inst, b);
+
+    if (getenv("EMERALD_VOXEL_DUMP") && inst == &gVoxelInstances[0])
+    {
+        int r, v, shown = 0;
+        for (r = 0; r < mesh->rangeCount && shown < 2; r++)
+        {
+            const VoxelMeshRange *rg = &mesh->ranges[r];
+            const VoxelCell *c = VoxelWorld_CellAt(rg->worldX, rg->worldZ);
+            if (rg->building >= 0 || c == NULL || c->stack < 2)
+                continue;
+            printf("[Dump] range %d cell (%d,%d) stack %d base %.2f top %.2f first %d count %d\n",
+                   r, rg->worldX, rg->worldZ, c->stack, rg->base, rg->top, rg->first, rg->count);
+            for (v = rg->first; v < rg->first + rg->count; v++)
+            {
+                const VoxelVertex *vv = &mesh->verts[v];
+                printf("[Dump]  %3d: %6.2f %6.2f %6.2f  uv %.4f %.4f  c %d\n", v - rg->first, vv->x, vv->y, vv->z, vv->u, vv->v, vv->r);
+            }
+            shown++;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Ghosting: a range hides the player when its mass lies on the line from the
+// player's head back toward the camera (south and up).
+// ---------------------------------------------------------------------------
+void VoxelMesh_ComputeGhosts(VoxelMesh *mesh, float px, float py, float pz, float camTanPitch)
+{
+    int i;
+    for (i = 0; i < mesh->rangeCount; i++)
+    {
+        const VoxelMeshRange *r = &mesh->ranges[i];
+        float headY = py + 1.6f;
+        float dz, rayY;
+        bool ghost = false;
+        if (r->building >= 0)
+        {
+            // buildings: the mass starts at its north edge; that is where
+            // the ray from the player's head first meets it
+            float northZ = (float)r->worldZ - (float)r->rows + 1.0f;
+            dz = northZ - pz;
+            if (dz >= -0.5f && dz < 6.0f && px + 0.5f >= (float)r->worldX - 0.5f
+                && px + 0.5f <= (float)(r->worldX + r->cols) + 0.5f)
+            {
+                rayY = headY + (dz > 0.0f ? dz : 0.0f) * camTanPitch;
+                if (r->top > rayY + 0.2f)
+                    ghost = true;
+            }
+        }
+        else
+        {
+            float cx = (float)r->worldX + 0.5f;
+            dz = (float)r->worldZ - pz;
+            if (fabsf(cx - px) <= 0.75f && dz >= 0.5f && dz < 5.0f)
+            {
+                rayY = headY + (dz - 0.5f) * camTanPitch;
+                if (r->top > rayY + 0.2f)
+                    ghost = true;
+            }
+        }
+        mesh->ghost[i] = ghost;
+    }
+}
+
+static void SetPointers(const VoxelMesh *mesh)
+{
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glVertexPointer(3, GL_FLOAT, sizeof(VoxelVertex), &mesh->verts[0].x);
+    glTexCoordPointer(2, GL_FLOAT, sizeof(VoxelVertex), &mesh->verts[0].u);
+}
+
+void VoxelMesh_DrawOpaque(const VoxelMesh *mesh)
+{
+    int i, cursor = 0;
+    if (mesh->count == 0)
+        return;
+#ifndef __ANDROID__
+    if (getenv("EMERALD_VOXEL_NOTEX"))
+        glDisable(GL_TEXTURE_2D);
+    if (getenv("EMERALD_VOXEL_WIRE"))
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    if (getenv("EMERALD_VOXEL_NODEPTH"))
+        glDisable(GL_DEPTH_TEST);
+#endif
+    SetPointers(mesh);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(VoxelVertex), &mesh->verts[0].r);
+    for (i = 0; i < mesh->rangeCount; i++)
+    {
+        const VoxelMeshRange *r = &mesh->ranges[i];
+        if (!mesh->ghost[i])
+            continue;
+        if (r->first > cursor)
+            glDrawArrays(GL_TRIANGLES, cursor, r->first - cursor);
+        cursor = r->first + r->count;
+    }
+    if (mesh->count > cursor)
+        glDrawArrays(GL_TRIANGLES, cursor, mesh->count - cursor);
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_DEPTH_TEST);
+#ifndef __ANDROID__
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
+}
+
+void VoxelMesh_DrawGhosted(const VoxelMesh *mesh)
+{
+    int i;
+    bool any = false;
+    if (getenv("EMERALD_VOXEL_NOGHOST"))
+        return;
+    for (i = 0; i < mesh->rangeCount; i++)
+        if (mesh->ghost[i]) { any = true; break; }
+    if (!any || mesh->count == 0)
+        return;
+    SetPointers(mesh);
+    glDisableClientState(GL_COLOR_ARRAY);
+    glColor4f(0.85f, 0.85f, 0.85f, 0.38f);
+    for (i = 0; i < mesh->rangeCount; i++)
+    {
+        const VoxelMeshRange *r = &mesh->ranges[i];
+        if (mesh->ghost[i])
+            glDrawArrays(GL_TRIANGLES, r->first, r->count);
+    }
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+#endif
+#endif

@@ -90,7 +90,7 @@ LDFLAGS = -Map ../../$(MAP)
 PLATFORM_INCLUDES := 
 
 ifeq ($(NATIVE_LINUX),1)
-PLATFORM_INCLUDES += $(shell pkg-config --libs sdl2 SDL2_image) -lm -lGL -lGLU
+PLATFORM_INCLUDES += $(shell pkg-config --libs sdl2 SDL2_image) -lm -lGL
 else
 # Windows only
 ifneq ($(NO_STD_LIB),1)

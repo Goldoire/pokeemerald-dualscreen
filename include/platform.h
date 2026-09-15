@@ -50,7 +50,7 @@ enum PlatformSetting
     PLATFORM_SETTING_TOUCH_CONTROLS,  // 0 hidden, 1 shown (Android)
     PLATFORM_SETTING_BATTLE_UI_TOP,   // 0 battle menus on bottom screen, 1 classic top
     PLATFORM_SETTING_FAST_FORWARD,    // 0 off, 1..3 = 2x..4x game speed
-    PLATFORM_SETTING_VOXEL_RENDERER,  // 0 classic 2D, 1 voxel 3D (experimental: forced off, no UI)
+    PLATFORM_SETTING_VOXEL_RENDERER,  // 0 classic 2D, 1 voxel 3D overworld (applies on restart)
     PLATFORM_SETTING_FF_AUDIO,        // 0 music keeps its normal tempo while fast-forwarding, 1 music speeds up too
     PLATFORM_SETTING_BATTLE_HINTS,    // 0 off, 1 effectiveness carets on the move grid + foe weakness strip
     PLATFORM_SETTING_COUNT,
