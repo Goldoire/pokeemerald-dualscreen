@@ -6,6 +6,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __ANDROID__
+#include <SDL.h>
+#else
+#include <SDL2/SDL.h>
+#endif
 #include "global.h"
 #include "field_player_avatar.h"
 #include "fieldmap.h"
@@ -879,13 +884,24 @@ static void BuildCells(VoxelInstance *inst)
     free(refMeta);
 
     if (getenv("EMERALD_VOXEL_DUMP"))
+        VoxelWorld_DumpInstance(inst);
+}
+
+// The cell model as text, for the harness and for logcat: one character per
+// cell (void ' ', ground '.', grass ',', water '~', ledge '_', deck '=',
+// door 'D', wall '#' or '+' when stacked into the row south of it, cliff
+// '^', building 'B', furniture 'f'), then the edge rows of an interior.
+void VoxelWorld_DumpInstance(const VoxelInstance *inst)
+{
+    int w = inst->width, h = inst->height, x, y;
     {
         // One character per cell: void ' ', ground '.', grass ',', water '~',
         // ledge '_', deck '=', door 'D', wall '#', cliff '^', building 'B',
         // furniture 'f'; shells on the borders are shown by lower-case n/e/w
         // flags in a second grid.
         char line[256];
-        printf("[Voxel] cells of %d:%d (%dx%d) indoor=%d\n", inst->mapGroup, inst->mapNum, w, h, inst->indoor);
+        SDL_Log("[Voxel] cells of %d:%d (%dx%d) indoor=%d origin (%d,%d)", inst->mapGroup, inst->mapNum, w, h,
+                inst->indoor, inst->originX, inst->originY);
         for (y = 0; y < h && y < 250; y++)
         {
             for (x = 0; x < w && x < 250; x++)
@@ -909,7 +925,7 @@ static void BuildCells(VoxelInstance *inst)
                 line[x] = ch;
             }
             line[x] = 0;
-            printf("[Voxel] %3d |%s|\n", y, line);
+            SDL_Log("[Voxel] %3d |%s|", y, line);
         }
         if (inst->indoor)
         {
@@ -917,13 +933,32 @@ static void BuildCells(VoxelInstance *inst)
             {
                 const VoxelCell *a = &inst->cells[y * w];
                 const VoxelCell *b = &inst->cells[y * w + w - 1];
-                printf("[Voxel] edge row %d: west meta %d cls %d flags %02x avg %d | east meta %d cls %d flags %02x avg %d\n",
+                SDL_Log("[Voxel] edge row %d: west meta %d cls %d flags %02x avg %d | east meta %d cls %d flags %02x avg %d",
                        y, a->metatile, a->cls, a->flags, inst->meta[a->metatile].avgR + inst->meta[a->metatile].avgG + inst->meta[a->metatile].avgB,
                        b->metatile, b->cls, b->flags, inst->meta[b->metatile].avgR + inst->meta[b->metatile].avgG + inst->meta[b->metatile].avgB);
             }
-            printf("[Voxel] shell metatile %d\n", inst->shellMeta);
+            SDL_Log("[Voxel] shell metatile %d", inst->shellMeta);
         }
     }
+}
+
+// The player's own cell, for the same log.
+void VoxelWorld_DumpPlayerCell(void)
+{
+    int px, py;
+    const VoxelCell *c;
+    struct ObjectEvent *playerObj = &gObjectEvents[gPlayerAvatar.objectEventId];
+    px = playerObj->currentCoords.x - MAP_OFFSET;
+    py = playerObj->currentCoords.y - MAP_OFFSET_Y;
+    c = VoxelWorld_CellAt(px, py);
+    if (c == NULL)
+    {
+        SDL_Log("[Voxel] player at (%d,%d): no cell", px, py);
+        return;
+    }
+    SDL_Log("[Voxel] player at (%d,%d) elev %d: meta %d beh %02x cls %d flags %02x ground %.3f top %.3f walk %.3f stack %d",
+            px, py, playerObj->currentElevation, c->metatile, c->behavior, c->cls, c->flags, c->groundH, c->topH,
+            VoxelWorld_WalkHeightAt(px, py), c->stack);
 }
 
 static void FreeInstances(void)

@@ -668,23 +668,30 @@ void VoxelMesh_ComputeGhosts(VoxelMesh *mesh, float px, float py, float pz, floa
             // buildings: the mass starts at its north edge; that is where
             // the ray from the player's head first meets it
             float northZ = (float)r->worldZ - (float)r->rows + 1.0f;
-            dz = northZ - pz;
-            if (dz >= -0.5f && dz < 6.0f && px + 0.5f >= (float)r->worldX - 0.5f
-                && px + 0.5f <= (float)(r->worldX + r->cols) + 0.5f)
+            dz = northZ - (pz + 0.5f);
+            if (dz >= -0.5f && dz < 6.0f && px >= (float)r->worldX - 0.5f
+                && px <= (float)(r->worldX + r->cols) + 0.5f)
             {
-                rayY = headY + (dz > 0.0f ? dz : 0.0f) * camTanPitch;
-                if (r->top > rayY + 0.2f)
+                rayY = py + 0.9f + (dz > 0.0f ? dz : 0.0f) * camTanPitch;
+                if (r->top > rayY)
                     ghost = true;
             }
+            (void)headY;
         }
         else
         {
+            // columns: the stack's near edge is its northmost row; sight the
+            // ray from the sprite's midriff so a knee-high fence stays put
+            // while a hedge that swallows the body fades
             float cx = (float)r->worldX + 0.5f;
-            dz = (float)r->worldZ - pz;
-            if (fabsf(cx - px) <= 0.75f && dz >= 0.5f && dz < 5.0f)
+            float northZ = (float)r->worldZ - (float)r->rows + 1.0f;
+            dz = northZ - (pz + 0.5f);
+            // a cell either side as well, so the opening reads as a gap in
+            // the hedge rather than a slot cut for the player
+            if (fabsf(cx - px) <= 1.6f && dz >= 0.0f && dz < 4.0f)
             {
-                rayY = headY + (dz - 0.5f) * camTanPitch;
-                if (r->top > rayY + 0.2f)
+                rayY = py + 0.9f + dz * camTanPitch;
+                if (r->top > rayY)
                     ghost = true;
             }
         }

@@ -39,6 +39,7 @@ unsigned gVoxelDebugFlags = 0;
 #define DBG_NO_SHADOW  8u
 #define DBG_NO_OVERLAY 16u
 #define DBG_NO_LIVEATLAS 32u
+#define DBG_DUMP_ONCE  64u
 
 // ---------------------------------------------------------------------------
 // State
@@ -721,6 +722,17 @@ void VoxelRenderer_RenderFrame(void)
     }
     EnsureShadowTexture();
 
+    if (gVoxelDebugFlags & DBG_DUMP_ONCE)
+    {
+        gVoxelDebugFlags &= ~DBG_DUMP_ONCE;
+        if (gVoxelInstanceCount > 0)
+            VoxelWorld_DumpInstance(&gVoxelInstances[0]);
+        VoxelWorld_DumpPlayerCell();
+        SDL_Log("[Voxel] camera (%.2f,%.2f,%.2f) -> (%.2f,%.2f,%.2f) meshes verts %d ranges %d",
+                sCamera.x, sCamera.y, sCamera.z, sCamera.targetX, sCamera.targetY, sCamera.targetZ,
+                sMeshes[0].count, sMeshes[0].rangeCount);
+    }
+
     // ---- player + camera ----
     if (gPlayerAvatar.objectEventId < OBJECT_EVENTS_COUNT)
         GetObjectWorldPos(&gObjectEvents[gPlayerAvatar.objectEventId], &playerX, &playerY, &playerZ);
@@ -823,7 +835,7 @@ void VoxelRenderer_RenderFrame(void)
         glDepthFunc(GL_GREATER);
         glEnable(GL_ALPHA_TEST);
         glAlphaFunc(GL_GREATER, 0.5f);
-        glColor4f(0.55f, 0.75f, 1.0f, 0.55f);
+        glColor4f(0.6f, 0.8f, 1.0f, 0.35f);
         for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
             if (draws[i].valid)
                 DrawBillboard(draws[i].x, draws[i].y, draws[i].z, draws[i].tex, draws[i].w, draws[i].h, -1.0f);

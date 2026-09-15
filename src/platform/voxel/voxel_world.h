@@ -159,6 +159,10 @@ void VoxelWorld_SetMetaInfo(VoxelInstance *inst, int metatile, const VoxelMetaIn
 // Class heights, in courses.
 float VoxelWorld_ClassHeight(VoxelClass cls);
 
+// Debug dumps through SDL_Log.
+void VoxelWorld_DumpInstance(const VoxelInstance *inst);
+void VoxelWorld_DumpPlayerCell(void);
+
 #endif // NATIVE_LINUX || __ANDROID__
 #endif // PLATFORM_SDL2
 #endif // GUARD_VOXEL_WORLD_H
