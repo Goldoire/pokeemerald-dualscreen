@@ -76,6 +76,7 @@ public final class DualScreenBridge {
     public static final int SETTING_VOXEL_RENDERER = 11;
     public static final int SETTING_FF_AUDIO = 12;
     public static final int SETTING_BATTLE_HINTS = 13;
+    public static final int SETTING_VOXEL_CAMERA = 14;
     public static final int SETTING_VOLUME = 5;
 
     /**

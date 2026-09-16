@@ -921,6 +921,36 @@ static void BuildCells(VoxelInstance *inst)
             }
     }
 
+    inst->layoutHash = HashLiveMap(inst);
+    free(ref);
+    free(land);
+    free(resolved);
+    free(refMeta);
+}
+
+// A trunk row: a narrow wooden silhouette on open ground (Route 119's
+// 124/169 under the 22/23 leaves and the 198/199 crown).
+static bool IsTrunkArt(const VoxelArtInfo *a)
+{
+    return a->solid < 160 && a->solid >= 10 && a->botWidth <= 10 && a->brown >= 12 && a->green < 64;
+}
+
+static bool IsLeafyArt(const VoxelArtInfo *a)
+{
+    return a->green >= 64 && a->solid >= 64;
+}
+
+// Blocked rows stack into columns once the art is read: landscape stands at
+// most two courses (GEN3_MAX_LAND), and the Fortree tileset's tall trees --
+// one or two trunk rows under two leafy rows -- stand up to four. Wood only
+// carries wood or leaves, rock never carries wood, so a rock under a trunk
+// does not swallow it.
+static void BuildColumns(VoxelInstance *inst)
+{
+    int w = inst->width, h = inst->height, x, y, i;
+    static const int dx[4] = {0, 0, -1, 1};
+    static const int dy[4] = {-1, 1, 0, 0};
+
     // ---- D. columns: stack blocked rows into one mass, south row first ----
     for (y = h - 1; y >= 0; y--)
         for (x = 0; x < w; x++)
@@ -936,33 +966,37 @@ static void BuildCells(VoxelInstance *inst)
             if (c->cls != VC_WALL || (c->flags & VCF_CONSUMED) || c->building >= 0)
                 continue;
             seen[0] = c->metatile;
-            // Emerald's tall trees (the Fortree tileset's) are three or four
-            // rows: one or two rows of trunk under two rows of leaves.
-            // Landscape otherwise stands at most two courses (GEN3_MAX_LAND).
-            if (!inst->indoor && inst->meta[c->metatile].brownPx >= 16 && inst->meta[c->metatile].greenPx < 120)
-            {
-                int t = 1;
-                VoxelCell *r1 = CellPtr(inst, x, y - 1);
-                VoxelCell *la, *lb;
-                if (r1 && r1->cls == VC_WALL && !(r1->flags & VCF_CONSUMED) && r1->building < 0
-                    && inst->meta[r1->metatile].brownPx >= 16 && inst->meta[r1->metatile].greenPx < 120)
-                    t = 2;
-                la = CellPtr(inst, x, y - t);
-                lb = CellPtr(inst, x, y - t - 1);
-                if (la && lb && la->cls == VC_WALL && lb->cls == VC_WALL && !(la->flags & VCF_CONSUMED) && !(lb->flags & VCF_CONSUMED)
-                    && la->building < 0 && lb->building < 0
-                    && inst->meta[la->metatile].greenPx >= 120 && inst->meta[lb->metatile].greenPx >= 120)
-                    cap = t + 2;
-            }
+            if (!inst->indoor && IsTrunkArt(&inst->art[c->metatile]))
+                cap = 4;
             while (rows < cap)
             {
                 VoxelCell *n = CellPtr(inst, x, y - rows);
                 bool dup = false;
                 if (n == NULL || n->cls != VC_WALL || (n->flags & VCF_CONSUMED) || n->building >= 0)
                     break;
+                if (!inst->indoor)
+                {
+                    const VoxelArtInfo *lower = &inst->art[seen[rows - 1]];
+                    const VoxelArtInfo *upper = &inst->art[n->metatile];
+                    bool lowerTrunk = IsTrunkArt(lower), upperTrunk = IsTrunkArt(upper), upperLeafy = IsLeafyArt(upper);
+                    if (lowerTrunk && !(upperTrunk || upperLeafy))
+                        break;                       // a trunk carries wood or leaves
+                    if (!lowerTrunk && upperTrunk)
+                        break;                       // rock or leaves never carry a trunk
+                    if (cap == 4 && !lowerTrunk && !upperLeafy)
+                        break;                       // above the trunk, only leaves
+                    if (cap == 4 && !upperTrunk)
+                    {
+                        int leafy = 0;
+                        for (k = 0; k < rows; k++)
+                            if (IsLeafyArt(&inst->art[seen[k]])) leafy++;
+                        if (leafy >= 2)
+                            break;                   // two rows of leaves make the crown
+                    }
+                }
                 for (k = 0; k < rows; k++)
-                    if (seen[k] == n->metatile)
-                        dup = true;
+                    if (seen[k] == n->metatile && !(!inst->indoor && IsLeafyArt(&inst->art[n->metatile])))
+                        dup = true;                  // a wall of one repeated row stops at one, leaves may repeat
                 if (dup)
                     break;
                 seen[rows] = n->metatile;
@@ -1083,12 +1117,7 @@ static void BuildCells(VoxelInstance *inst)
                 best = i;
         inst->shellMeta = best < 0 ? 0 : best;
     }
-
-    inst->layoutHash = HashLiveMap(inst);
-    free(ref);
-    free(land);
-    free(resolved);
-    free(refMeta);
+    (void)dx; (void)dy;
 }
 
 // ---------------------------------------------------------------------------
@@ -1103,10 +1132,23 @@ static void BuildCells(VoxelInstance *inst)
 //   * a low band of non-ground colour (a cliff's shadow) or a filled cell is
 //     a solid box: rocks, cliffs, hedges, walls.
 // ---------------------------------------------------------------------------
+// A standee's thickness is its kind's (Structures.lua PINNED_DEPTH): a
+// fence of rails is post-thick (6 px), a signboard on a stick is paper on a
+// post (2 px), anything else is a prop (5 px).
+static uint8_t StandeeDepthFor(const VoxelArtInfo *a)
+{
+    if (a->rails >= 2) return 6;
+    if (a->plate >= 5 && a->botWidth <= 4) return 2;
+    return 5;
+}
+
+#define ART_GREEN         80    // green silhouette pixels that make a row leafy
+#define ART_LEAF_SOLID    96    // and enough of them drawn to be a crown
+
+#define ART_GREEN         80    // green silhouette pixels that make a row leafy
+#define ART_LEAF_SOLID    96    // and enough of them drawn to be a crown
 #define ART_STANDEE_SOLID 160   // less of the cell than this drawn: an object stands in the open
 #define ART_BOXY          230   // silhouette fills its bounding box: a box, not a slab
-#define ART_GREEN         80
-#define ART_LEAF_SOLID    96
 
 static void BuildShapes(VoxelInstance *inst)
 {
@@ -1228,6 +1270,7 @@ static void BuildShapes(VoxelInstance *inst)
             if (inst->profile.mountainTopCliff && c->behavior == 0x0C)
                 shape = SH_BOX;
             c->shape = shape;
+            c->depthPx = StandeeDepthFor(a[0]);
             if (shape == SH_NONE)
             {
                 for (k = 0; k < rows; k++)
@@ -1288,6 +1331,7 @@ static void SettleShapesByMetatile(VoxelInstance *inst)
         if (votes[m][0] + votes[m][1] + votes[m][2] < 2)
             continue;
         c->shape = best == 0 ? SH_BOX : (best == 1 ? SH_STANDEE : SH_STANDEE_BOX);
+        c->depthPx = StandeeDepthFor(&inst->art[m]);
         if (c->shape == SH_BOX && c->topH < c->groundH + 0.99f)
             c->topH = c->groundH + 1.0f;
     }
@@ -1322,7 +1366,7 @@ static void RebuildInstance(VoxelInstance *inst)
     // The art first: classification reads the layer info it measures.
     VoxelAtlas_DecodeFromRom(inst->header->mapLayout, live, liveCount, inst->pixels, inst->meta, inst->topMask, inst->used);
     BuildCells(inst);
-    MarkFloorMetatiles(inst);
+    MarkFloorMetatiles(inst);   // needs the classes, not the columns
     if (inst->pixels && inst->topMask)
     {
         static bool topAbove[1024];
@@ -1338,6 +1382,7 @@ static void RebuildInstance(VoxelInstance *inst)
     }
     else
         memset(inst->art, 0, sizeof(inst->art));
+    BuildColumns(inst);         // stacks read the art: wood under leaves, never under rock
     BuildShapes(inst);
     SettleShapesByMetatile(inst);
 
@@ -1459,9 +1504,9 @@ void VoxelWorld_WriteCellsJson(FILE *f, const VoxelInstance *inst)
         if (!inst->used[m])
             continue;
         fprintf(f, "%s\n{\"m\":%d,\"floor\":%s,\"beh\":%d,\"layer\":%d,\"topOpaque\":%d,\"botOpaque\":%d,\"solid\":%d,\"green\":%d,\"brown\":%d,\"boxy\":%d,"
-                   "\"x0\":%d,\"x1\":%d,\"y0\":%d,\"y1\":%d,\"topW\":%d,\"midW\":%d,\"botW\":%d,\"bgFill\":%d}",
+                   "\"x0\":%d,\"x1\":%d,\"y0\":%d,\"y1\":%d,\"topW\":%d,\"midW\":%d,\"botW\":%d,\"bgFill\":%d,\"rails\":%d,\"plate\":%d}",
                 first ? "" : ",", m, inst->usedByFloor[m] ? "true" : "false", mi->behavior, mi->layerType, mi->topOpaque, mi->botOpaque,
-                a->solid, a->green, a->brown, a->boxy, a->x0, a->x1, a->y0, a->y1, a->topWidth, a->midWidth, a->botWidth, a->bgFill);
+                a->solid, a->green, a->brown, a->boxy, a->x0, a->x1, a->y0, a->y1, a->topWidth, a->midWidth, a->botWidth, a->bgFill, a->rails, a->plate);
         first = 0;
     }
     fprintf(f, "],\n\"cells\":[");
@@ -1471,10 +1516,10 @@ void VoxelWorld_WriteCellsJson(FILE *f, const VoxelInstance *inst)
         {
             const VoxelCell *c = &inst->cells[y * inst->width + x];
             fprintf(f, "%s\n{\"x\":%d,\"y\":%d,\"m\":%d,\"beh\":%d,\"col\":%d,\"e\":%d,\"cls\":%d,\"fl\":%d,\"sh\":%d,\"st\":%d,"
-                       "\"lip\":%d,\"ov\":%d,\"g\":%.3f,\"t\":%.3f,\"u\":%.3f,\"land\":%.3f,\"lift\":%.2f,\"um\":%d,\"fm\":%d,\"bd\":%d}",
+                       "\"lip\":%d,\"ov\":%d,\"g\":%.3f,\"t\":%.3f,\"u\":%.3f,\"land\":%.3f,\"lift\":%.2f,\"um\":%d,\"fm\":%d,\"bd\":%d,\"sd\":%d}",
                     first ? "" : ",", x, y, c->metatile, c->behavior, c->collision, c->elevation, c->cls, c->flags, c->shape, c->stack,
                     c->lipDirs, c->overhead, c->groundH, c->topH, c->underH, c->landH, c->lift, c->underMeta,
-                    c->fasciaMeta == 0xFFFF ? -1 : c->fasciaMeta, c->building);
+                    c->fasciaMeta == 0xFFFF ? -1 : c->fasciaMeta, c->building, c->depthPx);
             first = 0;
         }
     fprintf(f, "]}\n");

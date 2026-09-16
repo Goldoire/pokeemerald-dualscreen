@@ -777,8 +777,9 @@ static void WriteDumpJson(const EffectDraw *effects, int effectCount, float play
         fprintf(f, "%s{\"sprite\":%d,\"kind\":\"%s\",\"cell\":[%d,%d],\"w\":%d,\"h\":%d,\"upright\":%s,\"tile\":%d}",
                 i ? "," : "", d->sprite, kind, d->cellX, d->cellY, d->w, d->h, d->upright ? "true" : "false", sp->oam.tileNum);
     }
-    fprintf(f, "]},\n\"gl\":{\"error\":%u},\"camera\":{\"x\":%.2f,\"y\":%.2f,\"z\":%.2f}}\n",
-            (unsigned)glGetError(), sCamera.x, sCamera.y, sCamera.z);
+    fprintf(f, "]},\n\"gl\":{\"error\":%u},\"camera\":{\"x\":%.2f,\"y\":%.2f,\"z\":%.2f,\"preset\":%d,\"pitch\":%.2f,\"distance\":%.2f,\"fov\":%.2f,\"sky\":\"%s\"}}\n",
+            (unsigned)glGetError(), sCamera.x, sCamera.y, sCamera.z, sCamera.preset, sCamera.pitch, sCamera.distance, sCamera.fov,
+            sCamera.preset == 1 ? "warm" : "day");
     fclose(f);
     // the current map's atlas beside it, alpha-0 pixels shown magenta
     if (gVoxelInstanceCount > 0 && gVoxelInstances[0].pixels)
@@ -991,6 +992,11 @@ void VoxelRenderer_RenderFrame(void)
     }
 
     // ---- player + camera ----
+    {
+        int preset = Platform_GetSetting(PLATFORM_SETTING_VOXEL_CAMERA) ? 1 : 0;
+        if (preset != sCamera.preset && !gVoxelFirstPersonMode)
+            VoxelCamera_ApplyPreset(&sCamera, preset);
+    }
     if (gPlayerAvatar.objectEventId < OBJECT_EVENTS_COUNT)
         GetObjectWorldPos(&gObjectEvents[gPlayerAvatar.objectEventId], &playerX, &playerY, &playerZ);
     playerX += 0.5f;
@@ -1026,9 +1032,15 @@ void VoxelRenderer_RenderFrame(void)
         if (!indoor)
         {
             // Outdoors the backdrop is a sky: deeper blue above, hazy at the
-            // horizon, tinted like everything else by a palette fade.
+            // horizon, tinted like everything else by a palette fade. The
+            // diorama camera gets the model-railway evening: mauve over peach.
             float tr = 0.36f, tg = 0.62f, tb = 0.92f;
             float br = 0.78f, bg = 0.89f, bb = 0.98f;
+            if (sCamera.preset == 1)
+            {
+                tr = 0.58f; tg = 0.50f; tb = 0.78f;
+                br = 0.99f; bg = 0.85f; bb = 0.60f;
+            }
             Begin2D();
             glDisable(GL_TEXTURE_2D);
             glDisable(GL_BLEND);

@@ -851,6 +851,8 @@ static void ReadConfigFile(void)
             sPlatformSettings[PLATFORM_SETTING_FF_AUDIO] = value != 0;
         else if (sscanf(line, "battleHints=%u", &value) == 1)
             sPlatformSettings[PLATFORM_SETTING_BATTLE_HINTS] = value != 0;
+        else if (sscanf(line, "voxelCamera=%u", &value) == 1 && value <= 1)
+            sPlatformSettings[PLATFORM_SETTING_VOXEL_CAMERA] = value;
     }
     fclose(configFile);
 }
@@ -877,6 +879,7 @@ static void StoreConfigFile(void)
     fprintf(configFile, "voxelRenderer=%u\n", sPlatformSettings[PLATFORM_SETTING_VOXEL_RENDERER]);
     fprintf(configFile, "fastForwardAudio=%u\n", sPlatformSettings[PLATFORM_SETTING_FF_AUDIO]);
     fprintf(configFile, "battleHints=%u\n", sPlatformSettings[PLATFORM_SETTING_BATTLE_HINTS]);
+    fprintf(configFile, "voxelCamera=%u\n", sPlatformSettings[PLATFORM_SETTING_VOXEL_CAMERA]);
     fclose(configFile);
 }
 

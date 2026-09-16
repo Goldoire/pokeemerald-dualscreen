@@ -61,12 +61,29 @@ void VoxelCamera_Init(VoxelCamera *cam)
     cam->targetX = 0.0f;
     cam->targetY = 0.0f;
     cam->targetZ = 0.0f;
-    // A diorama: steep enough that a house rarely hides the street behind
-    // it, shallow enough that facades read as walls rather than as paint.
-    cam->pitch = 50.0f;
     cam->yaw = 0.0f;
-    cam->distance = 13.5f;
-    cam->fov = 40.0f;
+    cam->preset = -1;
+    VoxelCamera_ApplyPreset(cam, 0);
+}
+
+void VoxelCamera_ApplyPreset(VoxelCamera *cam, int preset)
+{
+    cam->preset = preset ? 1 : 0;
+    if (cam->preset == 1)
+    {
+        // The showcase framing: low and far, the route laid out like a model.
+        cam->pitch = 36.0f;
+        cam->distance = 22.0f;
+        cam->fov = 45.0f;
+    }
+    else
+    {
+        // Steep enough that a house rarely hides the street behind it,
+        // shallow enough that facades read as walls rather than as paint.
+        cam->pitch = 50.0f;
+        cam->distance = 13.5f;
+        cam->fov = 40.0f;
+    }
 }
 
 void VoxelCamera_Update(VoxelCamera *cam, float playerWorldX, float playerWorldY, float playerWorldZ)

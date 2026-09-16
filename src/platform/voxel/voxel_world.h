@@ -114,6 +114,7 @@ typedef struct {
     uint8_t  shape;      // VoxelShape (anchor cells and surfaces)
     uint8_t  lipDirs;    // LIP_* for a ledge
     uint8_t  overhead;   // walkable cell whose above-player art becomes a canopy plate
+    uint8_t  depthPx;    // standees: slab thickness in pixels (PINNED_DEPTH: post 6, signpost 2, prop 5)
     float    groundH;    // walkable surface height, or the column's base
     float    topH;       // column top (blocked / furniture / deck) else == groundH
     float    underH;     // bridges: the surface under the deck

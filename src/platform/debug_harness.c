@@ -8,6 +8,7 @@
 //                            UP=64 DOWN=128 R=256 L=512; 0 releases)
 //   shot <path>             write the next voxel frame as a binary PPM
 //   dumpjson <path>         write the world model, mesh counts and effects as JSON
+//   camera <0|1>            the voxel camera setting: play or diorama
 //   warp <group> <num> <x> <y>   warp the player (overworld only)
 //   quit                    exit the game
 //
@@ -28,6 +29,7 @@
 #include "palette.h"
 #include "field_screen_effect.h"
 #include "field_player_avatar.h"
+#include "platform.h"
 #include "platform/dualscreen.h"
 #include "voxel/voxel_renderer.h"
 
@@ -86,6 +88,10 @@ static int ReaderThread(void *param)
             else if (sscanf(line, "flags %u", &mask) == 1)
             {
                 gVoxelDebugFlags = mask;
+            }
+            else if (sscanf(line, "camera %u", &mask) == 1)
+            {
+                Platform_SetSetting(PLATFORM_SETTING_VOXEL_CAMERA, mask ? 1 : 0);
             }
             else if (strncmp(line, "quit", 4) == 0)
             {

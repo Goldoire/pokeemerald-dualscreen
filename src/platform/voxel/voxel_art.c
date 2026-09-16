@@ -231,6 +231,11 @@ void VoxelArt_Build(const bool *used, const bool *usedByFloor, const bool *topAb
         a->x0 = x0; a->x1 = x1 < 0 ? 0 : x1;
         a->y0 = y0; a->y1 = y1 < 0 ? 0 : y1;
         if (x1 < x0) { a->x0 = 1; a->x1 = 0; a->y0 = 1; a->y1 = 0; }
+        for (y = 0; y < 16; y++)
+        {
+            if (a->rowFill[y] >= 13) a->rails++;
+            if (y < 10 && a->rowFill[y] >= 10) a->plate++;
+        }
         w = 0; for (y = 0; y < 4; y++) if (a->rowFill[y] > w) w = a->rowFill[y]; a->topWidth = w;
         w = 0; for (y = 5; y <= 10; y++) if (a->rowFill[y] > w) w = a->rowFill[y]; a->midWidth = w;
         w = 0; for (y = 12; y < 16; y++) if (a->rowFill[y] > w) w = a->rowFill[y]; a->botWidth = w;

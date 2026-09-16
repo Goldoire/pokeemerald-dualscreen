@@ -114,6 +114,7 @@ void VoxelMesh_Clear(VoxelMesh *mesh)
     mesh->rangeCount = 0;
     mesh->vboDirty = true;
     memset(&mesh->stats, 0, sizeof(mesh->stats));
+    mesh->profileCount = 0;
 }
 
 void VoxelMesh_InvalidateGL(VoxelMesh *mesh)
@@ -742,151 +743,189 @@ static void BuildColumn(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int 
 // hemisphere (a ball's cap is as deep as it is wide), wearing the drawn
 // crown projected from above so the camera sees the picture it knows.
 // ---------------------------------------------------------------------------
-// The crown from `yBottom` to `yTop`, radius R about (cx, cz): a drum capped
-// by a hemisphere (a ball's cap is as deep as it is wide). It wears the
-// drawing projected from the FRONT, the way DramaticShapes' roundTemplate
-// does: the drawing's columns run across the hull, its rows run down it, so
-// the drawn highlight sits on the apex and the drawn outline at the base.
-// The top course of the hull wears `top` (the crown row), the course under
-// it `under` (the leafy row beneath the crown).
-static void BuildCrown(VoxelMesh *mesh, float cx, float cz, float R, float yBottom, float yTop,
-                       UvRect top, UvRect under)
-{
-    static const float depth[] = { 0.0f, 0.05f, 0.2f, 0.42f, 0.68f, 1.0f };
-    static const int shade[] = { 255, 250, 240, 226, 208, 190, 170, 160, 150 };
-    const int NR = (int)(sizeof(depth) / sizeof(depth[0]));
-    float dome = R;
-    float ringY[12], ringR[12];
-    float cs[CROWN_SIDES + 1], sn[CROWN_SIDES + 1];
-    int i, s, nRings = 0;
+// A tree is the solid of revolution of its own drawing (Structures.lua
+// roundTemplate): every row of the stacked silhouette becomes a disc of that
+// row's drawn width, and the top rows taper under a quarter-ellipse dome as
+// deep as half the widest row, so a crown that fills its cell still comes to
+// a rounded top. The hull wears the drawing projected from the FRONT: the
+// drawing's columns run across it, its rows run down it, so the drawn
+// highlight sits at the apex and the drawn trunk at the foot. A 2x2 tree
+// sums its two halves' rows into one hull.
+#define CROWN_BAND_PX 4
 
-    if (dome > yTop - yBottom)
-        dome = yTop - yBottom;
-    for (i = 0; i < NR; i++)
+// Row widths of a stack's drawing, top row first, in pixels (halves summed
+// for a pair).
+static void StackWidths(const VoxelInstance *inst, const int *metaTop, const int *metaTopR, int rows, uint8_t *w)
+{
+    int k, y;
+    for (k = 0; k < rows; k++)
     {
-        float d = depth[i];
-        ringY[nRings] = yTop - d * dome;
-        ringR[nRings] = d <= 0.0f ? 0.0f : R * sqrtf(2.0f * d - d * d);
-        if (ringR[nRings] < 0.04f * R && nRings > 0) ringR[nRings] = 0.04f * R;
-        nRings++;
+        const VoxelArtInfo *a = &inst->art[metaTop[k]];
+        const VoxelArtInfo *b = metaTopR ? &inst->art[metaTopR[k]] : NULL;
+        for (y = 0; y < 16; y++)
+        {
+            int v = a->rowFill[y] + (b ? b->rowFill[y] : 0);
+            // two narrow strokes side by side (a tall tree's twin trunk
+            // rows) revolve as one trunk, not as a stump as wide as both
+            if (b && a->rowFill[y] <= 10 && b->rowFill[y] <= 10)
+                v = a->rowFill[y] > b->rowFill[y] ? a->rowFill[y] : b->rowFill[y];
+            w[k * 16 + y] = (uint8_t)(v > 32 ? 32 : v);
+        }
     }
-    // the drum, split where the crown row's art gives way to the row under it
-    if (yBottom < yTop - 1.0f - 0.02f && ringY[nRings - 1] > yTop - 1.0f + 0.02f)
+}
+
+// Ring widths and radii every CROWN_BAND_PX rows from the top: the drawn
+// width's local maximum about the ring, 32 px to the world unit, capped by
+// the dome.
+static int ProfileRings(const uint8_t *w, int H, uint8_t *ringW, float *radius)
+{
+    int p, q, W = 0, dome, n = 0;
+    for (p = 0; p < H; p++)
+        if (w[p] > W) W = w[p];
+    dome = W / 2;
+    if (dome < 4) dome = 4;
+    for (p = 0; p <= H && n < VOXEL_PROFILE_RINGS; p += CROWN_BAND_PX)
     {
-        ringY[nRings] = yTop - 1.0f;
-        ringR[nRings] = R;
-        nRings++;
+        int lo = p - 2, hi = p + 2, m = 0;
+        if (lo < 0) lo = 0;
+        if (hi > H - 1) hi = H - 1;
+        for (q = lo; q <= hi; q++)
+            if (w[q] > m) m = w[q];
+        ringW[n] = (uint8_t)m;
+        radius[n] = m / 32.0f;
+        if (p < dome)
+        {
+            float t = (float)(p + 1) / (float)dome;
+            float cap = (W / 32.0f) * sqrtf(1.0f - (1.0f - t) * (1.0f - t));
+            if (radius[n] > cap) radius[n] = cap;
+        }
+        n++;
     }
-    if (yBottom < ringY[nRings - 1] - 0.02f)
+    // a crown never floats: the foot rings keep at least a stem
+    if (n >= 2 && W > 0)
     {
-        ringY[nRings] = yBottom;
-        ringR[nRings] = R;
-        nRings++;
+        if (radius[n - 1] < 0.1f) radius[n - 1] = 0.1f;
+        if (radius[n - 2] < 0.1f) radius[n - 2] = 0.1f;
     }
+    return n;
+}
+
+// The hull about (cx, cz) from `top` down, `rows` courses tall; `metaTop`
+// lists the stack's metatiles top row first (and `metaTopR` the east halves
+// of a pair, or NULL). Records the profile for the dump.
+static void BuildProfileHull(VoxelMesh *mesh, const VoxelInstance *inst, float cx, float cz, float top,
+                             const int *metaTop, const int *metaTopR, int rows, bool contiguous)
+{
+    uint8_t w[64], ringW[VOXEL_PROFILE_RINGS];
+    float radius[VOXEL_PROFILE_RINGS], ringY[VOXEL_PROFILE_RINGS];
+    float cs[CROWN_SIDES + 1], sn[CROWN_SIDES + 1];
+    float halfW = metaTopR ? 1.0f : 0.5f;
+    int H = rows * 16, n, i, s;
+
+    StackWidths(inst, metaTop, metaTopR, rows, w);
+    n = ProfileRings(w, H, ringW, radius);
+    for (i = 0; i < n; i++)
+        ringY[i] = top - (float)(i * CROWN_BAND_PX) / 16.0f;
     for (s = 0; s <= CROWN_SIDES; s++)
     {
         float a = (float)s / CROWN_SIDES * 2.0f * (float)M_PI + (float)M_PI / CROWN_SIDES;
         cs[s] = cosf(a);
         sn[s] = sinf(a);
     }
-    // the cap: a fan from the apex to the first ring
-    for (s = 0; s < CROWN_SIDES; s++)
+    // the dump keeps a sample: the first two-row hulls, and every tall one
+    if (mesh->profileCount < VOXEL_PROFILE_KEEP && (rows >= 3 || mesh->profileCount < VOXEL_PROFILE_KEEP / 2))
     {
-        float uA = (top.u0 + top.u1) * 0.5f;
-        float u0 = (top.u0 + top.u1) * 0.5f + (top.u1 - top.u0) * 0.5f * (ringR[1] / R) * cs[s];
-        float u1 = (top.u0 + top.u1) * 0.5f + (top.u1 - top.u0) * 0.5f * (ringR[1] / R) * cs[s + 1];
-        float v1a = top.v0 + (top.v1 - top.v0) * ((yTop - ringY[1]) / 1.0f);
-        Tri(mesh,
-            cx, ringY[0], cz, uA, top.v0,
-            cx + ringR[1] * cs[s + 1], ringY[1], cz + ringR[1] * sn[s + 1], u1, v1a,
-            cx + ringR[1] * cs[s],     ringY[1], cz + ringR[1] * sn[s],     u0, v1a,
-            shade[0]);
+        VoxelTreeProfile *pr = &mesh->profiles[mesh->profileCount++];
+        memset(pr, 0, sizeof(*pr));
+        pr->rows = rows;
+        pr->pair = metaTopR != NULL;
+        for (i = 0; i < rows && i < 4; i++) pr->metas[i] = metaTop[i];
+        for (i = 0; i < n; i++) { pr->width[i] = ringW[i]; pr->radius[i] = radius[i]; }
+        pr->rings = n;
     }
-    // the bands
-    for (i = 1; i < nRings - 1; i++)
+    // the apex: a fan from a point just over the first ring
     {
-        int sh = shade[i < 8 ? i : 8];
-        float ya = ringY[i], yb = ringY[i + 1];
-        float ra = ringR[i], rb = ringR[i + 1];
-        float mid = (ya + yb) * 0.5f;
-        const UvRect *art = (mid >= yTop - 1.0f) ? &top : &under;
-        float artTop = (mid >= yTop - 1.0f) ? yTop : yTop - 1.0f;
-        float va = art->v0 + (art->v1 - art->v0) * (artTop - ya);
-        float vb = art->v0 + (art->v1 - art->v0) * (artTop - yb);
-        float uMid = (art->u0 + art->u1) * 0.5f, uHalf = (art->u1 - art->u0) * 0.5f;
-        if (va < art->v0) va = art->v0;
-        if (vb > art->v1) vb = art->v1;
+        int k = 0;
+        UvRect art = UvFor(metaTop[0], VOXEL_VAR_COMPOSED);
+        float uMid, uHalf;
+        if (metaTopR && contiguous) art.u1 = UvFor(metaTopR[0], VOXEL_VAR_COMPOSED).u1;
+        uMid = (art.u0 + art.u1) * 0.5f; uHalf = (art.u1 - art.u0) * 0.5f;
+        (void)k;
         for (s = 0; s < CROWN_SIDES; s++)
         {
-            float ua0 = uMid + uHalf * (ra / R) * cs[s];
-            float ua1 = uMid + uHalf * (ra / R) * cs[s + 1];
-            float ub0 = uMid + uHalf * (rb / R) * cs[s];
-            float ub1 = uMid + uHalf * (rb / R) * cs[s + 1];
+            float r = radius[0];
+            float u0 = uMid + uHalf * (r * cs[s]) / halfW;
+            float u1 = uMid + uHalf * (r * cs[s + 1]) / halfW;
+            Tri(mesh,
+                cx, top + 0.06f, cz, uMid, art.v0,
+                cx + r * cs[s + 1], ringY[0], cz + r * sn[s + 1], u1, art.v0,
+                cx + r * cs[s],     ringY[0], cz + r * sn[s],     u0, art.v0,
+                255);
+        }
+    }
+    for (i = 0; i + 1 < n; i++)
+    {
+        float ra = radius[i], rb = radius[i + 1];
+        float ya = ringY[i], yb = ringY[i + 1];
+        int pa = i * CROWN_BAND_PX, pb = (i + 1) * CROWN_BAND_PX;
+        int pmid = (pa + pb) / 2, k = pmid / 16;
+        UvRect art;
+        float uMid, uHalf, va, vb;
+        int shade = 255 - (pmid * 100) / (H > 0 ? H : 1);
+        if (ra < 0.02f && rb < 0.02f)
+            continue;
+        if (k > rows - 1) k = rows - 1;
+        art = UvFor(metaTop[k], VOXEL_VAR_COMPOSED);
+        if (metaTopR && contiguous) art.u1 = UvFor(metaTopR[k], VOXEL_VAR_COMPOSED).u1;
+        uMid = (art.u0 + art.u1) * 0.5f; uHalf = (art.u1 - art.u0) * 0.5f;
+        va = art.v0 + (art.v1 - art.v0) * ((float)(pa - k * 16) / 16.0f);
+        vb = art.v0 + (art.v1 - art.v0) * ((float)(pb - k * 16) / 16.0f);
+        if (va < art.v0) va = art.v0;
+        if (vb > art.v1) vb = art.v1;
+        if (shade < 150) shade = 150;
+        for (s = 0; s < CROWN_SIDES; s++)
+        {
+            float ua0 = uMid + uHalf * (ra * cs[s]) / halfW;
+            float ua1 = uMid + uHalf * (ra * cs[s + 1]) / halfW;
+            float ub0 = uMid + uHalf * (rb * cs[s]) / halfW;
+            float ub1 = uMid + uHalf * (rb * cs[s + 1]) / halfW;
             Quad(mesh,
                  cx + ra * cs[s],     ya, cz + ra * sn[s],     ua0, va,
                  cx + rb * cs[s],     yb, cz + rb * sn[s],     ub0, vb,
                  cx + rb * cs[s + 1], yb, cz + rb * sn[s + 1], ub1, vb,
                  cx + ra * cs[s + 1], ya, cz + ra * sn[s + 1], ua1, va,
-                 sh);
+                 shade);
         }
     }
 }
 
-// Where the trunk is in a foot cell's drawing: the widest of the bottom
-// rows, and how many rows from the bottom stay that narrow.
-static void TrunkOf(const VoxelArtInfo *a, int *width, int *rowsUp)
-{
-    int w = a->botWidth, y, n = 0;
-    if (w < 3) w = 3;
-    if (w > 10) w = 10;
-    for (y = 15; y >= 6; y--)
-    {
-        if (a->rowFill[y] > w + 3)
-            break;
-        n++;
-    }
-    if (n < 4) n = 4;
-    if (n > 8) n = 8;
-    *width = w;
-    *rowsUp = n;
-}
-
 // A tree standing on the anchor (lx, ly) and, when `pair`, on the column
-// east of it too: crown metatiles are the north row, feet the south row.
+// east of it too: the stack's rows, feet at the anchor, crown north of it.
 static void BuildTree(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly, bool pair)
 {
     const VoxelCell *c = &inst->cells[ly * inst->width + lx];
     int rows = c->stack < 2 ? 2 : (c->stack > 4 ? 4 : c->stack);
-    const VoxelCell *cN = Nb(inst, lx, ly - (rows - 1));      // the crown's top row
-    const VoxelCell *cE = pair ? Nb(inst, lx + 1, ly) : NULL;
-    const VoxelCell *cNE = pair ? Nb(inst, lx + 1, ly - (rows - 1)) : NULL;
     float x = (float)(lx + inst->originX);
     float z = (float)(ly + inst->originY);
     float base = c->groundH, top = c->topH;
-    float R = pair ? TREE_R_PAIR : TREE_R_SINGLE;
     float cx = pair ? x + 1.0f : x + 0.5f;
-    float cz = z + 0.5f;    // the feet row: the crown overhangs the rows north of it
-    int footL = c->metatile, footR = cE ? cE->metatile : footL;
-    int crownL = cN ? cN->metatile : footL, crownR = cNE ? cNE->metatile : crownL;
-    int trunkW, trunkRows, tw2, tr2;
-    float trunkH, halfW;
-    UvRect uvL = UvFor(crownL, VOXEL_VAR_COMPOSED), uvR = UvFor(crownR, VOXEL_VAR_COMPOSED);
-    bool contiguous = pair && crownR == crownL + 1 && (crownL % VOXEL_ATLAS_COLS) != VOXEL_ATLAS_COLS - 1;
-    UvRect crownArt = uvL, underArt;
+    int metaTop[4], metaTopR[4];
+    bool contiguous = pair;
     VoxelMeshRange r;
     int j;
-    if (contiguous) crownArt.u1 = uvR.u1;
 
     if (top <= base + 0.05f)
         return;
     mesh->stats.trees++;
     if (pair) mesh->stats.treePairs++;
 
-    // the ground the tree grows out of
+    // the ground the tree grows out of, and the rows of its drawing
     for (j = 0; j < rows; j++)
     {
         const VoxelCell *cj = Nb(inst, lx, ly - j);
         const VoxelCell *ej = pair ? Nb(inst, lx + 1, ly - j) : NULL;
+        metaTop[rows - 1 - j] = cj ? cj->metatile : c->metatile;
+        metaTopR[rows - 1 - j] = ej ? ej->metatile : metaTop[rows - 1 - j];
         if (cj)
         {
             TopQuad(mesh, x, z - j, base, UvFor(cj->metatile, VOXEL_VAR_GROUND), SHADE_TOP);
@@ -897,46 +936,18 @@ static void BuildTree(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly
             TopQuad(mesh, x + 1.0f, z - j, base, UvFor(ej->metatile, VOXEL_VAR_GROUND), SHADE_TOP);
             GroundFascias(mesh, inst, lx + 1, ly - j, base, VOXEL_VAR_GROUND);
         }
+        if (pair && !(metaTopR[rows - 1 - j] == metaTop[rows - 1 - j] + 1
+                      && (metaTop[rows - 1 - j] % VOXEL_ATLAS_COLS) != VOXEL_ATLAS_COLS - 1))
+            contiguous = false;
     }
 
     BeginRange(mesh, &r, (int)x, (int)z, -1, base, top);
     r.rows = rows;
     r.cols = pair ? 2 : 1;
-
-    // the trunk, from the feet's drawing
-    TrunkOf(&inst->art[footL], &trunkW, &trunkRows);
-    if (pair)
-    {
-        TrunkOf(&inst->art[footR], &tw2, &tr2);
-        trunkW = (trunkW + tw2) / 2 + 2;
-        if (trunkRows < tr2) trunkRows = tr2;
-    }
-    trunkH = trunkRows / 16.0f * (top - base) / rows;
-    if (rows >= 3)
-        trunkH = (top - base) / rows * (rows - 2);   // the rows under the leaves are trunk
-    if (trunkH > 0.6f && rows < 3) trunkH = 0.6f;
-    halfW = trunkW / 32.0f;
-    {
-        float px0 = 8.0f - trunkW * 0.5f, px1 = 8.0f + trunkW * 0.5f;
-        float py0 = 16.0f - trunkRows, py1 = 16.0f;
-        UvRect t = UvRegion(footL, VOXEL_VAR_COMPOSED, px0, px1, py0, py1);
-        WallZ(mesh, cx - halfW, cx + halfW, cz + halfW, base, base + trunkH + 0.1f, true, t, SHADE_SOUTH - 30);
-        WallZ(mesh, cx - halfW, cx + halfW, cz - halfW, base, base + trunkH + 0.1f, false, t, SHADE_NORTH - 20);
-        WallX(mesh, cx + halfW, cz - halfW, cz + halfW, base, base + trunkH + 0.1f, true, t, SHADE_EAST - 40);
-        WallX(mesh, cx - halfW, cz - halfW, cz + halfW, base, base + trunkH + 0.1f, false, t, SHADE_WEST - 40);
-    }
-    // the crown: a drum from the trunk top, a dome over it, centred on the
-    // leafy rows (for a 2-row tree the seam between feet and crown); the
-    // course under the crown top wears the leafy row beneath it
-    {
-        const VoxelCell *dl = Nb(inst, lx, ly - (rows - 2));
-        const VoxelCell *dr = pair ? Nb(inst, lx + 1, ly - (rows - 2)) : NULL;
-        int underL = dl ? dl->metatile : crownL, underR = dr ? dr->metatile : underL;
-        bool cont = pair && underR == underL + 1 && (underL % VOXEL_ATLAS_COLS) != VOXEL_ATLAS_COLS - 1;
-        underArt = UvFor(underL, VOXEL_VAR_COMPOSED);
-        if (cont) underArt.u1 = UvFor(underR, VOXEL_VAR_COMPOSED).u1;
-        BuildCrown(mesh, cx, z - (float)(rows - 2), R, base + trunkH, top, crownArt, underArt);
-    }
+    // the hull is centred on the stack: its rows run from the feet's south
+    // edge to the crown's north edge, `rows` courses tall from the ground
+    BuildProfileHull(mesh, inst, cx, z + 0.5f - (float)(rows - 1) * 0.5f, base + (float)rows,
+                     metaTop, pair ? metaTopR : NULL, rows, contiguous);
     EndRange(mesh, &r);
 }
 
@@ -946,16 +957,17 @@ static void BuildBush(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly
     float x = (float)(lx + inst->originX);
     float z = (float)(ly + inst->originY);
     float base = c->groundH, top = c->topH;
-    UvRect uv = UvFor(c->metatile, VOXEL_VAR_COMPOSED);
+    int metaTop[1];
     VoxelMeshRange r;
 
     if (top <= base + 0.05f)
         return;
     mesh->stats.bushes++;
+    metaTop[0] = c->metatile;
     TopQuad(mesh, x, z, base, UvFor(c->metatile, VOXEL_VAR_GROUND), SHADE_TOP);
     GroundFascias(mesh, inst, lx, ly, base, VOXEL_VAR_GROUND);
     BeginRange(mesh, &r, (int)x, (int)z, -1, base, top);
-    BuildCrown(mesh, x + 0.5f, z + 0.5f, TREE_R_SINGLE, base, top, uv, uv);
+    BuildProfileHull(mesh, inst, x + 0.5f, z + 0.5f, base + 1.0f, metaTop, NULL, 1, false);
     EndRange(mesh, &r);
 }
 
@@ -1050,7 +1062,8 @@ static void BuildStandee(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int
     float x = (float)(lx + inst->originX);
     float z = (float)(ly + inst->originY);
     float base = c->groundH;
-    float zc = z + 0.5f, z0 = zc - STANDEE_DEPTH * 0.5f, z1 = zc + STANDEE_DEPTH * 0.5f;
+    float depth = c->depthPx ? c->depthPx / 16.0f : STANDEE_DEPTH;
+    float zc = z + 0.5f, z0 = zc - depth * 0.5f, z1 = zc + depth * 0.5f;
     int rowMeta[2];
     VoxelMeshRange r;
 
@@ -1421,10 +1434,27 @@ void VoxelMesh_WriteStatsJson(FILE *f, const VoxelMesh *mesh)
     const VoxelMeshStats *s = &mesh->stats;
     fprintf(f, "{\"verts\":%d,\"ranges\":%d,\"trees\":%d,\"treePairs\":%d,\"bushes\":%d,\"standees\":%d,\"standeeBoxes\":%d,"
                "\"standeeTall\":%d,\"boxes\":%d,\"cliffs\":%d,\"flats\":%d,\"supports\":%d,\"lips\":%d,\"lipFaces\":%d,"
-               "\"mats\":%d,\"matSkirts\":%d,\"canopies\":%d,\"decks\":%d,\"deckFascias\":%d,\"pillars\":%d,\"furniture\":%d,\"buildings\":%d}",
+               "\"mats\":%d,\"matSkirts\":%d,\"canopies\":%d,\"decks\":%d,\"deckFascias\":%d,\"pillars\":%d,\"furniture\":%d,\"buildings\":%d",
             mesh->count, mesh->rangeCount, s->trees, s->treePairs, s->bushes, s->standees, s->standeeBoxes, s->standeeTall,
             s->boxes, s->cliffs, s->flats, s->supports, s->lips, s->lipFaces, s->mats, s->matSkirts, s->canopies, s->decks,
             s->deckFascias, s->pillars, s->furniture, s->buildings);
+    // the first hulls' measured profiles
+    {
+        int i, k;
+        fprintf(f, ",\"profiles\":[");
+        for (i = 0; i < mesh->profileCount; i++)
+        {
+            const VoxelTreeProfile *pr = &mesh->profiles[i];
+            fprintf(f, "%s{\"rows\":%d,\"pair\":%s,\"m\":[", i ? "," : "", pr->rows, pr->pair ? "true" : "false");
+            for (k = 0; k < pr->rows && k < 4; k++) fprintf(f, "%s%d", k ? "," : "", pr->metas[k]);
+            fprintf(f, "],\"widths\":[");
+            for (k = 0; k < pr->rings; k++) fprintf(f, "%s%d", k ? "," : "", pr->width[k]);
+            fprintf(f, "],\"radii\":[");
+            for (k = 0; k < pr->rings; k++) fprintf(f, "%s%.3f", k ? "," : "", pr->radius[k]);
+            fprintf(f, "]}");
+        }
+        fprintf(f, "]}");
+    }
 }
 
 // ---------------------------------------------------------------------------

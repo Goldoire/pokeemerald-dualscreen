@@ -29,6 +29,8 @@ typedef struct {
     uint8_t botWidth;     // widest silhouette row among rows 12..15
     uint8_t boxy;         // silhouette pixels / bbox area, 0..255 (255 = a filled rectangle)
     uint8_t bgFill;       // the metatile's own dominant background colour is known
+    uint8_t rails;        // rows drawn nearly edge to edge (a fence's rails)
+    uint8_t plate;        // rows of the upper part drawn at least 10 wide (a signboard)
     uint8_t rowFill[16];  // silhouette pixels per row
     uint8_t colFill[16];  // silhouette pixels per column
 } VoxelArtInfo;

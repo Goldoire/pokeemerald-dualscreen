@@ -39,6 +39,19 @@ typedef struct {
     int canopies, decks, deckFascias, pillars, furniture, buildings;
 } VoxelMeshStats;
 
+// One tree hull's measured profile, kept for the dump: the drawing's row
+// widths every four pixels from the top and the ring radii built from them.
+#define VOXEL_PROFILE_RINGS 17
+#define VOXEL_PROFILE_KEEP 40
+typedef struct {
+    int rows;
+    bool pair;
+    int metas[4];                         // top row first
+    uint8_t width[VOXEL_PROFILE_RINGS];
+    float radius[VOXEL_PROFILE_RINGS];
+    int rings;
+} VoxelTreeProfile;
+
 typedef struct {
     VoxelVertex *verts;
     int count, capacity;
@@ -49,6 +62,8 @@ typedef struct {
     unsigned vbo;         // GL buffer name, 0 until first drawn
     bool vboDirty;        // vertices changed since the last upload
     VoxelMeshStats stats;
+    VoxelTreeProfile profiles[VOXEL_PROFILE_KEEP];
+    int profileCount;
 } VoxelMesh;
 
 void VoxelMesh_Init(VoxelMesh *mesh);

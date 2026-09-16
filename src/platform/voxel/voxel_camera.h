@@ -11,9 +11,13 @@ typedef struct {
     float yaw;                       // horizontal rotation, degrees
     float distance;                  // distance from target
     float fov;                       // vertical field of view, degrees
+    int preset;                      // 0 play, 1 diorama (PLATFORM_SETTING_VOXEL_CAMERA)
 } VoxelCamera;
 
 void VoxelCamera_Init(VoxelCamera *cam);
+// The two framings: the play camera (steep, close) and the diorama (low,
+// wide, the whole route in view under a warm sky).
+void VoxelCamera_ApplyPreset(VoxelCamera *cam, int preset);
 void VoxelCamera_Update(VoxelCamera *cam, float playerWorldX, float playerWorldY, float playerWorldZ);
 float VoxelCamera_TanPitch(const VoxelCamera *cam);
 void VoxelCamera_FPSMouseMotion(VoxelCamera *cam, int dx, int dy);

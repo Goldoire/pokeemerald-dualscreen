@@ -53,6 +53,7 @@ enum PlatformSetting
     PLATFORM_SETTING_VOXEL_RENDERER,  // 0 classic 2D, 1 voxel 3D overworld (applies on restart)
     PLATFORM_SETTING_FF_AUDIO,        // 0 music keeps its normal tempo while fast-forwarding, 1 music speeds up too
     PLATFORM_SETTING_BATTLE_HINTS,    // 0 off, 1 effectiveness carets on the move grid + foe weakness strip
+    PLATFORM_SETTING_VOXEL_CAMERA,    // 0 play camera, 1 low wide diorama camera with a warm sky (live)
     PLATFORM_SETTING_COUNT,
 };
 
