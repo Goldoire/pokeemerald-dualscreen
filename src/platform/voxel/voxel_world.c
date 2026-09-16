@@ -459,19 +459,137 @@ static bool ColumnRun(VoxelInstance *inst, int lx, int facadeRow, int *outTop)
     return true;
 }
 
+// The wall/roof split and the top of the run come from the DRAWING: the
+// rows painted like the door row are wall, the rows painted like the drawn
+// roof (the first row drawn above the player, the eave you walk behind) are
+// roof, and a row painted like neither -- the crater behind Sootopolis' gym,
+// the cycling road over a gate house -- ends the building. Layers alone
+// cannot tell: Emerald draws a house's lower roof row at the player's level
+// because nobody ever walks behind it.
+static int ColourDist(int r0, int g0, int b0, int r1, int g1, int b1)
+{
+    return abs(r0 - r1) + abs(g0 - g1) + abs(b0 - b1);
+}
+
 static void ClaimBuilding(VoxelInstance *inst, int b)
 {
     VoxelBuilding *bd = &inst->buildings[b];
     int x, y, r;
-    int roofFrom = -1;   // first row (from the facade) drawn wholly above the player
     int maxRows = 0;
+    int rowN[BUILDING_MAX_ROWS + 2], rowAbove[BUILDING_MAX_ROWS + 2];
+    long rowR[BUILDING_MAX_ROWS + 2], rowG[BUILDING_MAX_ROWS + 2], rowB[BUILDING_MAX_ROWS + 2];
+    bool rowRoof[BUILDING_MAX_ROWS + 2], rowTiled[BUILDING_MAX_ROWS + 2];
+    int roofR, roofG, roofB, anchor = -1, loose = -1, roofFrom, trimTop;
+
+    for (x = bd->minX; x <= bd->maxX; x++)
+    {
+        int rows = bd->facadeRow - bd->colTop[x - bd->minX] + 1;
+        if (rows > maxRows) maxRows = rows;
+    }
+    if (maxRows > BUILDING_MAX_ROWS + 1) maxRows = BUILDING_MAX_ROWS + 1;
+
+    // 1. what each row is painted in, over its inner cells (the two end
+    //    columns carry corner pieces drawn at the player's level)
+    for (r = 0; r < maxRows; r++)
+    {
+        int row = bd->facadeRow - r;
+        int hist[8][2], nh = 0, most = 0, k;
+        rowN[r] = 0; rowAbove[r] = 0; rowR[r] = rowG[r] = rowB[r] = 0; rowRoof[r] = false; rowTiled[r] = false;
+        for (x = bd->minX; x <= bd->maxX; x++)
+        {
+            const VoxelCell *c;
+            const VoxelMetaInfo *mi;
+            if (bd->maxX - bd->minX >= 2 && (x == bd->minX || x == bd->maxX))
+                continue;
+            if (row < bd->colTop[x - bd->minX])
+                continue;
+            c = CellPtr(inst, x, row);
+            if (c == NULL || c->cls == VC_VOID)
+                continue;
+            mi = &inst->meta[c->metatile];
+            rowN[r]++;
+            rowAbove[r] += mi->topOpaque;
+            rowR[r] += mi->avgR; rowG[r] += mi->avgG; rowB[r] += mi->avgB;
+            for (k = 0; k < nh; k++)
+                if (hist[k][0] == c->metatile) { hist[k][1]++; break; }
+            if (k == nh && nh < 8) { hist[nh][0] = c->metatile; hist[nh][1] = 1; nh++; }
+        }
+        // a roof is tiled from one repeated piece; a wall row varies with
+        // its windows and door
+        for (k = 0; k < nh; k++)
+            if (hist[k][1] > most) most = hist[k][1];
+        rowTiled[r] = rowN[r] >= 2 && most * 10 >= rowN[r] * 6;
+        if (rowN[r] == 0)
+        {
+            // a one- or two-column building has no inner cells: take every cell
+            for (x = bd->minX; x <= bd->maxX; x++)
+            {
+                const VoxelCell *c = (row >= bd->colTop[x - bd->minX]) ? CellPtr(inst, x, row) : NULL;
+                const VoxelMetaInfo *mi;
+                if (c == NULL || c->cls == VC_VOID) continue;
+                mi = &inst->meta[c->metatile];
+                rowN[r]++;
+                rowAbove[r] += mi->topOpaque;
+                rowR[r] += mi->avgR; rowG[r] += mi->avgG; rowB[r] += mi->avgB;
+            }
+        }
+        if (rowN[r] > 0)
+        {
+            rowAbove[r] /= rowN[r];
+            rowR[r] /= rowN[r]; rowG[r] /= rowN[r]; rowB[r] /= rowN[r];
+        }
+    }
+    // 2. the drawn roof: the first row above the door drawn wholly above
+    //    the player (the eave you walk behind, a roof plan)
+    for (r = 1; r < maxRows; r++)
+        if (rowN[r] > 0 && rowAbove[r] >= 200) { anchor = r; break; }
+    // ...and, for the colour the run must keep to, the first row drawn
+    // above the player at all (a gate house's lintel, a gym's roof edge)
+    for (r = 1; r < maxRows; r++)
+        if (rowN[r] > 0 && rowAbove[r] >= 96) { loose = r; break; }
+    if (anchor < 0)
+        anchor = loose >= 0 ? loose : maxRows - 1;
+    if (loose < 0)
+        loose = anchor;
+    roofR = (int)rowR[loose]; roofG = (int)rowG[loose]; roofB = (int)rowB[loose];
+
+    // 3. a row is roof when it is drawn above the player or tiled from one
+    //    repeated piece (Emerald's lower roof rows sit at the player's level)
+    for (r = 1; r < maxRows; r++)
+        rowRoof[r] = (r == anchor) || (rowN[r] > 0 && (rowAbove[r] >= 200 || rowTiled[r]));
+    // 4. the roof runs down from the anchor while the rows stay roof-like
+    roofFrom = anchor;
+    while (roofFrom - 1 >= 1 && rowRoof[roofFrom - 1])
+        roofFrom--;
+    if (roofFrom < 1) roofFrom = 1;
+    if (roofFrom > 3) roofFrom = 3;           // GEN3_OUTDOOR_FACADE_CAP: three courses of wall at most
+    // 5. above the anchor the run ends where the art stops being the roof
+    trimTop = maxRows;
+    for (r = loose + 1; r < maxRows; r++)
+    {
+        int dRoof = ColourDist((int)rowR[r], (int)rowG[r], (int)rowB[r], roofR, roofG, roofB);
+        if (rowN[r] == 0 || (dRoof > 90 && rowAbove[r] < 96))
+        {
+            trimTop = r;
+            break;
+        }
+    }
+    if (anchor >= trimTop)
+        anchor = trimTop - 1;
+    if (trimTop < maxRows)
+    {
+        for (x = bd->minX; x <= bd->maxX; x++)
+        {
+            int limit = bd->facadeRow - (trimTop - 1);
+            if (bd->colTop[x - bd->minX] < limit)
+                bd->colTop[x - bd->minX] = limit;
+        }
+        maxRows = trimTop;
+    }
 
     for (x = bd->minX; x <= bd->maxX; x++)
     {
         int top = bd->colTop[x - bd->minX];
-        int rows = bd->facadeRow - top + 1;
-        if (rows > maxRows)
-            maxRows = rows;
         for (y = top; y <= bd->facadeRow; y++)
         {
             VoxelCell *c = CellPtr(inst, x, y);
@@ -482,37 +600,6 @@ static void ClaimBuilding(VoxelInstance *inst, int b)
                 c->cls = VC_BUILDING;
         }
     }
-
-    // A roof plan is drawn above the player right across its row, apart from
-    // its two end cells (the corner pieces are drawn at the player's level).
-    for (r = 1; r < maxRows; r++)
-    {
-        int row = bd->facadeRow - r;
-        int inner = 0, above = 0;
-        for (x = bd->minX; x <= bd->maxX; x++)
-        {
-            VoxelCell *c;
-            if (bd->maxX - bd->minX >= 2 && (x == bd->minX || x == bd->maxX))
-                continue;
-            if (row < bd->colTop[x - bd->minX])
-                continue;
-            c = CellPtr(inst, x, row);
-            if (c == NULL)
-                continue;
-            inner++;
-            if (inst->meta[c->metatile].topOpaque >= 200)
-                above++;
-        }
-        if (inner > 0 && above == inner)
-        {
-            roofFrom = r;
-            break;
-        }
-    }
-    if (roofFrom < 0)
-        roofFrom = (maxRows + 1) / 2;
-    if (roofFrom < 1) roofFrom = 1;
-    if (roofFrom > 3) roofFrom = 3;
     if (roofFrom > maxRows) roofFrom = maxRows;
     bd->wallRows = roofFrom;
     bd->roofRows = maxRows - roofFrom;

@@ -36,8 +36,20 @@ typedef struct {
 typedef struct {
     int trees, treePairs, bushes, standees, standeeBoxes, standeeTall;
     int boxes, cliffs, flats, supports, lips, lipFaces, mats, matSkirts;
-    int canopies, decks, deckFascias, pillars, furniture, buildings;
+    int canopies, decks, deckFascias, pillars, furniture, buildings, gables, eaves;
 } VoxelMeshStats;
+
+// One building's roof as built: the ridge, its slopes and its gables.
+#define VOXEL_ROOF_KEEP 48
+typedef struct {
+    int building;
+    float peak;           // the ridge height
+    int frontSlopes;      // slope strips from the eave to the ridge
+    int backSlopes;       // strips from the ridge to the back wall
+    int frontRows;        // drawn roof rows laid on the front slope
+    int gables;
+    float eave;           // overhang past the facade, cells
+} VoxelRoofRecord;
 
 // One tree hull's measured profile, kept for the dump: the drawing's row
 // widths every four pixels from the top and the ring radii built from them.
@@ -64,6 +76,8 @@ typedef struct {
     VoxelMeshStats stats;
     VoxelTreeProfile profiles[VOXEL_PROFILE_KEEP];
     int profileCount;
+    VoxelRoofRecord roofs[VOXEL_ROOF_KEEP];
+    int roofCount;
 } VoxelMesh;
 
 void VoxelMesh_Init(VoxelMesh *mesh);
