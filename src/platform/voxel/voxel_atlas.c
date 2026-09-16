@@ -17,6 +17,18 @@ typedef struct {
     const uint16_t *palettes[16];  // 16 colours each
 } TileSource;
 
+static inline bool PxGreen(uint32_t c)
+{
+    int r = c & 0xFF, g = (c >> 8) & 0xFF, b = (c >> 16) & 0xFF;
+    return g > 48 && g > r + 12 && g > b + 12;
+}
+
+static inline bool PxBrown(uint32_t c)
+{
+    int r = c & 0xFF, g = (c >> 8) & 0xFF, b = (c >> 16) & 0xFF;
+    return r > g && g >= b && r > 60 && r - b > 30;
+}
+
 static inline uint32_t Bgr15ToRgba(uint16_t c)
 {
     uint32_t r = (c & 0x1F) * 255 / 31;
@@ -25,9 +37,12 @@ static inline uint32_t Bgr15ToRgba(uint16_t c)
     return r | (g << 8) | (b << 16) | (255u << 24);
 }
 
-// Compose one metatile into 16x16 RGBA. Returns opaque pixel counts per layer.
+// Compose one metatile into 16x16 RGBA (`out`), the top layer alone into
+// `top` (alpha 0 where it draws nothing) and a bit mask of the pixels the top
+// layer set. Returns opaque pixel counts per layer.
 static void ComposeMetatile(const TileSource *src, const uint16_t *metatileData,
-                            uint32_t *out /*256*/, int *opaqueBot, int *opaqueTop)
+                            uint32_t *out /*256*/, uint32_t *top /*256 or NULL*/, uint8_t *mask /*32 or NULL*/,
+                            int *opaqueBot, int *opaqueTop)
 {
     int layer, i, px, py;
     int counts[2] = {0, 0};
@@ -35,6 +50,10 @@ static void ComposeMetatile(const TileSource *src, const uint16_t *metatileData,
     // Layer 0 colour 0 is the backdrop: black. It counts as opaque ground.
     for (i = 0; i < 256; i++)
         out[i] = 255u << 24;
+    if (top)
+        memset(top, 0, 256 * sizeof(uint32_t));
+    if (mask)
+        memset(mask, 0, 32);
 
     for (layer = 0; layer < 2; layer++)
     {
@@ -65,10 +84,18 @@ static void ComposeMetatile(const TileSource *src, const uint16_t *metatileData,
                     int sy = flipY ? 7 - py : py;
                     uint8_t byte = tile[sy * 4 + sx / 2];
                     uint8_t idx = (sx & 1) ? (byte >> 4) : (byte & 0xF);
+                    int p = (dstY + py) * 16 + dstX + px;
+                    uint32_t c;
                     if (idx == 0)
                         continue;
                     counts[layer]++;
-                    out[(dstY + py) * 16 + dstX + px] = Bgr15ToRgba(palette[idx]);
+                    c = Bgr15ToRgba(palette[idx]);
+                    out[p] = c;
+                    if (layer == 1)
+                    {
+                        if (top) top[p] = c;
+                        if (mask) mask[p / 8] |= 1 << (p & 7);
+                    }
                 }
             }
         }
@@ -122,19 +149,35 @@ static void FindUsedMetatiles(const struct MapLayout *layout, const uint16_t *li
         used[liveMap[i] & 0x3FF] = true;
 }
 
+static void BlitTile(uint32_t *rgba, int stride, int m, int quadX, int quadY, const uint32_t *px)
+{
+    int ax = (m % VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE + quadX;
+    int ay = (m / VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE + quadY;
+    int y;
+    for (y = 0; y < 16; y++)
+        memcpy(&rgba[(ay + y) * stride + ax], &px[y * 16], 16 * 4);
+}
+
+// `stride` is the buffer width: 1024 writes the composed and top quadrants,
+// 512 writes the composed sheet alone.
 static void Decode(const struct MapLayout *layout, const TileSource *src, const uint16_t *liveMap, int liveCount,
-                   uint32_t *rgba, VoxelMetaInfo *meta)
+                   uint32_t *rgba, int stride, VoxelMetaInfo *meta, uint8_t *topMask, bool *usedOut)
 {
     static bool used[1024];
     int m;
 
     FindUsedMetatiles(layout, liveMap, liveCount, used);
+    if (usedOut)
+        memcpy(usedOut, used, sizeof(used));
     if (rgba)
-        memset(rgba, 0, VOXEL_ATLAS_SIZE * VOXEL_ATLAS_SIZE * 4);
+        memset(rgba, 0, (size_t)stride * stride * 4);
+    if (topMask)
+        memset(topMask, 0, 1024 * 32);
 
     for (m = 0; m < 1024; m++)
     {
-        uint32_t px[256];
+        uint32_t px[256], topPx[256];
+        uint8_t mask[32];
         int bot = 0, top = 0;
         const uint16_t *data;
 
@@ -143,22 +186,22 @@ static void Decode(const struct MapLayout *layout, const TileSource *src, const 
         data = MetatileData(layout, m);
         if (data == NULL)
             continue;
-        ComposeMetatile(src, data, px, &bot, &top);
+        ComposeMetatile(src, data, px, topPx, mask, &bot, &top);
 
         if (rgba)
         {
-            int ax = (m % VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE;
-            int ay = (m / VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE;
-            int y;
-            for (y = 0; y < 16; y++)
-                memcpy(&rgba[(ay + y) * VOXEL_ATLAS_SIZE + ax], &px[y * 16], 16 * 4);
+            BlitTile(rgba, stride, m, 0, 0, px);
+            if (stride == VOXEL_ATLAS_SIZE)
+                BlitTile(rgba, stride, m, VOXEL_ATLAS_QUAD, VOXEL_ATLAS_QUAD, topPx);
         }
+        if (topMask)
+            memcpy(&topMask[m * 32], mask, 32);
         if (meta)
         {
             VoxelMetaInfo *mi = &meta[m];
             uint16_t attr = MetatileAttributes(layout, m);
             uint32_t sr = 0, sg = 0, sb = 0;
-            int i, dark = 0;
+            int i, dark = 0, green = 0, brown = 0;
             for (i = 0; i < 256; i++)
             {
                 uint32_t c = px[i];
@@ -166,7 +209,11 @@ static void Decode(const struct MapLayout *layout, const TileSource *src, const 
                 sr += r; sg += g; sb += b;
                 if (r < 12 && g < 12 && b < 12)
                     dark++;
+                if (PxGreen(c)) green++;
+                if (PxBrown(c)) brown++;
             }
+            mi->greenPx = green > 255 ? 255 : green;
+            mi->brownPx = brown > 255 ? 255 : brown;
             mi->layerType = (attr & METATILE_ATTR_LAYER_MASK) >> METATILE_ATTR_LAYER_SHIFT;
             mi->behavior = attr & METATILE_ATTR_BEHAVIOR_MASK;
             // The top layer goes to the background drawn above sprites unless
@@ -184,7 +231,7 @@ static void Decode(const struct MapLayout *layout, const TileSource *src, const 
 }
 
 void VoxelAtlas_DecodeFromRom(const struct MapLayout *layout, const uint16_t *liveMap, int liveCount,
-                              uint32_t *rgba, VoxelMetaInfo *meta)
+                              uint32_t *rgba, VoxelMetaInfo *meta, uint8_t *topMask, bool *used)
 {
     TileSource src;
     uint8_t *prim = NULL, *sec = NULL;
@@ -221,23 +268,23 @@ void VoxelAtlas_DecodeFromRom(const struct MapLayout *layout, const uint16_t *li
             src.palettes[p] = ts->palettes[p];
     }
 
-    Decode(layout, &src, liveMap, liveCount, rgba, meta);
+    Decode(layout, &src, liveMap, liveCount, rgba, VOXEL_ATLAS_SIZE, meta, topMask, used);
     free(prim);
     free(sec);
 }
 
-void VoxelAtlas_DecodeFromVram(const struct MapLayout *layout, const uint16_t *liveMap, int liveCount, uint32_t *rgba)
+void VoxelAtlas_DecodeFromVram(const struct MapLayout *layout, const uint16_t *liveMap, int liveCount, uint32_t *rgba512)
 {
     TileSource src;
     int p;
 
-    if (layout == NULL || rgba == NULL)
+    if (layout == NULL || rgba512 == NULL)
         return;
     src.tiles[0] = VRAM_;
     src.tiles[1] = VRAM_ + 512 * 32;
     for (p = 0; p < 16; p++)
         src.palettes[p] = (const uint16_t *)(PLTT + p * 32);
-    Decode(layout, &src, liveMap, liveCount, rgba, NULL);
+    Decode(layout, &src, liveMap, liveCount, rgba512, VOXEL_ATLAS_QUAD, NULL, NULL, NULL);
 }
 
 uint32_t VoxelAtlas_VramChecksum(void)

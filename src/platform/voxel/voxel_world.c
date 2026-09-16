@@ -16,7 +16,10 @@
 #include "fieldmap.h"
 #include "event_object_movement.h"
 #include "constants/map_types.h"
+#include "constants/map_groups.h"
+#include "constants/maps.h"
 #include "voxel_atlas.h"
+#include "voxel_art.h"
 
 VoxelInstance gVoxelInstances[MAX_VOXEL_MAP_INSTANCES];
 int gVoxelInstanceCount = 0;
@@ -59,6 +62,13 @@ static const float sClassHeight[VC_COUNT] = {
     [VC_TV] = 1.0f,
     [VC_CABINET] = 1.0f,
 };
+
+// The lip of a jump ledge (6 px, standGen3Ledges), the lift of a tall-grass
+// mat (GRASS_MAT, 4 px), the height a canopy plate hangs at (two courses:
+// the top of an Emerald tree).
+#define LEDGE_RIM   0.375f
+#define GRASS_MAT   0.25f
+#define CANOPY_H    2.0f
 
 float VoxelWorld_ClassHeight(VoxelClass cls)
 {
@@ -130,6 +140,81 @@ static bool IsWalkableClass(VoxelClass c)
 static bool IsFurnitureClass(VoxelClass c)
 {
     return c >= VC_COUNTER && c < VC_COUNT;
+}
+
+// ---------------------------------------------------------------------------
+// HOW FAR A BRIDGE STANDS OVER WHAT IT SPANS, in courses (`bridge_lift`).
+// Emerald's bridge behaviours are an ordered height index: pond LOW/MED/HIGH
+// map to 0/1/2 in MetatileBehavior_GetBridgeType, which is why Route 120
+// carries a low bridge across the south of its pond and a high one across the
+// north. Rails (Route 119's bike rails) are planks laid at their bank.
+// ---------------------------------------------------------------------------
+static float LiftFor(u8 b)
+{
+    switch (b)
+    {
+    case 0x70: return 2.0f;                 // MB_BRIDGE_OVER_OCEAN
+    case 0x71: return 1.0f;                 // MB_BRIDGE_OVER_POND_LOW
+    case 0x72: return 2.0f;                 // MB_BRIDGE_OVER_POND_MED
+    case 0x73: return 3.0f;                 // MB_BRIDGE_OVER_POND_HIGH
+    case 0x7A: case 0x7B: return 2.0f;      // the MED bridge's edge pieces
+    case 0x7C: case 0x7D: return 3.0f;      // the HIGH bridge's
+    case 0x7F: return 2.0f;                 // MB_BIKE_BRIDGE_OVER_BARRIER
+    case 0x78: return 2.0f;                 // MB_FORTREE_BRIDGE
+    case 0xD3: case 0xD4: case 0xD5: case 0xD6: return 0.0f;
+    default: return 1.0f;
+    }
+}
+
+static bool IsRail(u8 b) { return b >= 0xD3 && b <= 0xD6; }
+
+// The side of a ledge cell the hop leaves by: the rim is drawn there.
+static u8 LipDirsFor(u8 b)
+{
+    switch (b)
+    {
+    case 0x38: return LIP_E;            // MB_JUMP_EAST
+    case 0x39: return LIP_W;
+    case 0x3A: return LIP_N;
+    case 0x3B: return LIP_S;
+    case 0x3C: return LIP_N | LIP_E;
+    case 0x3D: return LIP_N | LIP_W;
+    case 0x3E: return LIP_S | LIP_E;
+    case 0x3F: return LIP_S | LIP_W;
+    }
+    return 0;
+}
+
+// ---------------------------------------------------------------------------
+// Per-map profiles (data/gen3_shapes.lua `maps`): the corrections the data
+// alone gets wrong.
+// ---------------------------------------------------------------------------
+static VoxelMapProfile ProfileFor(int group, int num)
+{
+    VoxelMapProfile p;
+    memset(&p, 0, sizeof(p));
+    p.courseScale = 1.0f;
+    if (group == MAP_GROUP(MAP_ROUTE110) && num == MAP_NUM(MAP_ROUTE110))
+    {
+        // Route 110's elevation field is traffic control for the cycling
+        // road, not terrain: the land stays on the datum and every bridge
+        // cell takes its full lift over it.
+        p.causeway = true;
+    }
+    else if (group == MAP_GROUP(MAP_FORTREE_CITY) && num == MAP_NUM(MAP_FORTREE_CITY))
+    {
+        // A town in the canopy: walkways at elevation 4 over trees at 3, two
+        // courses apart so the walk clears the treetops, which stand one.
+        p.courseScale = 2.0f;
+        p.canopyWalk = true;
+    }
+    else if (group == MAP_GROUP(MAP_SOOTOPOLIS_CITY) && num == MAP_NUM(MAP_SOOTOPOLIS_CITY))
+    {
+        // MB_MOUNTAIN_TOP is the crater wall: two courses, or the city sits
+        // in a saucer instead of a caldera.
+        p.mountainTopCliff = true;
+    }
+    return p;
 }
 
 // ---------------------------------------------------------------------------
@@ -241,8 +326,8 @@ float VoxelWorld_WalkHeightAt(int worldX, int worldY)
     const VoxelCell *c = VoxelWorld_CellAt(worldX, worldY);
     if (c == NULL)
         return 0.0f;
-    if (c->cls == VC_LEDGE)
-        return c->groundH;
+    if (c->cls == VC_LEDGE || c->cls == VC_GRASS)
+        return c->groundH;            // the rim and the mat stand over the feet
     if (IsWalkableClass((VoxelClass)c->cls))
         return c->topH;
     if (c->cls == VC_WATER)
@@ -250,15 +335,10 @@ float VoxelWorld_WalkHeightAt(int worldX, int worldY)
     return c->groundH;
 }
 
-void VoxelWorld_SetMetaInfo(VoxelInstance *inst, int metatile, const VoxelMetaInfo *info)
-{
-    if (metatile >= 0 && metatile < 1024)
-        inst->meta[metatile] = *info;
-}
-
 // ---------------------------------------------------------------------------
 // Elevation -> height. Levels are labels, not rungs: rank the ones the map
-// uses and space consecutive ranks one course apart, datum at level 3.
+// uses and space consecutive ranks one course apart (Fortree: two), datum at
+// level 3.
 // ---------------------------------------------------------------------------
 static void BuildElevationRanks(VoxelInstance *inst)
 {
@@ -292,7 +372,7 @@ static void BuildElevationRanks(VoxelInstance *inst)
     if (datum < 0)
         datum = 0;
     for (i = 0; i < n; i++)
-        inst->rankH[order[i]] = (float)(i - datum);
+        inst->rankH[order[i]] = (float)(i - datum) * inst->profile.courseScale;
 }
 
 // ---------------------------------------------------------------------------
@@ -325,12 +405,40 @@ static bool IsDoorCell(VoxelInstance *inst, int lx, int ly)
     return c != NULL && (c->cls == VC_DOOR || (c->flags & VCF_WARP));
 }
 
-// Top row of the blocked run that includes (lx, fromY), walking north, capped.
+// A walkable cell behind a building that the roof is drawn over (its art
+// is the building's, above the player): the run continues through it, the
+// cell stays walkable under the eave.
+static bool IsOverheadCell(VoxelInstance *inst, int lx, int ly)
+{
+    VoxelCell *c = CellPtr(inst, lx, ly);
+    if (c == NULL || (c->flags & VCF_BLOCKED) || c->building >= 0 || c->cls == VC_VOID)
+        return false;
+    if (inst->indoor || c->metatile < 512)
+        return false;
+    return inst->meta[c->metatile].topOpaque >= 96 && (c->cls == VC_GROUND || c->cls == VC_GRASS);
+}
+
+// Top row of the blocked run that includes (lx, fromY), walking north, capped;
+// at most two walkable overhead rows may finish it.
 static int RunTop(VoxelInstance *inst, int lx, int fromY, int facadeRow)
 {
-    int top = fromY;
-    while (top - 1 >= 0 && IsMassCell(inst, lx, top - 1) && (facadeRow - (top - 1)) < BUILDING_MAX_ROWS)
-        top--;
+    int top = fromY, overhead = 0;
+    while (top - 1 >= 0 && (facadeRow - (top - 1)) < BUILDING_MAX_ROWS)
+    {
+        if (IsMassCell(inst, lx, top - 1))
+        {
+            if (overhead > 0)
+                break;          // mass above an overhang is the next thing north
+            top--;
+        }
+        else if (overhead < 2 && IsOverheadCell(inst, lx, top - 1))
+        {
+            overhead++;
+            top--;
+        }
+        else
+            break;
+    }
     return top;
 }
 
@@ -370,7 +478,7 @@ static void ClaimBuilding(VoxelInstance *inst, int b)
             if (c == NULL)
                 continue;
             c->building = b;
-            if (c->cls != VC_DOOR)
+            if (c->cls != VC_DOOR && (c->flags & VCF_BLOCKED))
                 c->cls = VC_BUILDING;
         }
     }
@@ -512,10 +620,16 @@ static bool PassableGround(const VoxelCell *c)
         && (IsWalkableClass((VoxelClass)c->cls) || c->cls == VC_WATER);
 }
 
+static bool IsLand(const VoxelCell *c)
+{
+    return PassableGround(c) && c->cls != VC_WATER && !IsBridgeLike((VoxelClass)c->cls);
+}
+
 // Carry a reference height inward from resolved cells; `want` says which
-// cells need one. Water contributes its recessed surface.
+// cells need one. `high` takes the highest neighbour (a bridge's bank),
+// otherwise the lowest (the water a bridge spans, the step a ramp hides).
 static void CarryInward(VoxelInstance *inst, const bool *resolved0, bool (*want)(const VoxelCell *),
-                        float *ref, uint16_t *refMeta)
+                        float *ref, uint16_t *refMeta, bool high)
 {
     int pass, x, y;
     bool *resolved = malloc(inst->width * inst->height * sizeof(bool));
@@ -546,7 +660,7 @@ static void CarryInward(VoxelInstance *inst, const bool *resolved0, bool (*want)
                         continue;
                     if (resolved0[j] || pass > 0)
                     {
-                        if (!found || ref[j] < best)
+                        if (!found || (high ? ref[j] > best : ref[j] < best))
                         {
                             best = ref[j];
                             bestMeta = refMeta ? refMeta[j] : 0;
@@ -577,6 +691,7 @@ static void BuildCells(VoxelInstance *inst)
     int w = inst->width, h = inst->height;
     int x, y, i;
     float *ref = malloc(w * h * sizeof(float));
+    float *land = malloc(w * h * sizeof(float));
     bool *resolved = malloc(w * h * sizeof(bool));
     uint16_t *refMeta = malloc(w * h * sizeof(uint16_t));
     static const int dx[4] = {0, 0, -1, 1};
@@ -594,6 +709,7 @@ static void BuildCells(VoxelInstance *inst)
 
             memset(c, 0, sizeof(*c));
             c->building = -1;
+            c->fasciaMeta = 0xFFFF;
             c->metatile = block & MAPGRID_METATILE_ID_MASK;
             c->collision = (block & MAPGRID_COLLISION_MASK) >> MAPGRID_COLLISION_SHIFT;
             c->elevation = (block & MAPGRID_ELEVATION_MASK) >> MAPGRID_ELEVATION_SHIFT;
@@ -621,9 +737,11 @@ static void BuildCells(VoxelInstance *inst)
                     cls = VC_WALL;
                 else if (cls == VC_DOOR)
                     cls = VC_WALL;
-                else if (cls == VC_LEDGE || IsBridgeLike(cls))
+                else if (IsBridgeLike(cls))
                     cls = VC_WALL;
-                // water, furniture keep their class
+                // A jump ledge is blocked in the collision field (the hop
+                // carries you over it), and stays the rim it is drawn as.
+                // Water and furniture keep their class too.
             }
             else if (standing)
             {
@@ -656,21 +774,28 @@ static void BuildCells(VoxelInstance *inst)
     {
         VoxelCell *c = &inst->cells[i];
         bool real = inst->useElevation && c->elevation != 0 && c->elevation != 1 && c->elevation != 15;
+        bool walkable = !(c->flags & VCF_BLOCKED) && IsWalkableClass((VoxelClass)c->cls) && c->cls != VC_SLOPE;
         ref[i] = 0.0f;
         refMeta[i] = c->metatile;
         resolved[i] = false;
         if (c->cls == VC_VOID)
             continue;
-        if (!(c->flags & VCF_BLOCKED) && IsWalkableClass((VoxelClass)c->cls) && !IsBridgeLike((VoxelClass)c->cls)
-            && c->cls != VC_SLOPE && (real || !inst->useElevation))
+        if (walkable && !IsBridgeLike((VoxelClass)c->cls) && (real || !inst->useElevation))
         {
             ref[i] = inst->useElevation ? inst->rankH[c->elevation] : 0.0f;
+            resolved[i] = true;
+        }
+        // A deck with a stated level (Route 119's rails, a walkway that is a
+        // bridge behaviour on a terrace) stands at that level.
+        else if (walkable && IsBridgeLike((VoxelClass)c->cls) && real && !inst->profile.causeway)
+        {
+            ref[i] = inst->rankH[c->elevation];
             resolved[i] = true;
         }
     }
     // Transition cells, slopes, water and blocked cells take the LOWEST real
     // level around them: a ramp read low is a step the terrace above hides.
-    CarryInward(inst, resolved, WantAll, ref, NULL);
+    CarryInward(inst, resolved, WantAll, ref, NULL, false);
 
     for (i = 0; i < w * h; i++)
     {
@@ -678,6 +803,8 @@ static void BuildCells(VoxelInstance *inst)
         c->groundH = ref[i];
         c->topH = ref[i];
         c->underH = ref[i];
+        c->landH = ref[i];
+        c->lift = 0.0f;
         c->underMeta = c->metatile;
         switch (c->cls)
         {
@@ -686,7 +813,7 @@ static void BuildCells(VoxelInstance *inst)
             c->topH = c->groundH;
             break;
         case VC_LEDGE:
-            c->topH = c->groundH + 0.375f;
+            c->topH = c->groundH + LEDGE_RIM;
             break;
         case VC_CHAIR:
             c->topH = c->groundH + 0.5f;
@@ -697,7 +824,10 @@ static void BuildCells(VoxelInstance *inst)
             break;
         }
     }
-    // Bridges: what they span comes from the nearest non-bridge surface.
+
+    // Bridges: what they span is the lowest surface around (the water), the
+    // bank they are founded on the highest land around; the deck stands its
+    // lift over the bank (over the datum on a causeway map).
     for (i = 0; i < w * h; i++)
     {
         VoxelCell *c = &inst->cells[i];
@@ -705,20 +835,52 @@ static void BuildCells(VoxelInstance *inst)
         ref[i] = c->groundH;
         refMeta[i] = c->metatile;
     }
-    CarryInward(inst, resolved, WantBridge, ref, refMeta);
+    CarryInward(inst, resolved, WantBridge, ref, refMeta, false);
     for (i = 0; i < w * h; i++)
     {
         VoxelCell *c = &inst->cells[i];
+        resolved[i] = IsLand(c);
+        land[i] = c->groundH;
+    }
+    CarryInward(inst, resolved, WantBridge, land, NULL, true);
+    for (i = 0; i < w * h; i++)
+    {
+        VoxelCell *c = &inst->cells[i];
+        bool real = inst->useElevation && c->elevation != 0 && c->elevation != 1 && c->elevation != 15;
+        float lift;
         if (!IsBridgeLike((VoxelClass)c->cls))
             continue;
         c->underH = ref[i];
         c->underMeta = refMeta[i];
-        // Land carried in is the deck's own level; water carried in sits an
-        // eighth below it, so the deck rides the plank height over the bank.
-        c->groundH = (c->underH < c->groundH - 0.01f) ? c->underH + 0.125f : c->groundH;
-        c->topH = c->groundH + sClassHeight[c->cls];
+        c->landH = inst->profile.causeway ? 0.0f : land[i];
+        lift = LiftFor(c->behavior);
+        if (c->cls == VC_LOG)
+        {
+            // a raft rides just clear of the sea it floats on
+            c->groundH = c->underH + 0.125f;
+            c->topH = c->groundH + 0.125f;
+        }
+        else if ((c->elevation == 15 || inst->profile.causeway) && !IsRail(c->behavior))
+        {
+            c->lift = lift;
+            c->groundH = c->landH + lift;
+            c->topH = c->groundH;
+        }
+        else if (!real)
+        {
+            // a deck on the surf level with no lift stated: it is its bank
+            c->groundH = c->landH;
+            c->topH = c->groundH;
+        }
+        else
+        {
+            // a plank laid on its own terrace (Route 119's rails): what is
+            // under it is the ground its own drawing shows around the rail
+            c->underH = c->topH - 0.125f;
+            c->underMeta = c->metatile;
+        }
         if (c->underH >= c->topH - 0.01f)
-            c->underH = c->topH - 0.25f;
+            c->underH = c->topH - (IsRail(c->behavior) ? 0.125f : 0.25f);
     }
 
     // ---- C. buildings ----
@@ -752,6 +914,8 @@ static void BuildCells(VoxelInstance *inst)
             {
                 VoxelCell *c = CellPtr(inst, x, y);
                 if (c == NULL) continue;
+                if (!(c->flags & VCF_BLOCKED) && c->cls != VC_DOOR)
+                    continue;       // walkable under the eave: keeps its ground
                 c->groundH = base;
                 c->topH = base + bd->wallRows + (bd->roofRows > 0 ? 1.0f : 0.0f);
             }
@@ -772,6 +936,24 @@ static void BuildCells(VoxelInstance *inst)
             if (c->cls != VC_WALL || (c->flags & VCF_CONSUMED) || c->building >= 0)
                 continue;
             seen[0] = c->metatile;
+            // Emerald's tall trees (the Fortree tileset's) are three or four
+            // rows: one or two rows of trunk under two rows of leaves.
+            // Landscape otherwise stands at most two courses (GEN3_MAX_LAND).
+            if (!inst->indoor && inst->meta[c->metatile].brownPx >= 16 && inst->meta[c->metatile].greenPx < 120)
+            {
+                int t = 1;
+                VoxelCell *r1 = CellPtr(inst, x, y - 1);
+                VoxelCell *la, *lb;
+                if (r1 && r1->cls == VC_WALL && !(r1->flags & VCF_CONSUMED) && r1->building < 0
+                    && inst->meta[r1->metatile].brownPx >= 16 && inst->meta[r1->metatile].greenPx < 120)
+                    t = 2;
+                la = CellPtr(inst, x, y - t);
+                lb = CellPtr(inst, x, y - t - 1);
+                if (la && lb && la->cls == VC_WALL && lb->cls == VC_WALL && !(la->flags & VCF_CONSUMED) && !(lb->flags & VCF_CONSUMED)
+                    && la->building < 0 && lb->building < 0
+                    && inst->meta[la->metatile].greenPx >= 120 && inst->meta[lb->metatile].greenPx >= 120)
+                    cap = t + 2;
+            }
             while (rows < cap)
             {
                 VoxelCell *n = CellPtr(inst, x, y - rows);
@@ -806,6 +988,27 @@ static void BuildCells(VoxelInstance *inst)
             if (s && PassableGround(s) && s->cls != VC_WATER) { haveS = true; southG = s->groundH; }
             s = CellPtr(inst, x, y - rows);
             if (s && PassableGround(s) && s->cls != VC_WATER) { haveN = true; northG = s->groundH; }
+            // A tree or rock standing on the terrace above hides the ground
+            // there, but stands at its height all the same.
+            else if (s && s->cls != VC_VOID && (s->flags & VCF_BLOCKED) && s->building < 0 && IsFurnitureClass((VoxelClass)s->cls) == false)
+            {
+                int k2, d2;
+                static const int ddx[4] = {0, 0, -1, 1};
+                static const int ddy[4] = {-1, 1, 0, 0};
+                float g = 0.0f;
+                bool have = false;
+                for (k2 = 0; k2 < 2 && !have; k2++)
+                    for (d2 = 0; d2 < 4; d2++)
+                    {
+                        VoxelCell *n2 = CellPtr(inst, x + ddx[d2], y - rows - k2 + ddy[d2]);
+                        if (n2 && PassableGround(n2) && n2->cls != VC_WATER && (!have || n2->groundH < g))
+                        {
+                            g = n2->groundH;
+                            have = true;
+                        }
+                    }
+                if (have) { haveN = true; northG = g; }
+            }
 
             if (haveN && northG > base + 0.01f && (!haveS || northG > southG + 0.01f))
             {
@@ -818,6 +1021,9 @@ static void BuildCells(VoxelInstance *inst)
             {
                 top = base + rows;
             }
+            // Sootopolis: MB_MOUNTAIN_TOP is the crater wall, two courses.
+            if (inst->profile.mountainTopCliff && c->behavior == 0x0C && top < base + 2.0f)
+                top = base + 2.0f;
             // Indoors a wall stub on the room's edge (the Pokemon Center's
             // entrance jambs) is part of the wall around the room: give it
             // the shell's two courses rather than a one-course block.
@@ -880,8 +1086,260 @@ static void BuildCells(VoxelInstance *inst)
 
     inst->layoutHash = HashLiveMap(inst);
     free(ref);
+    free(land);
     free(resolved);
     free(refMeta);
+}
+
+// ---------------------------------------------------------------------------
+// Shapes: what the drawing says stands on each cell, decided from the
+// silhouettes the art pass measured (voxel_art.h).
+//
+//   * a two-row column whose top row is green and drawn above the player
+//     is a tree: a round crown over a trunk;
+//   * a one-row column that is green with carved corners is a bush;
+//   * a column whose silhouette leaves the ground showing is a standee: a
+//     thin slab (fence, sign, post) or a small box (mailbox, crate);
+//   * a low band of non-ground colour (a cliff's shadow) or a filled cell is
+//     a solid box: rocks, cliffs, hedges, walls.
+// ---------------------------------------------------------------------------
+#define ART_STANDEE_SOLID 160   // less of the cell than this drawn: an object stands in the open
+#define ART_BOXY          230   // silhouette fills its bounding box: a box, not a slab
+#define ART_GREEN         80
+#define ART_LEAF_SOLID    96
+
+static void BuildShapes(VoxelInstance *inst)
+{
+    int w = inst->width, h = inst->height, x, y, k;
+
+    for (y = 0; y < h; y++)
+        for (x = 0; x < w; x++)
+        {
+            VoxelCell *c = &inst->cells[y * w + x];
+            const VoxelMetaInfo *mi = &inst->meta[c->metatile];
+            c->shape = SH_NONE;
+            c->lipDirs = 0;
+            c->overhead = 0;
+            if (c->cls == VC_VOID)
+                continue;
+            switch (c->cls)
+            {
+            case VC_LEDGE:
+                c->shape = SH_LIP;
+                c->lipDirs = LipDirsFor(c->behavior);
+                break;
+            case VC_GRASS:
+                // Tall grass alone lifts as a mat (GRASS_MAT); long grass
+                // and ash grass draw a mass and a layer of no stated height.
+                if (c->behavior == 0x02 && !(c->flags & VCF_BLOCKED))
+                {
+                    c->shape = SH_MAT;
+                    c->topH = c->groundH + GRASS_MAT;
+                }
+                break;
+            case VC_BRIDGE:
+            case VC_LOG:
+                c->shape = SH_DECK;
+                break;
+            default:
+                break;
+            }
+            // A walkable cell whose art is drawn above the player: an awning
+            // (Slateport's market), an eave, a ladder's head. The drawn top
+            // hangs as a plate two courses up. A tree's lower fringe over the
+            // cell south of it is leafy and stays where the crown already is.
+            if (!inst->indoor && c->building < 0 && !(c->flags & VCF_BLOCKED)
+                && IsWalkableClass((VoxelClass)c->cls) && c->cls != VC_GRASS && c->cls != VC_DOOR
+                && c->cls != VC_LEDGE && !IsBridgeLike((VoxelClass)c->cls)
+                && mi->topOpaque >= 96 && inst->art[c->metatile].green < 48)
+                c->overhead = 1;
+        }
+
+    for (y = h - 1; y >= 0; y--)
+        for (x = 0; x < w; x++)
+        {
+            VoxelCell *c = &inst->cells[y * w + x];
+            const VoxelArtInfo *a[4];
+            const VoxelCell *rowCell[4];
+            int rows = c->stack, shape = SH_BOX, solidMax = 0, bboxRows;
+            bool topAbove, inMass = false;
+
+            if ((c->cls != VC_WALL && c->cls != VC_CLIFF) || rows <= 0 || c->building >= 0)
+                continue;
+            if (rows > 4) rows = 4;
+            for (k = 0; k < rows; k++)
+            {
+                rowCell[k] = CellPtr(inst, x, y - k);
+                a[k] = &inst->art[rowCell[k] ? rowCell[k]->metatile : c->metatile];
+                if (a[k]->solid > solidMax) solidMax = a[k]->solid;
+            }
+            topAbove = rowCell[rows - 1] && (rowCell[rows - 1]->flags & VCF_ABOVE);
+            bboxRows = a[0]->y1 >= a[0]->y0 ? a[0]->y1 - a[0]->y0 + 1 : 0;
+
+            // A thin silhouette inside a mass of blocked cells (a crater
+            // wall's shading band, a rock ledge's dark edge) is rock, not a
+            // fence: a fence has open ground on at least two of its sides.
+            {
+                int massN = 0, openN = 0, d2, k2;
+                static const int mdx[4] = {0, 0, -1, 1};
+                static const int mdy[4] = {-1, 1, 0, 0};
+                for (d2 = 0; d2 < 4; d2++)
+                {
+                    const VoxelCell *nb = CellPtr(inst, x + mdx[d2], y + mdy[d2]);
+                    if (nb && (nb->flags & VCF_BLOCKED) && nb->cls != VC_VOID
+                        && (nb->building >= 0 || inst->art[nb->metatile].solid >= ART_STANDEE_SOLID))
+                        massN++;
+                }
+                // open sides around the whole stack (water and ledges count as open)
+                for (k2 = 0; k2 < rows; k2++)
+                    for (d2 = 0; d2 < 4; d2++)
+                    {
+                        const VoxelCell *nb = CellPtr(inst, x + mdx[d2], y - k2 + mdy[d2]);
+                        if (nb == NULL || nb->cls == VC_VOID)
+                            continue;
+                        if (k2 > 0 && d2 == 1) continue;            // inside the stack
+                        if (k2 < rows - 1 && d2 == 0) continue;
+                        if (!(nb->flags & VCF_BLOCKED) || nb->cls == VC_LEDGE)
+                            openN++;
+                    }
+                inMass = massN >= 3 || openN < 2;
+            }
+            if (inst->indoor || c->cls == VC_CLIFF || c->behavior == 0x0C)
+                shape = SH_BOX;     // MB_MOUNTAIN_TOP blocked: the rock of a terrace, whatever it carves to
+            else if (rows == 2 && a[1]->green >= ART_GREEN && a[1]->solid >= ART_LEAF_SOLID
+                     && (topAbove || a[0]->brown >= 6 || a[0]->green >= 64))
+                shape = SH_TREE;
+            else if (rows >= 3 && a[rows - 1]->green >= ART_GREEN && a[rows - 1]->solid >= ART_LEAF_SOLID
+                     && a[rows - 2]->green >= ART_GREEN)
+                shape = SH_TREE;
+            else if (rows == 1 && a[0]->green >= ART_LEAF_SOLID && a[0]->solid >= 100
+                     && a[0]->solid < 236 && a[0]->boxy < ART_BOXY)
+                shape = SH_BUSH;
+            else if (solidMax < 10)
+                shape = SH_NONE;          // a blocked cell painted as ground: nothing stands here
+            else if (rows == 2 && a[0]->solid < ART_STANDEE_SOLID && a[1]->solid < ART_STANDEE_SOLID
+                     && a[1]->solid >= 10 && !inMass)
+                shape = SH_STANDEE_TALL;
+            else if (rows == 1 && a[0]->solid < ART_STANDEE_SOLID && bboxRows >= 8 && !inMass)
+                shape = (a[0]->boxy >= ART_BOXY && a[0]->solid >= 40) ? SH_STANDEE_BOX : SH_STANDEE;
+            else
+                shape = SH_BOX;
+
+            if (inst->profile.mountainTopCliff && c->behavior == 0x0C)
+                shape = SH_BOX;
+            c->shape = shape;
+            if (shape == SH_NONE)
+            {
+                for (k = 0; k < rows; k++)
+                    if (rowCell[k])
+                        ((VoxelCell *)rowCell[k])->topH = c->groundH;
+            }
+            // In the canopy town the trees stand one course under the walkways.
+            if (shape == SH_TREE && inst->profile.canopyWalk)
+                for (k = 0; k < rows; k++)
+                    if (rowCell[k])
+                        ((VoxelCell *)rowCell[k])->topH = c->groundH + 1.0f;
+
+            // A one-row blocked cell south of a lifted deck is the deck's
+            // drawn underside (Route 110's timber piers): its art becomes
+            // the deck's fascia and the cell itself lies flat.
+            if (rows == 1 && shape != SH_TREE && shape != SH_BUSH)
+            {
+                VoxelCell *n = CellPtr(inst, x, y - 1);
+                if (n && n->shape == SH_DECK && n->lift >= 1.0f && c->topH < n->topH - 0.01f)
+                {
+                    c->shape = SH_SUPPORT;
+                    c->topH = c->groundH;
+                    n->fasciaMeta = c->metatile;
+                }
+            }
+        }
+}
+
+// A metatile is one thing wherever the map lays it: a fence piece walled in
+// by rocks on three sides is still the fence it is everywhere else. Every
+// one-row column takes the shape most of its metatile's columns took.
+static void SettleShapesByMetatile(VoxelInstance *inst)
+{
+    static uint16_t votes[1024][3];   // box, standee, standee box
+    int i, m;
+    memset(votes, 0, sizeof(votes));
+    for (i = 0; i < inst->width * inst->height; i++)
+    {
+        const VoxelCell *c = &inst->cells[i];
+        if (c->stack != 1 || c->building >= 0 || (c->cls != VC_WALL))
+            continue;
+        if (c->shape == SH_BOX) votes[c->metatile][0]++;
+        else if (c->shape == SH_STANDEE) votes[c->metatile][1]++;
+        else if (c->shape == SH_STANDEE_BOX) votes[c->metatile][2]++;
+    }
+    for (i = 0; i < inst->width * inst->height; i++)
+    {
+        VoxelCell *c = &inst->cells[i];
+        int best = 0, k;
+        if (c->stack != 1 || c->building >= 0 || c->cls != VC_WALL)
+            continue;
+        if (c->shape != SH_BOX && c->shape != SH_STANDEE && c->shape != SH_STANDEE_BOX)
+            continue;
+        m = c->metatile;
+        for (k = 1; k < 3; k++)
+            if (votes[m][k] > votes[m][best])
+                best = k;
+        if (votes[m][0] + votes[m][1] + votes[m][2] < 2)
+            continue;
+        c->shape = best == 0 ? SH_BOX : (best == 1 ? SH_STANDEE : SH_STANDEE_BOX);
+        if (c->shape == SH_BOX && c->topH < c->groundH + 0.99f)
+            c->topH = c->groundH + 1.0f;
+    }
+}
+
+// Metatiles laid on walkable land: their bottom-layer colours are the ground.
+static void MarkFloorMetatiles(VoxelInstance *inst)
+{
+    int i;
+    memset(inst->usedByFloor, 0, sizeof(inst->usedByFloor));
+    for (i = 0; i < inst->width * inst->height; i++)
+    {
+        const VoxelCell *c = &inst->cells[i];
+        if (c->building >= 0)
+            continue;          // under a building's eave: its art is the roof's
+        if (c->cls == VC_GROUND || c->cls == VC_GRASS || c->cls == VC_SLOPE
+            || (c->cls == VC_LEDGE && !(c->flags & VCF_BLOCKED)))
+            inst->usedByFloor[c->metatile] = true;
+    }
+}
+
+// The whole model for one instance: art, cells, silhouettes, shapes.
+static void RebuildInstance(VoxelInstance *inst)
+{
+    const uint16_t *live = NULL;
+    int liveCount = 0;
+    if (inst == &gVoxelInstances[0] && gBackupMapLayout.map)
+    {
+        live = gBackupMapLayout.map;
+        liveCount = gBackupMapLayout.width * gBackupMapLayout.height;
+    }
+    // The art first: classification reads the layer info it measures.
+    VoxelAtlas_DecodeFromRom(inst->header->mapLayout, live, liveCount, inst->pixels, inst->meta, inst->topMask, inst->used);
+    BuildCells(inst);
+    MarkFloorMetatiles(inst);
+    if (inst->pixels && inst->topMask)
+    {
+        static bool topAbove[1024];
+        static uint16_t useCount[1024];
+        int m;
+        memset(useCount, 0, sizeof(useCount));
+        for (m = 0; m < inst->width * inst->height; m++)
+            if (inst->cells[m].cls != VC_VOID && useCount[inst->cells[m].metatile] < 0xFFFF)
+                useCount[inst->cells[m].metatile]++;
+        for (m = 0; m < 1024; m++)
+            topAbove[m] = inst->meta[m].topOpaque > 0;
+        VoxelArt_Build(inst->used, inst->usedByFloor, topAbove, useCount, inst->topMask, inst->pixels, inst->art);
+    }
+    else
+        memset(inst->art, 0, sizeof(inst->art));
+    BuildShapes(inst);
+    SettleShapesByMetatile(inst);
 
     if (getenv("EMERALD_VOXEL_DUMP"))
         VoxelWorld_DumpInstance(inst);
@@ -890,56 +1348,68 @@ static void BuildCells(VoxelInstance *inst)
 // The cell model as text, for the harness and for logcat: one character per
 // cell (void ' ', ground '.', grass ',', water '~', ledge '_', deck '=',
 // door 'D', wall '#' or '+' when stacked into the row south of it, cliff
-// '^', building 'B', furniture 'f'), then the edge rows of an interior.
+// '^', building 'B', furniture 'f'), then a second grid of shapes (tree 'T',
+// bush 'b', standee '|', standee box 'o', tall standee 'I', box '#', lip '_',
+// mat ',', deck '=', support 'u', canopy over a walkable cell '^').
 void VoxelWorld_DumpInstance(const VoxelInstance *inst)
 {
     int w = inst->width, h = inst->height, x, y;
+    char line[256];
+    SDL_Log("[Voxel] cells of %d:%d (%dx%d) indoor=%d origin (%d,%d)", inst->mapGroup, inst->mapNum, w, h,
+            inst->indoor, inst->originX, inst->originY);
+    for (y = 0; y < h && y < 250; y++)
     {
-        // One character per cell: void ' ', ground '.', grass ',', water '~',
-        // ledge '_', deck '=', door 'D', wall '#', cliff '^', building 'B',
-        // furniture 'f'; shells on the borders are shown by lower-case n/e/w
-        // flags in a second grid.
-        char line[256];
-        SDL_Log("[Voxel] cells of %d:%d (%dx%d) indoor=%d origin (%d,%d)", inst->mapGroup, inst->mapNum, w, h,
-                inst->indoor, inst->originX, inst->originY);
-        for (y = 0; y < h && y < 250; y++)
+        for (x = 0; x < w && x < 250; x++)
         {
-            for (x = 0; x < w && x < 250; x++)
+            const VoxelCell *c = &inst->cells[y * w + x];
+            char ch = '?';
+            switch (c->cls)
             {
-                const VoxelCell *c = &inst->cells[y * w + x];
-                char ch = '?';
-                switch (c->cls)
-                {
-                case VC_VOID: ch = ' '; break;
-                case VC_GROUND: ch = '.'; break;
-                case VC_GRASS: ch = ','; break;
-                case VC_WATER: ch = '~'; break;
-                case VC_LEDGE: ch = '_'; break;
-                case VC_BRIDGE: case VC_LOG: ch = '='; break;
-                case VC_DOOR: ch = 'D'; break;
-                case VC_WALL: ch = (c->flags & VCF_CONSUMED) ? '+' : '#'; break;
-                case VC_CLIFF: ch = '^'; break;
-                case VC_BUILDING: ch = 'B'; break;
-                default: ch = 'f'; break;
-                }
-                line[x] = ch;
+            case VC_VOID: ch = ' '; break;
+            case VC_GROUND: ch = '.'; break;
+            case VC_GRASS: ch = ','; break;
+            case VC_WATER: ch = '~'; break;
+            case VC_LEDGE: ch = '_'; break;
+            case VC_BRIDGE: case VC_LOG: ch = '='; break;
+            case VC_DOOR: ch = 'D'; break;
+            case VC_WALL: ch = (c->flags & VCF_CONSUMED) ? '+' : '#'; break;
+            case VC_CLIFF: ch = '^'; break;
+            case VC_BUILDING: ch = 'B'; break;
+            default: ch = 'f'; break;
             }
-            line[x] = 0;
-            SDL_Log("[Voxel] %3d |%s|", y, line);
+            line[x] = ch;
         }
-        if (inst->indoor)
-        {
-            for (y = 0; y < h; y++)
-            {
-                const VoxelCell *a = &inst->cells[y * w];
-                const VoxelCell *b = &inst->cells[y * w + w - 1];
-                SDL_Log("[Voxel] edge row %d: west meta %d cls %d flags %02x avg %d | east meta %d cls %d flags %02x avg %d",
-                       y, a->metatile, a->cls, a->flags, inst->meta[a->metatile].avgR + inst->meta[a->metatile].avgG + inst->meta[a->metatile].avgB,
-                       b->metatile, b->cls, b->flags, inst->meta[b->metatile].avgR + inst->meta[b->metatile].avgG + inst->meta[b->metatile].avgB);
-            }
-            SDL_Log("[Voxel] shell metatile %d", inst->shellMeta);
-        }
+        line[x] = 0;
+        SDL_Log("[Voxel] %3d |%s|", y, line);
     }
+    SDL_Log("[Voxel] shapes of %d:%d", inst->mapGroup, inst->mapNum);
+    for (y = 0; y < h && y < 250; y++)
+    {
+        for (x = 0; x < w && x < 250; x++)
+        {
+            const VoxelCell *c = &inst->cells[y * w + x];
+            char ch = ' ';
+            switch (c->shape)
+            {
+            case SH_TREE: ch = 'T'; break;
+            case SH_BUSH: ch = 'b'; break;
+            case SH_STANDEE: ch = '|'; break;
+            case SH_STANDEE_BOX: ch = 'o'; break;
+            case SH_STANDEE_TALL: ch = 'I'; break;
+            case SH_BOX: ch = '#'; break;
+            case SH_LIP: ch = '_'; break;
+            case SH_MAT: ch = ','; break;
+            case SH_DECK: ch = '='; break;
+            case SH_SUPPORT: ch = 'u'; break;
+            default: ch = c->overhead ? '^' : ((c->flags & VCF_CONSUMED) ? '+' : (c->cls == VC_VOID ? ' ' : '.')); break;
+            }
+            line[x] = ch;
+        }
+        line[x] = 0;
+        SDL_Log("[Voxel] %3d |%s|", y, line);
+    }
+    if (inst->indoor)
+        SDL_Log("[Voxel] shell metatile %d", inst->shellMeta);
 }
 
 // The player's own cell, for the same log.
@@ -956,9 +1426,58 @@ void VoxelWorld_DumpPlayerCell(void)
         SDL_Log("[Voxel] player at (%d,%d): no cell", px, py);
         return;
     }
-    SDL_Log("[Voxel] player at (%d,%d) elev %d: meta %d beh %02x cls %d flags %02x ground %.3f top %.3f walk %.3f stack %d",
-            px, py, playerObj->currentElevation, c->metatile, c->behavior, c->cls, c->flags, c->groundH, c->topH,
+    SDL_Log("[Voxel] player at (%d,%d) elev %d: meta %d beh %02x cls %d shape %d flags %02x ground %.3f top %.3f walk %.3f stack %d",
+            px, py, playerObj->currentElevation, c->metatile, c->behavior, c->cls, c->shape, c->flags, c->groundH, c->topH,
             VoxelWorld_WalkHeightAt(px, py), c->stack);
+}
+
+// The model as JSON, one cell per line, for the gate scripts.
+void VoxelWorld_WriteCellsJson(FILE *f, const VoxelInstance *inst)
+{
+    int x, y, m, first = 1;
+    fprintf(f, "{\"map\":[%d,%d],\"w\":%d,\"h\":%d,\"origin\":[%d,%d],\"indoor\":%s,\"useElevation\":%s,\n",
+            inst->mapGroup, inst->mapNum, inst->width, inst->height, inst->originX, inst->originY,
+            inst->indoor ? "true" : "false", inst->useElevation ? "true" : "false");
+    fprintf(f, "\"profile\":{\"causeway\":%s,\"mountainTopCliff\":%s,\"courseScale\":%.2f,\"canopyWalk\":%s},\n",
+            inst->profile.causeway ? "true" : "false", inst->profile.mountainTopCliff ? "true" : "false",
+            inst->profile.courseScale, inst->profile.canopyWalk ? "true" : "false");
+    fprintf(f, "\"rankH\":[");
+    for (m = 0; m < 16; m++)
+        fprintf(f, "%s%.2f", m ? "," : "", inst->rankH[m]);
+    fprintf(f, "],\n\"buildings\":[");
+    for (m = 0; m < inst->buildingCount; m++)
+    {
+        const VoxelBuilding *b = &inst->buildings[m];
+        fprintf(f, "%s{\"minX\":%d,\"maxX\":%d,\"facadeRow\":%d,\"minTop\":%d,\"wallRows\":%d,\"roofRows\":%d,\"baseH\":%.2f}",
+                m ? "," : "", b->minX, b->maxX, b->facadeRow, b->minTop, b->wallRows, b->roofRows, b->baseH);
+    }
+    fprintf(f, "],\n\"art\":[");
+    for (m = 0; m < 1024; m++)
+    {
+        const VoxelArtInfo *a = &inst->art[m];
+        const VoxelMetaInfo *mi = &inst->meta[m];
+        if (!inst->used[m])
+            continue;
+        fprintf(f, "%s\n{\"m\":%d,\"floor\":%s,\"beh\":%d,\"layer\":%d,\"topOpaque\":%d,\"botOpaque\":%d,\"solid\":%d,\"green\":%d,\"brown\":%d,\"boxy\":%d,"
+                   "\"x0\":%d,\"x1\":%d,\"y0\":%d,\"y1\":%d,\"topW\":%d,\"midW\":%d,\"botW\":%d,\"bgFill\":%d}",
+                first ? "" : ",", m, inst->usedByFloor[m] ? "true" : "false", mi->behavior, mi->layerType, mi->topOpaque, mi->botOpaque,
+                a->solid, a->green, a->brown, a->boxy, a->x0, a->x1, a->y0, a->y1, a->topWidth, a->midWidth, a->botWidth, a->bgFill);
+        first = 0;
+    }
+    fprintf(f, "],\n\"cells\":[");
+    first = 1;
+    for (y = 0; y < inst->height; y++)
+        for (x = 0; x < inst->width; x++)
+        {
+            const VoxelCell *c = &inst->cells[y * inst->width + x];
+            fprintf(f, "%s\n{\"x\":%d,\"y\":%d,\"m\":%d,\"beh\":%d,\"col\":%d,\"e\":%d,\"cls\":%d,\"fl\":%d,\"sh\":%d,\"st\":%d,"
+                       "\"lip\":%d,\"ov\":%d,\"g\":%.3f,\"t\":%.3f,\"u\":%.3f,\"land\":%.3f,\"lift\":%.2f,\"um\":%d,\"fm\":%d,\"bd\":%d}",
+                    first ? "" : ",", x, y, c->metatile, c->behavior, c->collision, c->elevation, c->cls, c->flags, c->shape, c->stack,
+                    c->lipDirs, c->overhead, c->groundH, c->topH, c->underH, c->landH, c->lift, c->underMeta,
+                    c->fasciaMeta == 0xFFFF ? -1 : c->fasciaMeta, c->building);
+            first = 0;
+        }
+    fprintf(f, "]}\n");
 }
 
 static void FreeInstances(void)
@@ -967,7 +1486,11 @@ static void FreeInstances(void)
     for (i = 0; i < MAX_VOXEL_MAP_INSTANCES; i++)
     {
         free(gVoxelInstances[i].cells);
+        free(gVoxelInstances[i].pixels);
+        free(gVoxelInstances[i].topMask);
         gVoxelInstances[i].cells = NULL;
+        gVoxelInstances[i].pixels = NULL;
+        gVoxelInstances[i].topMask = NULL;
     }
     gVoxelInstanceCount = 0;
 }
@@ -983,8 +1506,11 @@ static void InitInstance(VoxelInstance *inst, const struct MapHeader *header, in
     inst->width = header->mapLayout->width;
     inst->height = header->mapLayout->height;
     inst->indoor = header->mapType == MAP_TYPE_INDOOR || header->mapType == MAP_TYPE_SECRET_BASE;
-    inst->useElevation = !inst->indoor;
+    inst->profile = ProfileFor(group, num);
+    inst->useElevation = !inst->indoor && !inst->profile.causeway;
     inst->cells = calloc(inst->width * inst->height, sizeof(VoxelCell));
+    inst->pixels = malloc((size_t)VOXEL_ATLAS_SIZE * VOXEL_ATLAS_SIZE * 4);
+    inst->topMask = malloc(1024 * 32);
 }
 
 static void BuildInstances(void)
@@ -1049,12 +1575,7 @@ bool VoxelWorld_Update(void)
     {
         BuildInstances();
         for (i = 0; i < gVoxelInstanceCount; i++)
-        {
-            VoxelInstance *inst = &gVoxelInstances[i];
-            // Analyse the art first: classification reads the layer info.
-            VoxelAtlas_DecodeFromRom(inst->header->mapLayout, NULL, 0, NULL, inst->meta);
-            BuildCells(inst);
-        }
+            RebuildInstance(&gVoxelInstances[i]);
         sLastLayout = gMapHeader.mapLayout;
         sLastGroup = gSaveBlock1Ptr->location.mapGroup;
         sLastNum = gSaveBlock1Ptr->location.mapNum;
@@ -1066,7 +1587,7 @@ bool VoxelWorld_Update(void)
     // Scripts change metatiles on the live map (doors, cut trees, puzzles).
     if (HashLiveMap(&gVoxelInstances[0]) != gVoxelInstances[0].layoutHash)
     {
-        BuildCells(&gVoxelInstances[0]);
+        RebuildInstance(&gVoxelInstances[0]);
         return true;
     }
     return false;

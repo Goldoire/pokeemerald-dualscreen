@@ -23,11 +23,15 @@ void VoxelRenderer_InvalidateGL(void);
 void VoxelRenderer_HandleMouseMotion(int dx, int dy);
 
 // Runtime debug switches (bit set = feature off): 1 x-ray silhouettes,
-// 2 ghosting, 4 billboard tilt, 8 shadows, 16 overlay, 32 live atlas.
+// 2 ghosting, 4 billboard tilt, 8 shadows, 16 overlay, 32 live atlas;
+// 64 dumps the model to the log once, 128 writes the JSON dump once.
 extern unsigned gVoxelDebugFlags;
 
 // Write the next frame to `path` as a binary PPM (debug harness).
 void VoxelRenderer_RequestScreenshot(const char *path);
+
+// Write the world model, mesh counts and field effects as JSON (debug harness).
+void VoxelRenderer_RequestDumpJson(const char *path);
 
 extern bool gVoxelModeEnabled;
 extern bool gVoxelFirstPersonMode;

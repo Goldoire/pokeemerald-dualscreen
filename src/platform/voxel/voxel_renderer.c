@@ -13,6 +13,7 @@
 #include "palette.h"
 #include "event_object_movement.h"
 #include "field_player_avatar.h"
+#include "field_effect_helpers.h"
 #include "constants/global.h"
 #ifdef __ANDROID__
 #include "gles1_compat.h"
@@ -40,6 +41,7 @@ unsigned gVoxelDebugFlags = 0;
 #define DBG_NO_OVERLAY 16u
 #define DBG_NO_LIVEATLAS 32u
 #define DBG_DUMP_ONCE  64u
+#define DBG_DUMP_JSON  128u   // write the world/mesh/effects dump (Android: internal storage)
 
 // ---------------------------------------------------------------------------
 // State
@@ -52,7 +54,7 @@ static GLuint sAtlasTex[MAX_VOXEL_MAP_INSTANCES];
 static GLuint sLiveAtlasSpare = 0;        // the current map's atlas alternates with this
 static const struct MapLayout *sAtlasLayout[MAX_VOXEL_MAP_INSTANCES];
 static VoxelMesh sMeshes[MAX_VOXEL_MAP_INSTANCES];
-static uint32_t *sAtlasPixels = NULL;     // 512x512 scratch
+static uint32_t *sAtlasPixels = NULL;     // 512x512 live scratch (the composed quadrant)
 static uint32_t sVramChecksum = 0;
 static bool sGlInvalid = true;
 
@@ -66,6 +68,11 @@ static uint32_t sObjHash[OBJECT_EVENTS_COUNT];   // what the texture currently h
 
 static char sScreenshotPath[512];
 static bool sScreenshotPending = false;
+static char sDumpPath[512];
+static bool sDumpPending = false;
+static GLuint sEffTex[MAX_SPRITES];
+static int sEffW[MAX_SPRITES], sEffH[MAX_SPRITES];
+static uint32_t sEffHash[MAX_SPRITES];
 static int sAtlasUploads = 0, sSpriteUploads = 0, sOverlayUploads = 0;   // telemetry
 
 static uint16_t sGbaImage[MAX_RENDER_WIDTH * DISPLAY_HEIGHT];
@@ -286,6 +293,12 @@ static void DropGlResources(void)
         if (sOverlayTex[i]) glDeleteTextures(1, &sOverlayTex[i]);
         sOverlayTex[i] = 0;
     }
+    for (i = 0; i < MAX_SPRITES; i++)
+    {
+        if (sEffTex[i]) glDeleteTextures(1, &sEffTex[i]);
+        sEffTex[i] = 0;
+        sEffHash[i] = 0;
+    }
     sScreenTex = 0;
     sShadowTex = 0;
     sVramChecksum = 0;
@@ -299,6 +312,8 @@ void VoxelRenderer_InvalidateGL(void)
     for (i = 0; i < MAX_VOXEL_MAP_INSTANCES; i++) { sAtlasTex[i] = 0; sAtlasLayout[i] = NULL; }
     sLiveAtlasSpare = 0;
     for (i = 0; i < OBJECT_EVENTS_COUNT; i++) { sObjTex[i] = 0; sObjHash[i] = 0; }
+    for (i = 0; i < MAX_SPRITES; i++) { sEffTex[i] = 0; sEffHash[i] = 0; }
+    for (i = 0; i < MAX_VOXEL_MAP_INSTANCES; i++) VoxelMesh_InvalidateGL(&sMeshes[i]);
     sOverlayTex[0] = sOverlayTex[1] = 0;
     sScreenTex = 0;
     sShadowTex = 0;
@@ -306,33 +321,56 @@ void VoxelRenderer_InvalidateGL(void)
     sGlInvalid = true;
 }
 
+// The instance's 1024x1024 sheet (composed, ground, carved and top-layer
+// quadrants) goes up whole when the map changes; afterwards only the
+// composed quadrant is re-decoded live from VRAM/palette RAM so tile
+// animations and fades show, into the spare texture so the upload never
+// hits the texture in flight.
+static void UploadFullAtlas(GLuint tex, const VoxelInstance *inst)
+{
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, VOXEL_ATLAS_SIZE, VOXEL_ATLAS_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, inst->pixels);
+    sAtlasUploads++;
+}
+
 static void UploadAtlas(int i, const VoxelInstance *inst, bool fromVram)
 {
     const uint16_t *live = NULL;
     int liveCount = 0;
+    if (inst->pixels == NULL)
+        return;
     if (i == 0 && gBackupMapLayout.map)
     {
         live = gBackupMapLayout.map;
         liveCount = gBackupMapLayout.width * gBackupMapLayout.height;
     }
-    if (fromVram)
-        VoxelAtlas_DecodeFromVram(inst->header->mapLayout, live, liveCount, sAtlasPixels);
-    else
-        VoxelAtlas_DecodeFromRom(inst->header->mapLayout, live, liveCount, sAtlasPixels, NULL);
-    sAtlasUploads++;
-    if (i == 0 && sAtlasTex[0] != 0)
+    if (!fromVram)
     {
-        // swap in the spare so the upload never hits the texture in flight
-        GLuint t = sLiveAtlasSpare ? sLiveAtlasSpare : MakeTexture();
+        if (sAtlasTex[i] == 0)
+            sAtlasTex[i] = MakeTexture();
+        UploadFullAtlas(sAtlasTex[i], inst);
+        if (i == 0)
+        {
+            if (sLiveAtlasSpare == 0)
+                sLiveAtlasSpare = MakeTexture();
+            UploadFullAtlas(sLiveAtlasSpare, inst);
+        }
+        sAtlasLayout[i] = inst->header->mapLayout;
+        return;
+    }
+    if (sAtlasTex[0] == 0 || sLiveAtlasSpare == 0 || sAtlasLayout[0] != inst->header->mapLayout)
+        UploadAtlas(0, inst, false);
+    VoxelAtlas_DecodeFromVram(inst->header->mapLayout, live, liveCount, sAtlasPixels);
+    sAtlasUploads++;
+    {
+        GLuint t = sLiveAtlasSpare;
         sLiveAtlasSpare = sAtlasTex[0];
         sAtlasTex[0] = t;
     }
-    if (sAtlasTex[i] == 0)
-        sAtlasTex[i] = MakeTexture();
-    glBindTexture(GL_TEXTURE_2D, sAtlasTex[i]);
+    glBindTexture(GL_TEXTURE_2D, sAtlasTex[0]);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, VOXEL_ATLAS_SIZE, VOXEL_ATLAS_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, sAtlasPixels);
-    sAtlasLayout[i] = inst->header->mapLayout;
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VOXEL_ATLAS_QUAD, VOXEL_ATLAS_QUAD, GL_RGBA, GL_UNSIGNED_BYTE, sAtlasPixels);
 }
 
 // ---------------------------------------------------------------------------
@@ -563,8 +601,210 @@ static void CollectObjects(ObjectDraw *draws)
 }
 
 // ---------------------------------------------------------------------------
-// Screenshots (debug harness)
+// Field effects: the grass rustle, footprints, ripples, splashes, the surf
+// blob -- sprites the game draws at map positions without an object event.
+// Reflections (a copy of an object's own tiles drawn under it) are the one
+// kind that has no place in 3D; shadows are drawn by the renderer itself.
 // ---------------------------------------------------------------------------
+typedef struct {
+    float x, y, z;
+    GLuint tex;
+    int w, h;
+    int cellX, cellY;
+    int sprite;
+    bool upright;
+    bool valid;
+} EffectDraw;
+
+static int sReflectionsSkipped = 0;
+
+static int CollectEffects(EffectDraw *out)
+{
+    bool isObj[MAX_SPRITES];
+    const struct Sprite *ps = NULL;
+    const struct ObjectEvent *player = NULL;
+    int i, k, n = 0;
+    float px = 0.0f, pz = 0.0f, dummyY;
+
+    memset(isObj, 0, sizeof(isObj));
+    sReflectionsSkipped = 0;
+    for (k = 0; k < OBJECT_EVENTS_COUNT; k++)
+        if (gObjectEvents[k].active && gObjectEvents[k].spriteId < MAX_SPRITES)
+            isObj[gObjectEvents[k].spriteId] = true;
+    if (gPlayerAvatar.objectEventId < OBJECT_EVENTS_COUNT)
+    {
+        player = &gObjectEvents[gPlayerAvatar.objectEventId];
+        if (player->active && player->spriteId < MAX_SPRITES)
+            ps = &gSprites[player->spriteId];
+        px = (float)(player->currentCoords.x - MAP_OFFSET);
+        pz = (float)(player->currentCoords.y - MAP_OFFSET_Y);
+    }
+    (void)dummyY;
+    for (i = 0; i < MAX_SPRITES; i++)
+    {
+        const struct Sprite *sp = &gSprites[i];
+        EffectDraw *d;
+        bool reflection = false;
+        int cellX, cellY;
+        float zBias = -0.05f;
+        if (!sp->inUse || sp->invisible || isObj[i] || !sp->coordOffsetEnabled)
+            continue;
+        for (k = 0; k < OBJECT_EVENTS_COUNT && !reflection; k++)
+        {
+            const struct ObjectEvent *o = &gObjectEvents[k];
+            const struct Sprite *os;
+            if (!o->active || o->spriteId >= MAX_SPRITES)
+                continue;
+            os = &gSprites[o->spriteId];
+            if (sp->oam.tileNum == os->oam.tileNum && sp->oam.shape == os->oam.shape && sp->oam.size == os->oam.size)
+                reflection = true;
+        }
+        if (reflection)
+        {
+            sReflectionsSkipped++;
+            continue;
+        }
+        if (sp->callback == UpdateShadowFieldEffect)
+            continue;
+        d = &out[n];
+        memset(d, 0, sizeof(*d));
+        if (sp->callback == UpdateTallGrassFieldEffect || sp->callback == UpdateLongGrassFieldEffect)
+        {
+            // the effect records its own cell
+            cellX = (int)(s16)sp->data[1] - MAP_OFFSET;
+            cellY = (int)(s16)sp->data[2] - MAP_OFFSET_Y;
+            d->upright = true;
+            zBias = 0.12f;      // in front of the walker's feet, as the 2D layer orders it
+        }
+        else if (ps != NULL)
+        {
+            // every field effect and every object sprite share one
+            // camera-relative frame: read the cell off the player's sprite
+            int dxp = (sp->x + sp->x2) - (ps->x + ps->x2);
+            int dyp = (sp->y + sp->y2) - (ps->y + ps->y2) + 8;
+            cellX = (int)px + (int)floorf(dxp / 16.0f + 0.5f);
+            cellY = (int)pz + (int)floorf(dyp / 16.0f + 0.5f);
+            d->upright = sp->callback == UpdateSurfBlobFieldEffect || sp->callback == UpdateAshFieldEffect
+                      || sp->callback == UpdateBubblesFieldEffect || sp->callback == UpdateSparkleFieldEffect
+                      || sp->callback == WaitFieldEffectSpriteAnim || sp->callback == UpdateJumpImpactEffect;
+        }
+        else
+            continue;
+        UpdateObjectSpriteTexture(sp, &sEffTex[i], &sEffW[i], &sEffH[i], &sEffHash[i]);
+        d->tex = sEffTex[i];
+        d->w = sEffW[i];
+        d->h = sEffH[i];
+        d->cellX = cellX;
+        d->cellY = cellY;
+        d->sprite = i;
+        d->x = (float)cellX + 0.5f;
+        d->z = (float)cellY + zBias;
+        d->y = VoxelWorld_WalkHeightAt(cellX, cellY);
+        if (d->upright && sp->y2 < 0)
+            d->y += (float)(-sp->y2) / 16.0f;
+        d->valid = true;
+        n++;
+        if (n >= MAX_SPRITES)
+            break;
+    }
+    return n;
+}
+
+// A sprite laid flat on the ground: footprints, ripples, sand.
+static void DrawDecal(const EffectDraw *d)
+{
+    float hw = d->w / 32.0f, hh = d->h / 32.0f;
+    float y = d->y + 0.03f;
+    float cz = (float)d->cellY + 0.5f;
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    glBindTexture(GL_TEXTURE_2D, d->tex);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(d->x - hw, y, cz - hh);
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(d->x + hw, y, cz - hh);
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(d->x + hw, y, cz + hh);
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(d->x - hw, y, cz + hh);
+    glEnd();
+}
+
+// ---------------------------------------------------------------------------
+// Screenshots and dumps (debug harness)
+// ---------------------------------------------------------------------------
+void VoxelRenderer_RequestDumpJson(const char *path)
+{
+    strncpy(sDumpPath, path, sizeof(sDumpPath) - 1);
+    sDumpPath[sizeof(sDumpPath) - 1] = 0;
+    sDumpPending = true;
+}
+
+static void WriteDumpJson(const EffectDraw *effects, int effectCount, float playerX, float playerY, float playerZ)
+{
+    FILE *f = fopen(sDumpPath, "w");
+    int i;
+    sDumpPending = false;
+    if (f == NULL)
+    {
+        SDL_Log("[Voxel] dump: cannot write %s", sDumpPath);
+        return;
+    }
+    fprintf(f, "{\"instances\":[");
+    for (i = 0; i < gVoxelInstanceCount; i++)
+    {
+        fprintf(f, "%s\n{\"world\":", i ? "," : "");
+        VoxelWorld_WriteCellsJson(f, &gVoxelInstances[i]);
+        fprintf(f, ",\"mesh\":");
+        VoxelMesh_WriteStatsJson(f, &sMeshes[i]);
+        fprintf(f, "}");
+    }
+    fprintf(f, "],\n\"player\":{\"x\":%.3f,\"y\":%.3f,\"z\":%.3f", playerX, playerY, playerZ);
+    if (gPlayerAvatar.objectEventId < OBJECT_EVENTS_COUNT)
+    {
+        const struct ObjectEvent *o = &gObjectEvents[gPlayerAvatar.objectEventId];
+        fprintf(f, ",\"cell\":[%d,%d],\"elevation\":%d", o->currentCoords.x - MAP_OFFSET, o->currentCoords.y - MAP_OFFSET_Y, o->currentElevation);
+    }
+    fprintf(f, "},\n\"effects\":{\"reflectionsSkipped\":%d,\"list\":[", sReflectionsSkipped);
+    for (i = 0; i < effectCount; i++)
+    {
+        const EffectDraw *d = &effects[i];
+        const struct Sprite *sp = &gSprites[d->sprite];
+        const char *kind = "other";
+        if (sp->callback == UpdateTallGrassFieldEffect) kind = "tallGrass";
+        else if (sp->callback == UpdateLongGrassFieldEffect) kind = "longGrass";
+        else if (sp->callback == UpdateSurfBlobFieldEffect) kind = "surfBlob";
+        else if (sp->callback == UpdateFootprintsTireTracksFieldEffect) kind = "footprints";
+        else if (sp->callback == UpdateAshFieldEffect) kind = "ash";
+        else if (sp->callback == UpdateSandPileFieldEffect) kind = "sandPile";
+        else if (sp->callback == WaitFieldEffectSpriteAnim) kind = "burst";
+        fprintf(f, "%s{\"sprite\":%d,\"kind\":\"%s\",\"cell\":[%d,%d],\"w\":%d,\"h\":%d,\"upright\":%s,\"tile\":%d}",
+                i ? "," : "", d->sprite, kind, d->cellX, d->cellY, d->w, d->h, d->upright ? "true" : "false", sp->oam.tileNum);
+    }
+    fprintf(f, "]},\n\"gl\":{\"error\":%u},\"camera\":{\"x\":%.2f,\"y\":%.2f,\"z\":%.2f}}\n",
+            (unsigned)glGetError(), sCamera.x, sCamera.y, sCamera.z);
+    fclose(f);
+    // the current map's atlas beside it, alpha-0 pixels shown magenta
+    if (gVoxelInstanceCount > 0 && gVoxelInstances[0].pixels)
+    {
+        char ppm[600];
+        snprintf(ppm, sizeof(ppm), "%s.atlas.ppm", sDumpPath);
+        f = fopen(ppm, "wb");
+        if (f)
+        {
+            const uint32_t *px = gVoxelInstances[0].pixels;
+            int n = VOXEL_ATLAS_SIZE * VOXEL_ATLAS_SIZE;
+            fprintf(f, "P6\n%d %d\n255\n", VOXEL_ATLAS_SIZE, VOXEL_ATLAS_SIZE);
+            for (i = 0; i < n; i++)
+            {
+                uint8_t rgb[3];
+                uint32_t c = px[i];
+                if ((c >> 24) == 0) { rgb[0] = 255; rgb[1] = 0; rgb[2] = 255; }
+                else { rgb[0] = c & 0xFF; rgb[1] = (c >> 8) & 0xFF; rgb[2] = (c >> 16) & 0xFF; }
+                fwrite(rgb, 1, 3, f);
+            }
+            fclose(f);
+        }
+    }
+    SDL_Log("[Voxel] dump written to %s", sDumpPath);
+}
+
 void VoxelRenderer_RequestScreenshot(const char *path)
 {
     strncpy(sScreenshotPath, path, sizeof(sScreenshotPath) - 1);
@@ -666,12 +906,14 @@ void VoxelRenderer_RenderFrame(void)
     Uint64 frameStart = SDL_GetPerformanceCounter();
     float playerX = 0.0f, playerY = 0.0f, playerZ = 0.0f;
     ObjectDraw draws[OBJECT_EVENTS_COUNT];
+    static EffectDraw effects[MAX_SPRITES];
+    int effectCount = 0;
     float fade = FadeAmount();
     float fr, fg, fb;
     const Uint8 *keys;
 
     if (sAtlasPixels == NULL)
-        sAtlasPixels = malloc(VOXEL_ATLAS_SIZE * VOXEL_ATLAS_SIZE * 4);
+        sAtlasPixels = malloc(VOXEL_ATLAS_QUAD * VOXEL_ATLAS_QUAD * 4);
 
     keys = SDL_GetKeyboardState(NULL);
     (void)keys;
@@ -722,6 +964,21 @@ void VoxelRenderer_RenderFrame(void)
     }
     EnsureShadowTexture();
 
+    if (gVoxelDebugFlags & DBG_DUMP_JSON)
+    {
+        gVoxelDebugFlags &= ~DBG_DUMP_JSON;
+#ifdef __ANDROID__
+        {
+            const char *dir = SDL_AndroidGetInternalStoragePath();
+            char path[512];
+            snprintf(path, sizeof(path), "%s/voxel_dump.json", dir ? dir : "/data/local/tmp");
+            VoxelRenderer_RequestDumpJson(path);
+        }
+#else
+        if (!sDumpPending)
+            VoxelRenderer_RequestDumpJson("/tmp/voxel_dump.json");
+#endif
+    }
     if (gVoxelDebugFlags & DBG_DUMP_ONCE)
     {
         gVoxelDebugFlags &= ~DBG_DUMP_ONCE;
@@ -805,20 +1062,31 @@ void VoxelRenderer_RenderFrame(void)
         VoxelMesh_DrawOpaque(&sMeshes[i]);
     }
 
-    // ---- objects ----
+    // ---- objects and field effects ----
     CollectObjects(draws);
+    effectCount = CollectEffects(effects);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDepthMask(GL_FALSE);
     for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
         if (draws[i].valid && !(gVoxelDebugFlags & DBG_NO_SHADOW))
             DrawShadow(draws[i].x, draws[i].y, draws[i].z, 0.45f);
-    glDepthMask(GL_TRUE);
+    // decals lie on the ground under everything that stands
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.5f);
+    for (i = 0; i < effectCount; i++)
+        if (effects[i].valid && !effects[i].upright)
+            DrawDecal(&effects[i]);
+    glDepthMask(GL_TRUE);
+    for (i = 0; i < effectCount; i++)
+        if (effects[i].valid && effects[i].upright && effects[i].z < (float)effects[i].cellY + 0.5f)
+            DrawBillboard(effects[i].x, effects[i].y, effects[i].z, effects[i].tex, effects[i].w, effects[i].h, 1.0f);
     for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
         if (draws[i].valid)
             DrawBillboard(draws[i].x, draws[i].y, draws[i].z, draws[i].tex, draws[i].w, draws[i].h, 1.0f);
+    for (i = 0; i < effectCount; i++)
+        if (effects[i].valid && effects[i].upright && effects[i].z >= (float)effects[i].cellY + 0.5f)
+            DrawBillboard(effects[i].x, effects[i].y, effects[i].z, effects[i].tex, effects[i].w, effects[i].h, 1.0f);
     glDisable(GL_ALPHA_TEST);
 
     // ---- ghosted geometry (what stands between the camera and the player) ----
@@ -863,6 +1131,8 @@ void VoxelRenderer_RenderFrame(void)
 
     if (sScreenshotPending)
         SaveScreenshot(winW, winH);
+    if (sDumpPending)
+        WriteDumpJson(effects, effectCount, playerX, playerY, playerZ);
     NoteFrameTime(frameStart);
     SDL_GL_SwapWindow(sdlWindow);
 }

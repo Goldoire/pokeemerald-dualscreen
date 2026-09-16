@@ -6,6 +6,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
+#include "voxel_art.h"
 
 // ---------------------------------------------------------------------------
 // The voxel world model.
@@ -20,11 +22,15 @@
 //   * the metatile LAYER TYPE plus how much of its top layer is drawn ABOVE
 //     the player (a treetop, a roof, an upper storey),
 //   * the map's WARP EVENTS: a door is a warp, so the blocked run above one is
-//     a building rather than landscape.
+//     a building rather than landscape,
+//
+// and, where the data stops, from the drawing itself (voxel_art.h): the
+// silhouette of what stands on a blocked cell decides whether it is a round
+// tree, a thin fence or a solid rock.
 //
 // The shape rules follow the Gen 3 profile of the DramaticShapes voxel mod
-// (data/gen3_shapes.lua, lib/Gen3.lua; MIT), translated to C and reduced to
-// what the cartridge data alone can decide.
+// (data/gen3_shapes.lua, lib/Gen3.lua, lib/Structures.lua; MIT), translated
+// to C.
 //
 // World units: one map cell is 1.0 on X/Z, one "course" (16 px of art, the
 // height of one metatile) is 1.0 on Y. +X is east, +Z is south, +Y is up.
@@ -35,7 +41,7 @@ typedef enum {
     VC_GROUND,       // walkable floor at its terrace height
     VC_GRASS,        // tall grass: flat ground (tufts are drawn as decals)
     VC_WATER,        // recessed water surface
-    VC_LEDGE,        // a jump ledge: a low step with a fascia
+    VC_LEDGE,        // a jump ledge: ground with a lip on the hop side
     VC_BRIDGE,       // a deck standing over what it spans
     VC_LOG,          // a Pacifidlog raft riding just clear of the sea
     VC_SLOPE,        // a ramp between terraces: walkable, takes the lower level
@@ -62,6 +68,23 @@ typedef enum {
     VC_COUNT
 } VoxelClass;
 
+// What the drawing says stands on a cell (decided after the columns are
+// stacked, from the silhouettes of the rows in the stack).
+typedef enum {
+    SH_NONE = 0,       // nothing extra: a plain surface, or a row absorbed into a stack
+    SH_BOX,            // a solid mass: rock, cliff face, hedge block, interior wall
+    SH_TREE,           // two rows: round crown over a trunk
+    SH_BUSH,           // one row: a round crown on the ground
+    SH_STANDEE,        // a thin slab cut to the silhouette: fence, sign, post
+    SH_STANDEE_BOX,    // a small solid box cut to the silhouette: mailbox, crate
+    SH_STANDEE_TALL,   // a two-row slab: gate, tall sign
+    SH_LIP,            // a jump ledge's lip along its hop edge
+    SH_MAT,            // tall grass lifted as a mat with skirts
+    SH_DECK,           // a bridge deck with fascia, posts or embankment
+    SH_SUPPORT,        // a blocked cell that is a deck's drawn underside: flat, its art on the fascia
+    SH_COUNT
+} VoxelShape;
+
 // Per-cell flags.
 #define VCF_BLOCKED     0x01  // collision bits nonzero
 #define VCF_WARP        0x02  // a warp event lands on this cell
@@ -71,6 +94,12 @@ typedef enum {
 #define VCF_SHELL_N     0x20  // interior: draw the room shell on the north edge
 #define VCF_SHELL_E     0x40
 #define VCF_SHELL_W     0x80
+
+// Lip edges of a ledge cell.
+#define LIP_N 1
+#define LIP_S 2
+#define LIP_E 4
+#define LIP_W 8
 
 typedef struct {
     uint16_t metatile;   // 0..1023
@@ -82,11 +111,16 @@ typedef struct {
     uint8_t  flags;      // VCF_*
     int16_t  building;   // index into the instance's building list, or -1
     uint8_t  stack;      // rows stacked into this column (anchor cells only)
-    uint8_t  pad;
+    uint8_t  shape;      // VoxelShape (anchor cells and surfaces)
+    uint8_t  lipDirs;    // LIP_* for a ledge
+    uint8_t  overhead;   // walkable cell whose above-player art becomes a canopy plate
     float    groundH;    // walkable surface height, or the column's base
     float    topH;       // column top (blocked / furniture / deck) else == groundH
     float    underH;     // bridges: the surface under the deck
+    float    landH;      // bridges: the bank the deck is founded on
+    float    lift;       // bridges: courses the deck stands over its bank
     uint16_t underMeta;  // bridges: the art laid under the deck
+    uint16_t fasciaMeta; // decks: the art of the drawn underside on the open side (0xFFFF: own)
 } VoxelCell;
 
 // A door-run building: every column it owns has rows [top..facadeRow].
@@ -110,12 +144,23 @@ typedef struct {
     uint8_t botOpaque;    // opaque pixels in the layer drawn at/below the player
     uint8_t avgR, avgG, avgB;
     uint8_t allBlack;     // every pixel of both layers is black: interior void
+    uint8_t greenPx;      // green-dominant pixels of the composed cell, 0..255
+    uint8_t brownPx;      // brown/wood pixels of the composed cell, 0..255
 } VoxelMetaInfo;
+
+// The handful of per-map corrections the data alone gets wrong
+// (data/gen3_shapes.lua `maps` and `tilesets`).
+typedef struct {
+    bool causeway;          // the elevation field is traffic control: land stays flat
+    bool mountainTopCliff;  // MB_MOUNTAIN_TOP blocked cells are the crater wall: two courses
+    float courseScale;      // courses per elevation rank (Fortree: 2, the walkway clears the canopy)
+    bool canopyWalk;        // a town IN the canopy: trees stand one course so the walkways sit above them
+} VoxelMapProfile;
 
 struct MapHeader;
 struct MapLayout;
 
-typedef struct {
+typedef struct VoxelInstanceTag {
     const struct MapHeader *header;
     int mapGroup;
     int mapNum;
@@ -125,8 +170,14 @@ typedef struct {
     int height;
     bool indoor;          // interior rules (no elevation, room shell)
     bool useElevation;    // rank the elevation field into terraces
+    VoxelMapProfile profile;
     VoxelCell *cells;     // width*height, row-major
     VoxelMetaInfo meta[1024];
+    VoxelArtInfo art[1024];
+    bool used[1024];      // metatiles the map lays
+    bool usedByFloor[1024];
+    uint32_t *pixels;     // the 1024x1024 atlas (voxel_atlas.h), kept for uploads
+    uint8_t *topMask;     // 1024 * 32 bytes: which pixels the top layer drew
     VoxelBuilding buildings[MAX_VOXEL_BUILDINGS];
     int buildingCount;
     uint16_t shellMeta;   // interior: art for the room shell
@@ -153,15 +204,13 @@ bool VoxelWorld_IsMapAvailable(void);
 void VoxelWorld_GetPlayerWorldCoords(float *wx, float *wz);
 float VoxelWorld_WalkHeightAt(int worldX, int worldY);         // where a walker's feet go
 
-// Metatile art analysis, filled in by the atlas builder.
-void VoxelWorld_SetMetaInfo(VoxelInstance *inst, int metatile, const VoxelMetaInfo *info);
-
 // Class heights, in courses.
 float VoxelWorld_ClassHeight(VoxelClass cls);
 
-// Debug dumps through SDL_Log.
+// Debug dumps through SDL_Log, and the JSON cell dump the gates read.
 void VoxelWorld_DumpInstance(const VoxelInstance *inst);
 void VoxelWorld_DumpPlayerCell(void);
+void VoxelWorld_WriteCellsJson(FILE *f, const VoxelInstance *inst);
 
 #endif // NATIVE_LINUX || __ANDROID__
 #endif // PLATFORM_SDL2

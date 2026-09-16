@@ -7,6 +7,7 @@
 //                           (A=1 B=2 SELECT=4 START=8 RIGHT=16 LEFT=32
 //                            UP=64 DOWN=128 R=256 L=512; 0 releases)
 //   shot <path>             write the next voxel frame as a binary PPM
+//   dumpjson <path>         write the world model, mesh counts and effects as JSON
 //   warp <group> <num> <x> <y>   warp the player (overworld only)
 //   quit                    exit the game
 //
@@ -73,6 +74,10 @@ static int ReaderThread(void *param)
             else if (sscanf(line, "shot %399s", shot) == 1)
             {
                 VoxelRenderer_RequestScreenshot(shot);
+            }
+            else if (sscanf(line, "dumpjson %399s", shot) == 1)
+            {
+                VoxelRenderer_RequestDumpJson(shot);
             }
             else if (sscanf(line, "warp %d %d %d %d", &g, &n, &x, &y) == 4)
             {

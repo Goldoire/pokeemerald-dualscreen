@@ -6,7 +6,9 @@
 #ifdef __ANDROID__
 #include "gles1_compat.h"
 #else
+#define GL_GLEXT_PROTOTYPES 1
 #include <GL/gl.h>
+#include <GL/glext.h>
 #endif
 #include <stdlib.h>
 #include <string.h>
@@ -27,33 +29,72 @@
 #define SHADE_WEST  178
 #define SHADE_NORTH 150
 
+// Shapes (lib/Structures.lua): a standee is PINNED_DEPTH.prop voxels thick,
+// a tall-grass mat GRASS_MAT high, a deck a quarter course of planking, a
+// canopy plate hangs at treetop height, a tree crown is a solid of
+// revolution with an octagonal section.
+#define STANDEE_DEPTH  0.3125f
+#define DECK_THICK     0.25f
+#define RAIL_THICK     0.125f
+#define PILLAR_W       0.12f
+#define CANOPY_H       2.0f
+#define CROWN_SIDES    10
+#define TREE_R_PAIR    0.94f
+#define TREE_R_SINGLE  0.47f
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 typedef struct { float u0, v0, u1, v1; } UvRect;
 
-static UvRect UvFor(int metatile)
+// A region of one metatile's art in one atlas variant, in pixels (0..16).
+static UvRect UvRegion(int m, int variant, float px0, float px1, float py0, float py1)
 {
+    float ax = (float)((m % VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE + ((variant & 1) ? VOXEL_ATLAS_QUAD : 0));
+    float ay = (float)((m / VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE + ((variant & 2) ? VOXEL_ATLAS_QUAD : 0));
     UvRect r;
-    r.u0 = (metatile % VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE * ATLAS_TEXEL + UV_INSET;
-    r.v0 = (metatile / VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE * ATLAS_TEXEL + UV_INSET;
-    r.u1 = r.u0 + VOXEL_ATLAS_TILE * ATLAS_TEXEL - 2 * UV_INSET;
-    r.v1 = r.v0 + VOXEL_ATLAS_TILE * ATLAS_TEXEL - 2 * UV_INSET;
+    r.u0 = (ax + px0) * ATLAS_TEXEL + UV_INSET;
+    r.u1 = (ax + px1) * ATLAS_TEXEL - UV_INSET;
+    r.v0 = (ay + py0) * ATLAS_TEXEL + UV_INSET;
+    r.v1 = (ay + py1) * ATLAS_TEXEL - UV_INSET;
     return r;
 }
 
-// A vertical slice of a metatile's art: rows [t0..t1] of 16 (0 = top).
-static UvRect UvSlice(int metatile, float t0, float t1)
+static UvRect UvFor(int m, int variant)
 {
-    UvRect r = UvFor(metatile);
-    float h = r.v1 - r.v0;
-    UvRect s;
-    s.u0 = r.u0; s.u1 = r.u1;
-    s.v0 = r.v0 + h * t0;
-    s.v1 = r.v0 + h * t1;
-    return s;
+    return UvRegion(m, variant, 0.0f, 16.0f, 0.0f, 16.0f);
+}
+
+// A vertical slice of a metatile's art: rows [t0..t1] of 1 (0 = top).
+static UvRect UvSlice(int m, int variant, float t0, float t1)
+{
+    return UvRegion(m, variant, 0.0f, 16.0f, t0 * 16.0f, t1 * 16.0f);
+}
+
+// The centre of one pixel, for faces painted in one colour.
+static void UvPixel(int m, int variant, int px, int py, float *u, float *v)
+{
+    float ax = (float)((m % VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE + ((variant & 1) ? VOXEL_ATLAS_QUAD : 0));
+    float ay = (float)((m / VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE + ((variant & 2) ? VOXEL_ATLAS_QUAD : 0));
+    *u = (ax + px + 0.5f) * ATLAS_TEXEL;
+    *v = (ay + py + 0.5f) * ATLAS_TEXEL;
+}
+
+// Alpha of one pixel of the carved variant: the silhouette mask.
+static int CarvedAlpha(const VoxelInstance *inst, int m, int px, int py)
+{
+    int ax = (m % VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE + px;
+    int ay = (m / VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE + VOXEL_ATLAS_QUAD + py;
+    if (inst->pixels == NULL)
+        return 255;
+    return (int)(inst->pixels[ay * VOXEL_ATLAS_SIZE + ax] >> 24);
 }
 
 void VoxelMesh_Init(VoxelMesh *mesh)
 {
     memset(mesh, 0, sizeof(*mesh));
+    mesh->vboDirty = true;
 }
 
 void VoxelMesh_Free(VoxelMesh *mesh)
@@ -61,13 +102,24 @@ void VoxelMesh_Free(VoxelMesh *mesh)
     free(mesh->verts);
     free(mesh->ranges);
     free(mesh->ghost);
+    if (mesh->vbo)
+        glDeleteBuffers(1, (GLuint *)&mesh->vbo);
     memset(mesh, 0, sizeof(*mesh));
+    mesh->vboDirty = true;
 }
 
 void VoxelMesh_Clear(VoxelMesh *mesh)
 {
     mesh->count = 0;
     mesh->rangeCount = 0;
+    mesh->vboDirty = true;
+    memset(&mesh->stats, 0, sizeof(mesh->stats));
+}
+
+void VoxelMesh_InvalidateGL(VoxelMesh *mesh)
+{
+    mesh->vbo = 0;
+    mesh->vboDirty = true;
 }
 
 static VoxelVertex *Reserve(VoxelMesh *mesh, int n)
@@ -110,6 +162,19 @@ static void Quad(VoxelMesh *mesh,
     mesh->count += 6;
 }
 
+static void Tri(VoxelMesh *mesh,
+                float x0, float y0, float z0, float u0, float v0,
+                float x1, float y1, float z1, float u1, float v1,
+                float x2, float y2, float z2, float u2, float v2,
+                int shade)
+{
+    VoxelVertex *v = Reserve(mesh, 3);
+    Vtx(&v[0], x0, y0, z0, u0, v0, shade, 255);
+    Vtx(&v[1], x1, y1, z1, u1, v1, shade, 255);
+    Vtx(&v[2], x2, y2, z2, u2, v2, shade, 255);
+    mesh->count += 3;
+}
+
 // Horizontal quad covering cell (x, z) at height y with art `uv`.
 static void TopQuad(VoxelMesh *mesh, float x, float z, float y, UvRect uv, int shade)
 {
@@ -118,6 +183,17 @@ static void TopQuad(VoxelMesh *mesh, float x, float z, float y, UvRect uv, int s
          x + 1.0f, y, z,        uv.u1, uv.v0,
          x + 1.0f, y, z + 1.0f, uv.u1, uv.v1,
          x,        y, z + 1.0f, uv.u0, uv.v1,
+         shade);
+}
+
+// Horizontal quad over an arbitrary rectangle.
+static void TopRect(VoxelMesh *mesh, float x0, float x1, float z0, float z1, float y, UvRect uv, int shade)
+{
+    Quad(mesh,
+         x0, y, z0, uv.u0, uv.v0,
+         x1, y, z0, uv.u1, uv.v0,
+         x1, y, z1, uv.u1, uv.v1,
+         x0, y, z1, uv.u0, uv.v1,
          shade);
 }
 
@@ -161,6 +237,56 @@ static void WestFace(VoxelMesh *mesh, float x, float z, float y0, float y1, UvRe
          x, y1, z + 1.0f, uv.u1, uv.v0,
          x, y1, z,        uv.u0, uv.v0,
          shade);
+}
+
+// The same faces over arbitrary extents: a wall at plane z spanning x0..x1
+// (facing south when `south`), a wall at plane x spanning z0..z1 (facing
+// east when `east`).
+static void WallZ(VoxelMesh *mesh, float x0, float x1, float zPlane, float y0, float y1, bool south, UvRect uv, int shade)
+{
+    if (south)
+        Quad(mesh,
+             x0, y0, zPlane, uv.u0, uv.v1,
+             x1, y0, zPlane, uv.u1, uv.v1,
+             x1, y1, zPlane, uv.u1, uv.v0,
+             x0, y1, zPlane, uv.u0, uv.v0,
+             shade);
+    else
+        Quad(mesh,
+             x1, y0, zPlane, uv.u0, uv.v1,
+             x0, y0, zPlane, uv.u1, uv.v1,
+             x0, y1, zPlane, uv.u1, uv.v0,
+             x1, y1, zPlane, uv.u0, uv.v0,
+             shade);
+}
+
+static void WallX(VoxelMesh *mesh, float xPlane, float z0, float z1, float y0, float y1, bool east, UvRect uv, int shade)
+{
+    if (east)
+        Quad(mesh,
+             xPlane, y0, z1, uv.u0, uv.v1,
+             xPlane, y0, z0, uv.u1, uv.v1,
+             xPlane, y1, z0, uv.u1, uv.v0,
+             xPlane, y1, z1, uv.u0, uv.v0,
+             shade);
+    else
+        Quad(mesh,
+             xPlane, y0, z0, uv.u0, uv.v1,
+             xPlane, y0, z1, uv.u1, uv.v1,
+             xPlane, y1, z1, uv.u1, uv.v0,
+             xPlane, y1, z0, uv.u0, uv.v0,
+             shade);
+}
+
+// A box painted in one flat colour (one pixel of the atlas): pillars, posts.
+static void ColourBox(VoxelMesh *mesh, float x0, float x1, float y0, float y1, float z0, float z1, float u, float v, int shade)
+{
+    UvRect uv = { u, v, u, v };
+    WallZ(mesh, x0, x1, z1, y0, y1, true, uv, shade);
+    WallZ(mesh, x0, x1, z0, y0, y1, false, uv, shade - 60);
+    WallX(mesh, x1, z0, z1, y0, y1, true, uv, shade - 30);
+    WallX(mesh, x0, z0, z1, y0, y1, false, uv, shade - 45);
+    TopRect(mesh, x0, x1, z0, z1, y1, uv, shade + 15 > 255 ? 255 : shade + 15);
 }
 
 // ---------------------------------------------------------------------------
@@ -221,6 +347,19 @@ static bool IsColumn(const VoxelCell *c)
                  || (c->cls >= VC_COUNTER && c->cls < VC_COUNT && (c->flags & VCF_BLOCKED)));
 }
 
+static bool IsDeck(const VoxelCell *c)
+{
+    return c && (c->cls == VC_BRIDGE || c->cls == VC_LOG);
+}
+
+// A column whose mass does not fill its cell: the ground shows around it.
+static bool IsOpenColumn(const VoxelCell *c)
+{
+    return c && (c->cls == VC_WALL) && (c->shape == SH_TREE || c->shape == SH_BUSH || c->shape == SH_STANDEE
+                                         || c->shape == SH_STANDEE_BOX || c->shape == SH_STANDEE_TALL
+                                         || c->shape == SH_NONE || c->shape == SH_SUPPORT);
+}
+
 // Interior room shell: the walls the GBA never draws, two courses tall
 // along every edge that borders the void (north, east and west; the south
 // edge stays open for the camera).
@@ -231,41 +370,27 @@ static void ShellFaces(VoxelMesh *mesh, const VoxelInstance *inst, const VoxelCe
     float skirt = floor - 1.0f;   // carry on below the floor: the camera looks down past its edge
     if (!inst->indoor || !(c->flags & (VCF_SHELL_N | VCF_SHELL_E | VCF_SHELL_W)))
         return;
-    s = UvFor(inst->shellMeta);
+    s = UvFor(inst->shellMeta, VOXEL_VAR_COMPOSED);
     if (c->flags & VCF_SHELL_N) NorthFace(mesh, x, z - 1.0f, floor, shellTop, s, SHADE_SOUTH - 60);
     if (c->flags & VCF_SHELL_E) WestFace(mesh, x + 1.0f, z, skirt, shellTop, s, SHADE_WEST);
     if (c->flags & VCF_SHELL_W) EastFace(mesh, x - 1.0f, z, skirt, shellTop, s, SHADE_EAST);
 }
 
-// ---------------------------------------------------------------------------
-// Surfaces: ground, grass, water, ledges, decks, walkable pins
-// ---------------------------------------------------------------------------
-static void BuildSurface(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
+// Fascias from a surface's top down to lower neighbours, in the ground's
+// own texture (a terrace step with no cliff art drawn).
+static void GroundFascias(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly, float top, int variant)
 {
     const VoxelCell *c = &inst->cells[ly * inst->width + lx];
     float x = (float)(lx + inst->originX);
     float z = (float)(ly + inst->originY);
-    UvRect uv = UvFor(c->metatile);
-    float top = c->topH;
-    int d;
+    UvRect uv = UvFor(c->metatile, variant);
     static const int dx[4] = {0, 0, 1, -1};
     static const int dy[4] = {1, -1, 0, 0};
-
-    if (c->cls == VC_BRIDGE || c->cls == VC_LOG)
-    {
-        // The world continues under the deck.
-        UvRect under = UvFor(c->underMeta);
-        TopQuad(mesh, x, z, c->underH, under, SHADE_TOP - 40);
-    }
-
-    TopQuad(mesh, x, z, top, uv, SHADE_TOP);
-
-    // Fascias down to lower neighbours, wearing this cell's own art.
+    int d;
     for (d = 0; d < 4; d++)
     {
         const VoxelCell *n = Nb(inst, lx + dx[d], ly + dy[d]);
         float nh;
-        float bottom;
         if (n == NULL || n->cls == VC_VOID)
         {
             if (!inst->indoor && top > 0.01f)
@@ -275,41 +400,268 @@ static void BuildSurface(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int
         }
         else
         {
-            nh = (n->cls == VC_BRIDGE || n->cls == VC_LOG) && n->underH < n->topH ? n->underH : n->topH;
-            if (IsColumn(n))
+            nh = IsDeck(n) && n->underH < n->topH ? n->underH : n->topH;
+            if (IsColumn(n) || IsOpenColumn(n))
                 nh = n->groundH < top ? n->groundH : top;
-            if (n->cls == VC_WATER && (c->cls == VC_BRIDGE || c->cls == VC_LOG))
-                nh = n->topH;
         }
         if (nh >= top - 0.01f)
             continue;
-        bottom = nh;
-        if (c->cls == VC_LEDGE || c->cls == VC_BRIDGE || c->cls == VC_LOG)
+        if (d == 0) SouthFace(mesh, x, z, nh, top, uv, SHADE_SOUTH - 70);
+        else if (d == 1) NorthFace(mesh, x, z, nh, top, uv, SHADE_NORTH - 40);
+        else if (d == 2) EastFace(mesh, x, z, nh, top, uv, SHADE_EAST - 60);
+        else WestFace(mesh, x, z, nh, top, uv, SHADE_WEST - 60);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Ledges: the cell is the rim of the terrace it edges, standing the lip's
+// six pixels; the rim art faces the hop side, turf the others.
+// ---------------------------------------------------------------------------
+static void BuildLedge(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
+{
+    const VoxelCell *c = &inst->cells[ly * inst->width + lx];
+    float x = (float)(lx + inst->originX);
+    float z = (float)(ly + inst->originY);
+    float top = c->topH;
+    int m = c->metatile;
+    static const int dx[4] = {0, 0, 1, -1};
+    static const int dy[4] = {1, -1, 0, 0};
+    static const int lipBit[4] = {LIP_S, LIP_N, LIP_E, LIP_W};
+    int d;
+
+    TopQuad(mesh, x, z, top, UvFor(m, VOXEL_VAR_COMPOSED), SHADE_TOP);
+    mesh->stats.lips++;
+    for (d = 0; d < 4; d++)
+    {
+        const VoxelCell *n = Nb(inst, lx + dx[d], ly + dy[d]);
+        float nh;
+        bool lip = (c->lipDirs & lipBit[d]) != 0;
+        if (n == NULL || n->cls == VC_VOID)
+            continue;
+        nh = n->topH;
+        if (IsColumn(n) || IsOpenColumn(n))
+            nh = n->groundH;
+        if (n->cls == VC_LEDGE && !lip)
+            continue;                   // the rim runs on into the next ledge cell
+        if (nh >= top - 0.01f)
+            continue;
+        if (lip)
         {
-            // a ledge's lip / a deck's plank edge: the art's bottom rows
-            UvRect s = UvSlice(c->metatile, 0.6f, 1.0f);
-            if (c->cls != VC_LEDGE && bottom < top - 0.25f)
-                bottom = top - 0.25f;
-            if (d == 0) SouthFace(mesh, x, z, bottom, top, s, SHADE_SOUTH - 30);
-            else if (d == 1) NorthFace(mesh, x, z, bottom, top, s, SHADE_NORTH);
-            else if (d == 2) EastFace(mesh, x, z, bottom, top, s, SHADE_EAST);
-            else WestFace(mesh, x, z, bottom, top, s, SHADE_WEST);
+            // the drawn rim: its bottom rows on the south face, its right
+            // columns on the east face, and so on
+            UvRect s;
+            mesh->stats.lipFaces++;
+            if (d == 0) { s = UvSlice(m, VOXEL_VAR_COMPOSED, 0.6f, 1.0f); SouthFace(mesh, x, z, nh, top, s, SHADE_SOUTH - 20); }
+            else if (d == 1) { s = UvSlice(m, VOXEL_VAR_COMPOSED, 0.0f, 0.4f); NorthFace(mesh, x, z, nh, top, s, SHADE_NORTH); }
+            else if (d == 2)
+            {
+                s = UvRegion(m, VOXEL_VAR_COMPOSED, 10.0f, 16.0f, 0.0f, 16.0f);
+                Quad(mesh,
+                     x + 1.0f, nh,  z + 1.0f, s.u1, s.v1,
+                     x + 1.0f, nh,  z,        s.u1, s.v0,
+                     x + 1.0f, top, z,        s.u0, s.v0,
+                     x + 1.0f, top, z + 1.0f, s.u0, s.v1,
+                     SHADE_EAST);
+            }
+            else
+            {
+                s = UvRegion(m, VOXEL_VAR_COMPOSED, 0.0f, 6.0f, 0.0f, 16.0f);
+                Quad(mesh,
+                     x, nh,  z,        s.u0, s.v0,
+                     x, nh,  z + 1.0f, s.u0, s.v1,
+                     x, top, z + 1.0f, s.u1, s.v1,
+                     x, top, z,        s.u1, s.v0,
+                     SHADE_WEST);
+            }
         }
         else
         {
-            // a terrace step with no cliff art: the ground's own texture, dark
-            if (d == 0) SouthFace(mesh, x, z, bottom, top, uv, SHADE_SOUTH - 70);
-            else if (d == 1) NorthFace(mesh, x, z, bottom, top, uv, SHADE_NORTH - 40);
-            else if (d == 2) EastFace(mesh, x, z, bottom, top, uv, SHADE_EAST - 60);
-            else WestFace(mesh, x, z, bottom, top, uv, SHADE_WEST - 60);
+            UvRect g = UvSlice(m, VOXEL_VAR_GROUND, 0.5f, 1.0f);
+            if (d == 0) SouthFace(mesh, x, z, nh, top, g, SHADE_SOUTH - 50);
+            else if (d == 1) NorthFace(mesh, x, z, nh, top, g, SHADE_NORTH - 30);
+            else if (d == 2) EastFace(mesh, x, z, nh, top, g, SHADE_EAST - 40);
+            else WestFace(mesh, x, z, nh, top, g, SHADE_WEST - 40);
         }
     }
-
     ShellFaces(mesh, inst, c, x, z, c->groundH);
 }
 
 // ---------------------------------------------------------------------------
-// Columns: stacked blocked rows (landscape, trees, fences, interior walls)
+// Tall grass: a mat a quarter course over the ground, skirted where no
+// other mat stands against it, so a walker's feet sink into it.
+// ---------------------------------------------------------------------------
+static void BuildMat(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
+{
+    const VoxelCell *c = &inst->cells[ly * inst->width + lx];
+    float x = (float)(lx + inst->originX);
+    float z = (float)(ly + inst->originY);
+    float top = c->topH, base = c->groundH;
+    int m = c->metatile;
+    UvRect skirt = UvRegion(m, VOXEL_VAR_COMPOSED, 0.0f, 16.0f, 7.0f, 9.0f);   // a plain band, not the tuft bottoms
+    static const int dx[4] = {0, 0, 1, -1};
+    static const int dy[4] = {1, -1, 0, 0};
+    int d;
+
+    TopQuad(mesh, x, z, top, UvFor(m, VOXEL_VAR_COMPOSED), SHADE_TOP);
+    mesh->stats.mats++;
+    for (d = 0; d < 4; d++)
+    {
+        const VoxelCell *n = Nb(inst, lx + dx[d], ly + dy[d]);
+        float nh;
+        if (n && n->shape == SH_MAT && fabsf(n->topH - top) < 0.01f)
+            continue;
+        nh = (n == NULL || n->cls == VC_VOID) ? base : ((IsColumn(n) || IsOpenColumn(n)) ? n->groundH : n->topH);
+        if (nh > base) nh = base;
+        if (nh >= top - 0.01f)
+            continue;
+        mesh->stats.matSkirts++;
+        if (d == 0) SouthFace(mesh, x, z, nh, top, skirt, SHADE_SOUTH - 30);
+        else if (d == 1) NorthFace(mesh, x, z, nh, top, skirt, SHADE_NORTH);
+        else if (d == 2) EastFace(mesh, x, z, nh, top, skirt, SHADE_EAST);
+        else WestFace(mesh, x, z, nh, top, skirt, SHADE_WEST);
+    }
+    ShellFaces(mesh, inst, c, x, z, base);
+}
+
+// ---------------------------------------------------------------------------
+// Decks: the world continues under the deck; the deck is a slab of planking
+// with a fascia on every open side, its drawn underside where the map draws
+// one, and posts down to what it spans where it stands lifted.
+// ---------------------------------------------------------------------------
+static void BuildDeck(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
+{
+    const VoxelCell *c = &inst->cells[ly * inst->width + lx];
+    float x = (float)(lx + inst->originX);
+    float z = (float)(ly + inst->originY);
+    float top = c->topH;
+    bool rail = c->behavior >= 0xD3 && c->behavior <= 0xD6;
+    float thick = rail ? RAIL_THICK : DECK_THICK;
+    float bottom = top - thick;
+    int m = c->metatile;
+    static const int dx[4] = {0, 0, 1, -1};
+    static const int dy[4] = {1, -1, 0, 0};
+    bool open[4];
+    int d;
+    float pu, pv;
+
+    if (c->underH < bottom - 0.01f)
+        TopQuad(mesh, x, z, c->underH, UvFor(c->underMeta, VOXEL_VAR_COMPOSED), SHADE_TOP - 40);
+    else
+    {
+        bottom = c->underH;
+        // the plank's own ground, carved of the rail, shows around it
+        if (c->underMeta == m)
+            TopQuad(mesh, x, z, c->underH, UvFor(m, VOXEL_VAR_GROUND), SHADE_TOP - 10);
+    }
+    TopQuad(mesh, x, z, top, UvFor(m, VOXEL_VAR_COMPOSED), SHADE_TOP);
+    mesh->stats.decks++;
+
+    for (d = 0; d < 4; d++)
+    {
+        const VoxelCell *n = Nb(inst, lx + dx[d], ly + dy[d]);
+        float lo = bottom;
+        open[d] = !(IsDeck(n) && fabsf(n->topH - top) < 0.01f);
+        if (!open[d])
+            continue;
+        if (n && n->cls != VC_VOID && !IsDeck(n) && !IsColumn(n) && n->topH > lo && n->topH < top - 0.01f)
+            lo = n->topH;           // the bank meets the slab part way up
+        if (n && n->cls != VC_VOID && n->topH >= top - 0.01f && !IsOpenColumn(n))
+            continue;               // the bank is level with the deck: no edge shows
+        if (d == 0 && c->fasciaMeta != 0xFFFF && c->lift >= 1.0f)
+        {
+            // the drawn underside: the pier art stretched from its ground to the deck
+            float ground = n ? n->groundH : c->underH;
+            SouthFace(mesh, x, z, ground, top, UvFor(c->fasciaMeta, VOXEL_VAR_COMPOSED), SHADE_SOUTH);
+            mesh->stats.deckFascias++;
+            continue;
+        }
+        mesh->stats.deckFascias++;
+        {
+            UvRect s = UvSlice(m, VOXEL_VAR_COMPOSED, 0.6f, 1.0f);
+            if (d == 0) SouthFace(mesh, x, z, lo, top, s, SHADE_SOUTH - 30);
+            else if (d == 1) NorthFace(mesh, x, z, lo, top, s, SHADE_NORTH);
+            else if (d == 2) EastFace(mesh, x, z, lo, top, s, SHADE_EAST);
+            else WestFace(mesh, x, z, lo, top, s, SHADE_WEST);
+        }
+    }
+
+    // Posts under a lifted deck: on its flanks and at its open ends.
+    if (c->lift >= 1.0f && c->underH < bottom - 0.05f)
+    {
+        UvPixel(m, VOXEL_VAR_COMPOSED, 8, 15, &pu, &pv);
+        if (open[3] || open[0])
+        {
+            ColourBox(mesh, x + 0.02f, x + 0.02f + PILLAR_W, c->underH, bottom, z + 1.0f - 0.02f - PILLAR_W, z + 1.0f - 0.02f, pu, pv, 120);
+            mesh->stats.pillars++;
+        }
+        if (open[2] || open[0])
+        {
+            ColourBox(mesh, x + 1.0f - 0.02f - PILLAR_W, x + 1.0f - 0.02f, c->underH, bottom, z + 1.0f - 0.02f - PILLAR_W, z + 1.0f - 0.02f, pu, pv, 120);
+            mesh->stats.pillars++;
+        }
+        if (open[1])
+        {
+            if (open[3]) { ColourBox(mesh, x + 0.02f, x + 0.02f + PILLAR_W, c->underH, bottom, z + 0.02f, z + 0.02f + PILLAR_W, pu, pv, 120); mesh->stats.pillars++; }
+            if (open[2]) { ColourBox(mesh, x + 1.0f - 0.02f - PILLAR_W, x + 1.0f - 0.02f, c->underH, bottom, z + 0.02f, z + 0.02f + PILLAR_W, pu, pv, 120); mesh->stats.pillars++; }
+        }
+    }
+    ShellFaces(mesh, inst, c, x, z, c->groundH);
+}
+
+// ---------------------------------------------------------------------------
+// Surfaces: ground, water, walkable pins, flat blocked cells, canopies
+// ---------------------------------------------------------------------------
+static void BuildSurface(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
+{
+    const VoxelCell *c = &inst->cells[ly * inst->width + lx];
+    float x = (float)(lx + inst->originX);
+    float z = (float)(ly + inst->originY);
+    float top = c->topH;
+    int variant = c->shape == SH_SUPPORT ? VOXEL_VAR_GROUND : VOXEL_VAR_COMPOSED;
+
+    if (c->shape == SH_LIP) { BuildLedge(mesh, inst, lx, ly); return; }
+    if (c->shape == SH_MAT) { BuildMat(mesh, inst, lx, ly); return; }
+    if (c->shape == SH_DECK) { BuildDeck(mesh, inst, lx, ly); return; }
+
+    if (c->shape == SH_SUPPORT) mesh->stats.supports++;
+    else if (c->shape == SH_NONE && (c->flags & VCF_BLOCKED)) mesh->stats.flats++;
+    TopQuad(mesh, x, z, top, UvFor(c->metatile, variant), SHADE_TOP);
+    GroundFascias(mesh, inst, lx, ly, top, variant);
+    ShellFaces(mesh, inst, c, x, z, c->groundH);
+
+    if (c->overhead)
+    {
+        // the drawn treetop over the path, hung at treetop height
+        VoxelMeshRange r;
+        float y = c->groundH + CANOPY_H;
+        BeginRange(mesh, &r, (int)x, (int)z, -1, y - 0.05f, y);
+        TopQuad(mesh, x, z, y, UvFor(c->metatile, VOXEL_VAR_TOP), SHADE_TOP);
+        // its underside, lit from below by nothing: dark
+        Quad(mesh,
+             x,        y - 0.02f, z + 1.0f, 0, 0,
+             x + 1.0f, y - 0.02f, z + 1.0f, 0, 0,
+             x + 1.0f, y - 0.02f, z,        0, 0,
+             x,        y - 0.02f, z,        0, 0,
+             90);
+        {
+            // the underside quad above got dummy UVs: give it the top art too
+            VoxelVertex *v = &mesh->verts[mesh->count - 6];
+            UvRect uv = UvFor(c->metatile, VOXEL_VAR_TOP);
+            v[0].u = uv.u0; v[0].v = uv.v1;
+            v[1].u = uv.u1; v[1].v = uv.v1;
+            v[2].u = uv.u1; v[2].v = uv.v0;
+            v[3].u = uv.u0; v[3].v = uv.v1;
+            v[4].u = uv.u1; v[4].v = uv.v0;
+            v[5].u = uv.u0; v[5].v = uv.v0;
+        }
+        EndRange(mesh, &r);
+        mesh->stats.canopies++;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Columns: stacked blocked rows drawn as one solid mass (rocks, cliffs,
+// hedges, interior walls)
 // ---------------------------------------------------------------------------
 static void BuildColumn(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
 {
@@ -327,6 +679,7 @@ static void BuildColumn(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int 
 
     if (rows <= 0 || rows > 4 || height <= 0.01f)
         return;
+    if (c->cls == VC_CLIFF) mesh->stats.cliffs++; else mesh->stats.boxes++;
     courseH = height / rows;
     for (k = 0; k < rows; k++)
     {
@@ -339,11 +692,12 @@ static void BuildColumn(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int 
     r.rows = rows;
 
     // The stack is one mass standing on every row it claimed. Its lid wears
-    // the northmost row's art (a tree's crown, a wall's top trim) over the
-    // whole footprint, and each side shows the rows stacked as courses:
-    // trunk below crown, wall body below its cornice.
+    // each row's own drawing laid flat -- Emerald draws rock as a top-down
+    // motif, so seen from above the mass reads as the map does -- and each
+    // side shows the rows stacked as courses.
     for (j = 0; j < rows; j++)
-        TopQuad(mesh, x, z - j, top, UvFor(topMeta), SHADE_TOP);
+        TopQuad(mesh, x, z - j, top, UvFor(rowMeta[j], VOXEL_VAR_COMPOSED), SHADE_TOP);
+    (void)topMeta;
 
     hS = SideHeight(Nb(inst, lx, ly + 1));
     hN = SideHeight(Nb(inst, lx, ly - rows));
@@ -354,10 +708,10 @@ static void BuildColumn(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int 
         float lo;
         lo = hS > y0 ? hS : y0;
         if (lo < y1 - 0.01f)
-            SouthFace(mesh, x, z, lo, y1, UvSlice(rowMeta[k], (lo - y0) / courseH, 1.0f), SHADE_SOUTH);
+            SouthFace(mesh, x, z, lo, y1, UvSlice(rowMeta[k], VOXEL_VAR_COMPOSED, (lo - y0) / courseH, 1.0f), SHADE_SOUTH);
         lo = hN > y0 ? hN : y0;
         if (lo < y1 - 0.01f)
-            NorthFace(mesh, x, z - (rows - 1), lo, y1, UvSlice(rowMeta[k], (lo - y0) / courseH, 1.0f), SHADE_NORTH);
+            NorthFace(mesh, x, z - (rows - 1), lo, y1, UvSlice(rowMeta[k], VOXEL_VAR_COMPOSED, (lo - y0) / courseH, 1.0f), SHADE_NORTH);
     }
     for (j = 0; j < rows; j++)
     {
@@ -373,12 +727,387 @@ static void BuildColumn(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int 
             float lo;
             lo = hE > y0 ? hE : y0;
             if (lo < y1 - 0.01f)
-                EastFace(mesh, x, z - j, lo, y1, UvSlice(rowMeta[k], (lo - y0) / courseH, 1.0f), SHADE_EAST);
+                EastFace(mesh, x, z - j, lo, y1, UvSlice(rowMeta[k], VOXEL_VAR_COMPOSED, (lo - y0) / courseH, 1.0f), SHADE_EAST);
             lo = hW > y0 ? hW : y0;
             if (lo < y1 - 0.01f)
-                WestFace(mesh, x, z - j, lo, y1, UvSlice(rowMeta[k], (lo - y0) / courseH, 1.0f), SHADE_WEST);
+                WestFace(mesh, x, z - j, lo, y1, UvSlice(rowMeta[k], VOXEL_VAR_COMPOSED, (lo - y0) / courseH, 1.0f), SHADE_WEST);
         }
     }
+    EndRange(mesh, &r);
+}
+
+// ---------------------------------------------------------------------------
+// Trees and bushes: the ground shows under them, a trunk stands in it, and
+// the crown is a solid of revolution -- an octagonal drum capped by a
+// hemisphere (a ball's cap is as deep as it is wide), wearing the drawn
+// crown projected from above so the camera sees the picture it knows.
+// ---------------------------------------------------------------------------
+// The crown from `yBottom` to `yTop`, radius R about (cx, cz): a drum capped
+// by a hemisphere (a ball's cap is as deep as it is wide). It wears the
+// drawing projected from the FRONT, the way DramaticShapes' roundTemplate
+// does: the drawing's columns run across the hull, its rows run down it, so
+// the drawn highlight sits on the apex and the drawn outline at the base.
+// The top course of the hull wears `top` (the crown row), the course under
+// it `under` (the leafy row beneath the crown).
+static void BuildCrown(VoxelMesh *mesh, float cx, float cz, float R, float yBottom, float yTop,
+                       UvRect top, UvRect under)
+{
+    static const float depth[] = { 0.0f, 0.05f, 0.2f, 0.42f, 0.68f, 1.0f };
+    static const int shade[] = { 255, 250, 240, 226, 208, 190, 170, 160, 150 };
+    const int NR = (int)(sizeof(depth) / sizeof(depth[0]));
+    float dome = R;
+    float ringY[12], ringR[12];
+    float cs[CROWN_SIDES + 1], sn[CROWN_SIDES + 1];
+    int i, s, nRings = 0;
+
+    if (dome > yTop - yBottom)
+        dome = yTop - yBottom;
+    for (i = 0; i < NR; i++)
+    {
+        float d = depth[i];
+        ringY[nRings] = yTop - d * dome;
+        ringR[nRings] = d <= 0.0f ? 0.0f : R * sqrtf(2.0f * d - d * d);
+        if (ringR[nRings] < 0.04f * R && nRings > 0) ringR[nRings] = 0.04f * R;
+        nRings++;
+    }
+    // the drum, split where the crown row's art gives way to the row under it
+    if (yBottom < yTop - 1.0f - 0.02f && ringY[nRings - 1] > yTop - 1.0f + 0.02f)
+    {
+        ringY[nRings] = yTop - 1.0f;
+        ringR[nRings] = R;
+        nRings++;
+    }
+    if (yBottom < ringY[nRings - 1] - 0.02f)
+    {
+        ringY[nRings] = yBottom;
+        ringR[nRings] = R;
+        nRings++;
+    }
+    for (s = 0; s <= CROWN_SIDES; s++)
+    {
+        float a = (float)s / CROWN_SIDES * 2.0f * (float)M_PI + (float)M_PI / CROWN_SIDES;
+        cs[s] = cosf(a);
+        sn[s] = sinf(a);
+    }
+    // the cap: a fan from the apex to the first ring
+    for (s = 0; s < CROWN_SIDES; s++)
+    {
+        float uA = (top.u0 + top.u1) * 0.5f;
+        float u0 = (top.u0 + top.u1) * 0.5f + (top.u1 - top.u0) * 0.5f * (ringR[1] / R) * cs[s];
+        float u1 = (top.u0 + top.u1) * 0.5f + (top.u1 - top.u0) * 0.5f * (ringR[1] / R) * cs[s + 1];
+        float v1a = top.v0 + (top.v1 - top.v0) * ((yTop - ringY[1]) / 1.0f);
+        Tri(mesh,
+            cx, ringY[0], cz, uA, top.v0,
+            cx + ringR[1] * cs[s + 1], ringY[1], cz + ringR[1] * sn[s + 1], u1, v1a,
+            cx + ringR[1] * cs[s],     ringY[1], cz + ringR[1] * sn[s],     u0, v1a,
+            shade[0]);
+    }
+    // the bands
+    for (i = 1; i < nRings - 1; i++)
+    {
+        int sh = shade[i < 8 ? i : 8];
+        float ya = ringY[i], yb = ringY[i + 1];
+        float ra = ringR[i], rb = ringR[i + 1];
+        float mid = (ya + yb) * 0.5f;
+        const UvRect *art = (mid >= yTop - 1.0f) ? &top : &under;
+        float artTop = (mid >= yTop - 1.0f) ? yTop : yTop - 1.0f;
+        float va = art->v0 + (art->v1 - art->v0) * (artTop - ya);
+        float vb = art->v0 + (art->v1 - art->v0) * (artTop - yb);
+        float uMid = (art->u0 + art->u1) * 0.5f, uHalf = (art->u1 - art->u0) * 0.5f;
+        if (va < art->v0) va = art->v0;
+        if (vb > art->v1) vb = art->v1;
+        for (s = 0; s < CROWN_SIDES; s++)
+        {
+            float ua0 = uMid + uHalf * (ra / R) * cs[s];
+            float ua1 = uMid + uHalf * (ra / R) * cs[s + 1];
+            float ub0 = uMid + uHalf * (rb / R) * cs[s];
+            float ub1 = uMid + uHalf * (rb / R) * cs[s + 1];
+            Quad(mesh,
+                 cx + ra * cs[s],     ya, cz + ra * sn[s],     ua0, va,
+                 cx + rb * cs[s],     yb, cz + rb * sn[s],     ub0, vb,
+                 cx + rb * cs[s + 1], yb, cz + rb * sn[s + 1], ub1, vb,
+                 cx + ra * cs[s + 1], ya, cz + ra * sn[s + 1], ua1, va,
+                 sh);
+        }
+    }
+}
+
+// Where the trunk is in a foot cell's drawing: the widest of the bottom
+// rows, and how many rows from the bottom stay that narrow.
+static void TrunkOf(const VoxelArtInfo *a, int *width, int *rowsUp)
+{
+    int w = a->botWidth, y, n = 0;
+    if (w < 3) w = 3;
+    if (w > 10) w = 10;
+    for (y = 15; y >= 6; y--)
+    {
+        if (a->rowFill[y] > w + 3)
+            break;
+        n++;
+    }
+    if (n < 4) n = 4;
+    if (n > 8) n = 8;
+    *width = w;
+    *rowsUp = n;
+}
+
+// A tree standing on the anchor (lx, ly) and, when `pair`, on the column
+// east of it too: crown metatiles are the north row, feet the south row.
+static void BuildTree(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly, bool pair)
+{
+    const VoxelCell *c = &inst->cells[ly * inst->width + lx];
+    int rows = c->stack < 2 ? 2 : (c->stack > 4 ? 4 : c->stack);
+    const VoxelCell *cN = Nb(inst, lx, ly - (rows - 1));      // the crown's top row
+    const VoxelCell *cE = pair ? Nb(inst, lx + 1, ly) : NULL;
+    const VoxelCell *cNE = pair ? Nb(inst, lx + 1, ly - (rows - 1)) : NULL;
+    float x = (float)(lx + inst->originX);
+    float z = (float)(ly + inst->originY);
+    float base = c->groundH, top = c->topH;
+    float R = pair ? TREE_R_PAIR : TREE_R_SINGLE;
+    float cx = pair ? x + 1.0f : x + 0.5f;
+    float cz = z + 0.5f;    // the feet row: the crown overhangs the rows north of it
+    int footL = c->metatile, footR = cE ? cE->metatile : footL;
+    int crownL = cN ? cN->metatile : footL, crownR = cNE ? cNE->metatile : crownL;
+    int trunkW, trunkRows, tw2, tr2;
+    float trunkH, halfW;
+    UvRect uvL = UvFor(crownL, VOXEL_VAR_COMPOSED), uvR = UvFor(crownR, VOXEL_VAR_COMPOSED);
+    bool contiguous = pair && crownR == crownL + 1 && (crownL % VOXEL_ATLAS_COLS) != VOXEL_ATLAS_COLS - 1;
+    UvRect crownArt = uvL, underArt;
+    VoxelMeshRange r;
+    int j;
+    if (contiguous) crownArt.u1 = uvR.u1;
+
+    if (top <= base + 0.05f)
+        return;
+    mesh->stats.trees++;
+    if (pair) mesh->stats.treePairs++;
+
+    // the ground the tree grows out of
+    for (j = 0; j < rows; j++)
+    {
+        const VoxelCell *cj = Nb(inst, lx, ly - j);
+        const VoxelCell *ej = pair ? Nb(inst, lx + 1, ly - j) : NULL;
+        if (cj)
+        {
+            TopQuad(mesh, x, z - j, base, UvFor(cj->metatile, VOXEL_VAR_GROUND), SHADE_TOP);
+            GroundFascias(mesh, inst, lx, ly - j, base, VOXEL_VAR_GROUND);
+        }
+        if (ej)
+        {
+            TopQuad(mesh, x + 1.0f, z - j, base, UvFor(ej->metatile, VOXEL_VAR_GROUND), SHADE_TOP);
+            GroundFascias(mesh, inst, lx + 1, ly - j, base, VOXEL_VAR_GROUND);
+        }
+    }
+
+    BeginRange(mesh, &r, (int)x, (int)z, -1, base, top);
+    r.rows = rows;
+    r.cols = pair ? 2 : 1;
+
+    // the trunk, from the feet's drawing
+    TrunkOf(&inst->art[footL], &trunkW, &trunkRows);
+    if (pair)
+    {
+        TrunkOf(&inst->art[footR], &tw2, &tr2);
+        trunkW = (trunkW + tw2) / 2 + 2;
+        if (trunkRows < tr2) trunkRows = tr2;
+    }
+    trunkH = trunkRows / 16.0f * (top - base) / rows;
+    if (rows >= 3)
+        trunkH = (top - base) / rows * (rows - 2);   // the rows under the leaves are trunk
+    if (trunkH > 0.6f && rows < 3) trunkH = 0.6f;
+    halfW = trunkW / 32.0f;
+    {
+        float px0 = 8.0f - trunkW * 0.5f, px1 = 8.0f + trunkW * 0.5f;
+        float py0 = 16.0f - trunkRows, py1 = 16.0f;
+        UvRect t = UvRegion(footL, VOXEL_VAR_COMPOSED, px0, px1, py0, py1);
+        WallZ(mesh, cx - halfW, cx + halfW, cz + halfW, base, base + trunkH + 0.1f, true, t, SHADE_SOUTH - 30);
+        WallZ(mesh, cx - halfW, cx + halfW, cz - halfW, base, base + trunkH + 0.1f, false, t, SHADE_NORTH - 20);
+        WallX(mesh, cx + halfW, cz - halfW, cz + halfW, base, base + trunkH + 0.1f, true, t, SHADE_EAST - 40);
+        WallX(mesh, cx - halfW, cz - halfW, cz + halfW, base, base + trunkH + 0.1f, false, t, SHADE_WEST - 40);
+    }
+    // the crown: a drum from the trunk top, a dome over it, centred on the
+    // leafy rows (for a 2-row tree the seam between feet and crown); the
+    // course under the crown top wears the leafy row beneath it
+    {
+        const VoxelCell *dl = Nb(inst, lx, ly - (rows - 2));
+        const VoxelCell *dr = pair ? Nb(inst, lx + 1, ly - (rows - 2)) : NULL;
+        int underL = dl ? dl->metatile : crownL, underR = dr ? dr->metatile : underL;
+        bool cont = pair && underR == underL + 1 && (underL % VOXEL_ATLAS_COLS) != VOXEL_ATLAS_COLS - 1;
+        underArt = UvFor(underL, VOXEL_VAR_COMPOSED);
+        if (cont) underArt.u1 = UvFor(underR, VOXEL_VAR_COMPOSED).u1;
+        BuildCrown(mesh, cx, z - (float)(rows - 2), R, base + trunkH, top, crownArt, underArt);
+    }
+    EndRange(mesh, &r);
+}
+
+static void BuildBush(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
+{
+    const VoxelCell *c = &inst->cells[ly * inst->width + lx];
+    float x = (float)(lx + inst->originX);
+    float z = (float)(ly + inst->originY);
+    float base = c->groundH, top = c->topH;
+    UvRect uv = UvFor(c->metatile, VOXEL_VAR_COMPOSED);
+    VoxelMeshRange r;
+
+    if (top <= base + 0.05f)
+        return;
+    mesh->stats.bushes++;
+    TopQuad(mesh, x, z, base, UvFor(c->metatile, VOXEL_VAR_GROUND), SHADE_TOP);
+    GroundFascias(mesh, inst, lx, ly, base, VOXEL_VAR_GROUND);
+    BeginRange(mesh, &r, (int)x, (int)z, -1, base, top);
+    BuildCrown(mesh, x + 0.5f, z + 0.5f, TREE_R_SINGLE, base, top, uv, uv);
+    EndRange(mesh, &r);
+}
+
+// ---------------------------------------------------------------------------
+// Standees: a fence, a sign, a post -- the silhouette stood up as a slab
+// a few voxels thick, its top and side edges built pixel run by pixel run
+// from the carved art so every paling and plate has a lit edge.
+// ---------------------------------------------------------------------------
+static void StandeeEdges(VoxelMesh *mesh, const VoxelInstance *inst, const int *rowMeta, int rows,
+                         float x, float base, float z0, float z1)
+{
+    int H = rows * 16, px, py, run;
+    int yTop[16], xL[32], xR[32];
+    float u, v;
+
+    for (px = 0; px < 16; px++)
+    {
+        yTop[px] = -1;
+        for (py = 0; py < H; py++)
+        {
+            int m = rowMeta[rows - 1 - py / 16];
+            if (CarvedAlpha(inst, m, px, py % 16) > 127) { yTop[px] = py; break; }
+        }
+    }
+    for (py = 0; py < H; py++)
+    {
+        int m = rowMeta[rows - 1 - py / 16];
+        xL[py] = -1; xR[py] = -1;
+        for (px = 0; px < 16; px++)
+            if (CarvedAlpha(inst, m, px, py % 16) > 127) { xL[py] = px; break; }
+        for (px = 15; px >= 0; px--)
+            if (CarvedAlpha(inst, m, px, py % 16) > 127) { xR[py] = px; break; }
+    }
+    // top edges: runs of columns sharing a top row
+    for (px = 0; px < 16; px += run)
+    {
+        int yt = yTop[px], m;
+        float y;
+        UvRect uv;
+        run = 1;
+        while (px + run < 16 && yTop[px + run] == yt)
+            run++;
+        if (yt < 0)
+            continue;
+        m = rowMeta[rows - 1 - yt / 16];
+        UvPixel(m, VOXEL_VAR_CARVED, px + run / 2, yt % 16, &u, &v);
+        uv.u0 = uv.u1 = u; uv.v0 = uv.v1 = v;
+        y = base + (float)(H - yt) / 16.0f;
+        TopRect(mesh, x + px / 16.0f, x + (px + run) / 16.0f, z0, z1, y, uv, SHADE_TOP);
+    }
+    // side edges: runs of rows sharing a leftmost / rightmost column
+    for (py = 0; py < H; py += run)
+    {
+        int xl = xL[py], m;
+        float y0, y1;
+        UvRect uv;
+        run = 1;
+        while (py + run < H && xL[py + run] == xl)
+            run++;
+        if (xl < 0)
+            continue;
+        m = rowMeta[rows - 1 - (py + run / 2) / 16];
+        UvPixel(m, VOXEL_VAR_CARVED, xl, (py + run / 2) % 16, &u, &v);
+        uv.u0 = uv.u1 = u; uv.v0 = uv.v1 = v;
+        y1 = base + (float)(H - py) / 16.0f;
+        y0 = base + (float)(H - py - run) / 16.0f;
+        WallX(mesh, x + xl / 16.0f, z0, z1, y0, y1, false, uv, SHADE_WEST);
+    }
+    for (py = 0; py < H; py += run)
+    {
+        int xr = xR[py], m;
+        float y0, y1;
+        UvRect uv;
+        run = 1;
+        while (py + run < H && xR[py + run] == xr)
+            run++;
+        if (xr < 0)
+            continue;
+        m = rowMeta[rows - 1 - (py + run / 2) / 16];
+        UvPixel(m, VOXEL_VAR_CARVED, xr, (py + run / 2) % 16, &u, &v);
+        uv.u0 = uv.u1 = u; uv.v0 = uv.v1 = v;
+        y1 = base + (float)(H - py) / 16.0f;
+        y0 = base + (float)(H - py - run) / 16.0f;
+        WallX(mesh, x + (xr + 1) / 16.0f, z0, z1, y0, y1, true, uv, SHADE_EAST);
+    }
+}
+
+static void BuildStandee(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
+{
+    const VoxelCell *c = &inst->cells[ly * inst->width + lx];
+    int rows = c->shape == SH_STANDEE_TALL ? 2 : 1, k;
+    float x = (float)(lx + inst->originX);
+    float z = (float)(ly + inst->originY);
+    float base = c->groundH;
+    float zc = z + 0.5f, z0 = zc - STANDEE_DEPTH * 0.5f, z1 = zc + STANDEE_DEPTH * 0.5f;
+    int rowMeta[2];
+    VoxelMeshRange r;
+
+    if (rows == 2) mesh->stats.standeeTall++; else mesh->stats.standees++;
+    for (k = 0; k < rows; k++)
+    {
+        const VoxelCell *ck = Nb(inst, lx, ly - k);
+        rowMeta[k] = ck ? ck->metatile : c->metatile;
+        TopQuad(mesh, x, z - k, base, UvFor(rowMeta[k], VOXEL_VAR_GROUND), SHADE_TOP);
+        GroundFascias(mesh, inst, lx, ly - k, base, VOXEL_VAR_GROUND);
+    }
+    BeginRange(mesh, &r, (int)x, (int)z, -1, base, base + rows);
+    r.rows = rows;
+    for (k = 0; k < rows; k++)
+    {
+        UvRect uv = UvFor(rowMeta[k], VOXEL_VAR_CARVED);
+        UvRect back = uv;
+        back.u0 = uv.u1; back.u1 = uv.u0;
+        WallZ(mesh, x, x + 1.0f, z1, base + k, base + k + 1.0f, true, uv, SHADE_SOUTH);
+        WallZ(mesh, x, x + 1.0f, z0, base + k, base + k + 1.0f, false, back, SHADE_NORTH);
+    }
+    StandeeEdges(mesh, inst, rowMeta, rows, x, base, z0, z1);
+    EndRange(mesh, &r);
+}
+
+// A small solid object (a mailbox, a crate): the silhouette's box.
+static void BuildStandeeBox(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
+{
+    const VoxelCell *c = &inst->cells[ly * inst->width + lx];
+    const VoxelArtInfo *a = &inst->art[c->metatile];
+    float x = (float)(lx + inst->originX);
+    float z = (float)(ly + inst->originY);
+    float base = c->groundH;
+    float x0 = x + a->x0 / 16.0f, x1 = x + (a->x1 + 1) / 16.0f;
+    float w = x1 - x0;
+    float depth = w < 0.6f ? w : 0.6f;
+    float zc = z + 0.5f, z0 = zc - depth * 0.5f, z1 = zc + depth * 0.5f;
+    float top = base + (16 - a->y0) / 16.0f;
+    int m = c->metatile;
+    VoxelMeshRange r;
+    UvRect front = UvRegion(m, VOXEL_VAR_CARVED, a->x0, a->x1 + 1, a->y0, a->y1 + 1);
+    UvRect back = front;
+    UvRect side = UvRegion(m, VOXEL_VAR_COMPOSED, a->x0, a->x0 + 2, a->y0, a->y1 + 1);
+    UvRect lid = UvRegion(m, VOXEL_VAR_COMPOSED, a->x0, a->x1 + 1, a->y0, a->y0 + 3);
+
+    mesh->stats.standeeBoxes++;
+    back.u0 = front.u1; back.u1 = front.u0;
+    TopQuad(mesh, x, z, base, UvFor(m, VOXEL_VAR_GROUND), SHADE_TOP);
+    GroundFascias(mesh, inst, lx, ly, base, VOXEL_VAR_GROUND);
+    if (top <= base + 0.05f || w <= 0.05f)
+        return;
+    BeginRange(mesh, &r, (int)x, (int)z, -1, base, top);
+    WallZ(mesh, x0, x1, z1, base, top, true, front, SHADE_SOUTH);
+    WallZ(mesh, x0, x1, z0, base, top, false, back, SHADE_NORTH);
+    WallX(mesh, x1, z0, z1, base, top, true, side, SHADE_EAST);
+    WallX(mesh, x0, z0, z1, base, top, false, side, SHADE_WEST);
+    TopRect(mesh, x0, x1, z0, z1, top, lid, SHADE_TOP);
     EndRange(mesh, &r);
 }
 
@@ -391,13 +1120,14 @@ static void BuildFurniture(VoxelMesh *mesh, const VoxelInstance *inst, int lx, i
     float x = (float)(lx + inst->originX);
     float z = (float)(ly + inst->originY);
     float base = c->groundH, top = c->topH;
-    UvRect uv = UvFor(c->metatile);
+    UvRect uv = UvFor(c->metatile, VOXEL_VAR_COMPOSED);
     const VoxelCell *n;
     float nh;
     bool faceOn = c->cls == VC_CONSOLE || c->cls == VC_TV || c->cls == VC_APPLIANCE
                || c->cls == VC_CABINET || c->cls == VC_WORKTOP || c->cls == VC_SINK || c->cls == VC_PROP
                || c->cls == VC_BOOKCASE;
 
+    mesh->stats.furniture++;
     ShellFaces(mesh, inst, c, x, z, base);
     if (top <= base + 0.01f)
     {
@@ -408,7 +1138,7 @@ static void BuildFurniture(VoxelMesh *mesh, const VoxelInstance *inst, int lx, i
     {
         // The drawing is a front elevation: fold it up the south face and
         // give the top a plain lid from the art's top rows.
-        TopQuad(mesh, x, z, top, UvSlice(c->metatile, 0.0f, 0.2f), SHADE_TOP - 20);
+        TopQuad(mesh, x, z, top, UvSlice(c->metatile, VOXEL_VAR_COMPOSED, 0.0f, 0.2f), SHADE_TOP - 20);
         n = Nb(inst, lx, ly + 1); nh = SideHeight(n);
         if (nh < top - 0.01f) SouthFace(mesh, x, z, base, top, uv, SHADE_SOUTH);
     }
@@ -416,14 +1146,14 @@ static void BuildFurniture(VoxelMesh *mesh, const VoxelInstance *inst, int lx, i
     {
         TopQuad(mesh, x, z, top, uv, SHADE_TOP);
         n = Nb(inst, lx, ly + 1); nh = SideHeight(n);
-        if (nh < top - 0.01f) SouthFace(mesh, x, z, base, top, UvSlice(c->metatile, 0.7f, 1.0f), SHADE_SOUTH - 40);
+        if (nh < top - 0.01f) SouthFace(mesh, x, z, base, top, UvSlice(c->metatile, VOXEL_VAR_COMPOSED, 0.7f, 1.0f), SHADE_SOUTH - 40);
     }
     n = Nb(inst, lx, ly - 1); nh = SideHeight(n);
-    if (nh < top - 0.01f) NorthFace(mesh, x, z, base, top, UvSlice(c->metatile, 0.0f, 0.3f), SHADE_NORTH);
+    if (nh < top - 0.01f) NorthFace(mesh, x, z, base, top, UvSlice(c->metatile, VOXEL_VAR_COMPOSED, 0.0f, 0.3f), SHADE_NORTH);
     n = Nb(inst, lx + 1, ly); nh = SideHeight(n);
-    if (nh < top - 0.01f) EastFace(mesh, x, z, base, top, UvSlice(c->metatile, 0.2f, 1.0f), SHADE_EAST - 30);
+    if (nh < top - 0.01f) EastFace(mesh, x, z, base, top, UvSlice(c->metatile, VOXEL_VAR_COMPOSED, 0.2f, 1.0f), SHADE_EAST - 30);
     n = Nb(inst, lx - 1, ly); nh = SideHeight(n);
-    if (nh < top - 0.01f) WestFace(mesh, x, z, base, top, UvSlice(c->metatile, 0.2f, 1.0f), SHADE_WEST - 30);
+    if (nh < top - 0.01f) WestFace(mesh, x, z, base, top, UvSlice(c->metatile, VOXEL_VAR_COMPOSED, 0.2f, 1.0f), SHADE_WEST - 30);
 }
 
 // ---------------------------------------------------------------------------
@@ -441,6 +1171,7 @@ static void BuildBuilding(VoxelMesh *mesh, const VoxelInstance *inst, int b)
     VoxelMeshRange r;
     float zFront = (float)(bd->facadeRow + inst->originY) + 1.0f;
 
+    mesh->stats.buildings++;
     BeginRange(mesh, &r, bd->minX + inst->originX, bd->facadeRow + inst->originY, b, base, wallTop + rise);
     r.rows = bd->facadeRow - bd->minTop + 1;
     r.cols = bd->maxX - bd->minX + 1;
@@ -463,7 +1194,7 @@ static void BuildBuilding(VoxelMesh *mesh, const VoxelInstance *inst, int b)
         for (k = 0; k < wallRows; k++)
         {
             const VoxelCell *cellK = Nb(inst, col, bd->facadeRow - k);
-            SouthFace(mesh, x, zFront - 1.0f, base + k, base + k + 1, UvFor(cellK->metatile), SHADE_SOUTH);
+            SouthFace(mesh, x, zFront - 1.0f, base + k, base + k + 1, UvFor(cellK->metatile, VOXEL_VAR_COMPOSED), SHADE_SOUTH);
         }
 
         // roof: a plane from the facade top at the front to the peak at the
@@ -489,7 +1220,7 @@ static void BuildBuilding(VoxelMesh *mesh, const VoxelInstance *inst, int b)
             {
                 rowAt = top;
             }
-            uv = UvFor(Nb(inst, col, rowAt)->metatile);
+            uv = UvFor(Nb(inst, col, rowAt)->metatile, VOXEL_VAR_COMPOSED);
             Quad(mesh,
                  x,        y0, zz,        uv.u0, uv.v0,
                  x + 1.0f, y0, zz,        uv.u1, uv.v0,
@@ -506,7 +1237,7 @@ static void BuildBuilding(VoxelMesh *mesh, const VoxelInstance *inst, int b)
             if (nh < colPeak - 0.01f)
             {
                 float lo = nh > base ? nh : base;
-                NorthFace(mesh, x, zBack, lo, colPeak, UvFor(edge->metatile), SHADE_NORTH);
+                NorthFace(mesh, x, zBack, lo, colPeak, UvFor(edge->metatile, VOXEL_VAR_COMPOSED), SHADE_NORTH);
             }
         }
 
@@ -547,12 +1278,13 @@ static void BuildBuilding(VoxelMesh *mesh, const VoxelInstance *inst, int b)
                         nb = Nb(inst, col - 1, rowHere);
                         nh = SideHeight(nb);
                         if (nb && nb->building == b) nh = 1000.0f;
+                        if (nb && IsOpenColumn(nb)) nh = nb->groundH;
                         lo = nh > base ? nh : base;
                         if (lo < colWallTop - 0.01f)
-                            WestFace(mesh, x, zz, lo, colWallTop, UvSlice(wallRowMeta, 0.0f, 1.0f), SHADE_WEST);
+                            WestFace(mesh, x, zz, lo, colWallTop, UvSlice(wallRowMeta, VOXEL_VAR_COMPOSED, 0.0f, 1.0f), SHADE_WEST);
                         if (roofRows > 0 && lo < yN - 0.01f)
                         {
-                            uv = UvFor(Nb(inst, col, top)->metatile);
+                            uv = UvFor(Nb(inst, col, top)->metatile, VOXEL_VAR_COMPOSED);
                             Quad(mesh,
                                  x, colWallTop, zz,        uv.u0, uv.v1,
                                  x, colWallTop, zz + 1.0f, uv.u1, uv.v1,
@@ -566,12 +1298,13 @@ static void BuildBuilding(VoxelMesh *mesh, const VoxelInstance *inst, int b)
                         nb = Nb(inst, col + 1, rowHere);
                         nh = SideHeight(nb);
                         if (nb && nb->building == b) nh = 1000.0f;
+                        if (nb && IsOpenColumn(nb)) nh = nb->groundH;
                         lo = nh > base ? nh : base;
                         if (lo < colWallTop - 0.01f)
-                            EastFace(mesh, x, zz, lo, colWallTop, UvSlice(wallRowMeta, 0.0f, 1.0f), SHADE_EAST);
+                            EastFace(mesh, x, zz, lo, colWallTop, UvSlice(wallRowMeta, VOXEL_VAR_COMPOSED, 0.0f, 1.0f), SHADE_EAST);
                         if (roofRows > 0 && lo < yN - 0.01f)
                         {
-                            uv = UvFor(Nb(inst, col, top)->metatile);
+                            uv = UvFor(Nb(inst, col, top)->metatile, VOXEL_VAR_COMPOSED);
                             Quad(mesh,
                                  x + 1.0f, colWallTop, zz + 1.0f, uv.u0, uv.v1,
                                  x + 1.0f, colWallTop, zz,        uv.u1, uv.v1,
@@ -590,21 +1323,54 @@ static void BuildBuilding(VoxelMesh *mesh, const VoxelInstance *inst, int b)
 // ---------------------------------------------------------------------------
 // Instance build
 // ---------------------------------------------------------------------------
+// Two tree anchors side by side whose four metatiles are the consecutive
+// quarters of one 2x2 drawing (468/469 over 476/477 in Littleroot) are one
+// tree: a single round crown over one trunk, the phase read off the feet.
+static bool TreePairAt(const VoxelInstance *inst, int lx, int ly, const bool *done)
+{
+    const VoxelCell *a = &inst->cells[ly * inst->width + lx];
+    const VoxelCell *e = (lx + 1 < inst->width) ? &inst->cells[ly * inst->width + lx + 1] : NULL;
+    const VoxelCell *aN = Nb(inst, lx, ly - 1);
+    const VoxelCell *eN = (lx + 1 < inst->width) ? Nb(inst, lx + 1, ly - 1) : NULL;
+    if (e == NULL || aN == NULL || eN == NULL)
+        return false;
+    if (done[ly * inst->width + lx + 1])
+        return false;
+    if (e->cls != VC_WALL || e->shape != SH_TREE || e->stack != a->stack || e->building >= 0)
+        return false;
+    // Emerald's tree quarters come in even/odd pairs: the left half is the
+    // even id. Either row may carry an edge variant, so one matching row
+    // with an even west half names the tree.
+    if (!((e->metatile == a->metatile + 1 && (a->metatile & 1) == 0)
+          || (eN->metatile == aN->metatile + 1 && (aN->metatile & 1) == 0)
+          || (e->metatile == a->metatile && eN->metatile == aN->metatile)))   // a wall of one repeated quarter
+        return false;
+    if (fabsf(e->groundH - a->groundH) > 0.01f || fabsf(e->topH - a->topH) > 0.01f)
+        return false;
+    return true;
+}
+
 void VoxelMesh_BuildInstance(VoxelMesh *mesh, const VoxelInstance *inst)
 {
     int x, y, b;
+    bool *done;
     VoxelMesh_Clear(mesh);
     if (inst->cells == NULL)
         return;
+    done = calloc(inst->width * inst->height, sizeof(bool));
 
     for (y = 0; y < inst->height; y++)
         for (x = 0; x < inst->width; x++)
         {
             const VoxelCell *c = &inst->cells[y * inst->width + x];
-            if (c->cls == VC_VOID || c->building >= 0)
+            if (c->cls == VC_VOID)
                 continue;
-            if (c->cls == VC_WALL || c->cls == VC_CLIFF)
+            if (c->building >= 0 && ((c->flags & VCF_BLOCKED) || c->cls == VC_DOOR))
+                continue;   // the building draws it; a walkable cell under its eave keeps its ground
+            if ((c->cls == VC_WALL || c->cls == VC_CLIFF) && c->shape != SH_NONE && c->shape != SH_SUPPORT)
                 continue;   // columns below
+            if ((c->cls == VC_WALL || c->cls == VC_CLIFF) && (c->flags & VCF_CONSUMED))
+                continue;
             if (c->cls >= VC_COUNTER && c->cls < VC_COUNT && (c->flags & VCF_BLOCKED))
                 continue;   // furniture below
             BuildSurface(mesh, inst, x, y);
@@ -613,35 +1379,52 @@ void VoxelMesh_BuildInstance(VoxelMesh *mesh, const VoxelInstance *inst)
         for (x = 0; x < inst->width; x++)
         {
             const VoxelCell *c = &inst->cells[y * inst->width + x];
-            if (c->building >= 0)
+            if (c->building >= 0 || done[y * inst->width + x])
                 continue;
             if ((c->cls == VC_WALL || c->cls == VC_CLIFF) && c->stack > 0)
-                BuildColumn(mesh, inst, x, y);
+            {
+                switch (c->shape)
+                {
+                case SH_TREE:
+                    if (c->stack >= 2 && TreePairAt(inst, x, y, done))
+                    {
+                        done[y * inst->width + x + 1] = true;
+                        BuildTree(mesh, inst, x, y, true);
+                    }
+                    else
+                        BuildTree(mesh, inst, x, y, false);
+                    break;
+                case SH_BUSH: BuildBush(mesh, inst, x, y); break;
+                case SH_STANDEE: case SH_STANDEE_TALL: BuildStandee(mesh, inst, x, y); break;
+                case SH_STANDEE_BOX: BuildStandeeBox(mesh, inst, x, y); break;
+                case SH_NONE: case SH_SUPPORT: break;   // drawn as surfaces above
+                default: BuildColumn(mesh, inst, x, y); break;
+                }
+            }
             else if (c->cls >= VC_COUNTER && c->cls < VC_COUNT && (c->flags & VCF_BLOCKED))
                 BuildFurniture(mesh, inst, x, y);
         }
     for (b = 0; b < inst->buildingCount; b++)
         BuildBuilding(mesh, inst, b);
+    free(done);
+    mesh->vboDirty = true;
 
     if (getenv("EMERALD_VOXEL_DUMP") && inst == &gVoxelInstances[0])
-    {
-        int r, v, shown = 0;
-        for (r = 0; r < mesh->rangeCount && shown < 2; r++)
-        {
-            const VoxelMeshRange *rg = &mesh->ranges[r];
-            const VoxelCell *c = VoxelWorld_CellAt(rg->worldX, rg->worldZ);
-            if (rg->building >= 0 || c == NULL || c->stack < 2)
-                continue;
-            printf("[Dump] range %d cell (%d,%d) stack %d base %.2f top %.2f first %d count %d\n",
-                   r, rg->worldX, rg->worldZ, c->stack, rg->base, rg->top, rg->first, rg->count);
-            for (v = rg->first; v < rg->first + rg->count; v++)
-            {
-                const VoxelVertex *vv = &mesh->verts[v];
-                printf("[Dump]  %3d: %6.2f %6.2f %6.2f  uv %.4f %.4f  c %d\n", v - rg->first, vv->x, vv->y, vv->z, vv->u, vv->v, vv->r);
-            }
-            shown++;
-        }
-    }
+        printf("[Voxel] mesh %d:%d verts %d ranges %d trees %d (pairs %d) bushes %d standees %d/%d/%d boxes %d lips %d mats %d canopies %d decks %d pillars %d\n",
+               inst->mapGroup, inst->mapNum, mesh->count, mesh->rangeCount, mesh->stats.trees, mesh->stats.treePairs,
+               mesh->stats.bushes, mesh->stats.standees, mesh->stats.standeeBoxes, mesh->stats.standeeTall, mesh->stats.boxes,
+               mesh->stats.lips, mesh->stats.mats, mesh->stats.canopies, mesh->stats.decks, mesh->stats.pillars);
+}
+
+void VoxelMesh_WriteStatsJson(FILE *f, const VoxelMesh *mesh)
+{
+    const VoxelMeshStats *s = &mesh->stats;
+    fprintf(f, "{\"verts\":%d,\"ranges\":%d,\"trees\":%d,\"treePairs\":%d,\"bushes\":%d,\"standees\":%d,\"standeeBoxes\":%d,"
+               "\"standeeTall\":%d,\"boxes\":%d,\"cliffs\":%d,\"flats\":%d,\"supports\":%d,\"lips\":%d,\"lipFaces\":%d,"
+               "\"mats\":%d,\"matSkirts\":%d,\"canopies\":%d,\"decks\":%d,\"deckFascias\":%d,\"pillars\":%d,\"furniture\":%d,\"buildings\":%d}",
+            mesh->count, mesh->rangeCount, s->trees, s->treePairs, s->bushes, s->standees, s->standeeBoxes, s->standeeTall,
+            s->boxes, s->cliffs, s->flats, s->supports, s->lips, s->lipFaces, s->mats, s->matSkirts, s->canopies, s->decks,
+            s->deckFascias, s->pillars, s->furniture, s->buildings);
 }
 
 // ---------------------------------------------------------------------------
@@ -655,7 +1438,6 @@ void VoxelMesh_ComputeGhosts(VoxelMesh *mesh, float px, float py, float pz, floa
     for (i = 0; i < mesh->rangeCount; i++)
     {
         const VoxelMeshRange *r = &mesh->ranges[i];
-        float headY = py + 1.6f;
         float dz, rayY;
         bool ghost = false;
         if (gVoxelDebugFlags & 2u)
@@ -669,28 +1451,32 @@ void VoxelMesh_ComputeGhosts(VoxelMesh *mesh, float px, float py, float pz, floa
             // the ray from the player's head first meets it
             float northZ = (float)r->worldZ - (float)r->rows + 1.0f;
             dz = northZ - (pz + 0.5f);
-            if (dz >= -0.5f && dz < 6.0f && px >= (float)r->worldX - 0.5f
-                && px <= (float)(r->worldX + r->cols) + 0.5f)
+            if (dz >= -0.5f && dz < 6.0f && px >= (float)r->worldX - 0.3f
+                && px <= (float)(r->worldX + r->cols) + 0.3f)
             {
                 rayY = py + 0.9f + (dz > 0.0f ? dz : 0.0f) * camTanPitch;
                 if (r->top > rayY)
                     ghost = true;
             }
-            (void)headY;
         }
         else
         {
-            // columns: the stack's near edge is its northmost row; sight the
-            // ray from the sprite's midriff so a knee-high fence stays put
-            // while a hedge that swallows the body fades
-            float cx = (float)r->worldX + 0.5f;
+            // columns, trees, plates: the mass's near edge is its northmost
+            // row; sight the ray from the sprite's midriff so a knee-high
+            // fence stays put while a hedge that swallows the body fades
+            float cx = (float)r->worldX + 0.5f * r->cols;
             float northZ = (float)r->worldZ - (float)r->rows + 1.0f;
+            float reach = 1.6f + 0.5f * (r->cols - 1);
             dz = northZ - (pz + 0.5f);
             // a cell either side as well, so the opening reads as a gap in
             // the hedge rather than a slot cut for the player
-            if (fabsf(cx - px) <= 1.6f && dz >= 0.0f && dz < 4.0f)
+            // the cell directly south counts too: a crown centred on the
+            // row boundary overhangs the walker's feet -- but there the
+            // sight line starts above a one-course fence or rock, which
+            // only reaches the walker's waist and stays put
+            if (fabsf(cx - px) <= reach && dz >= -0.5f && dz < 4.0f)
             {
-                rayY = py + 0.9f + dz * camTanPitch;
+                rayY = dz < 0.0f ? py + 1.05f : py + 0.9f + dz * camTanPitch;
                 if (r->top > rayY)
                     ghost = true;
             }
@@ -699,15 +1485,34 @@ void VoxelMesh_ComputeGhosts(VoxelMesh *mesh, float px, float py, float pz, floa
     }
 }
 
-static void SetPointers(const VoxelMesh *mesh)
+static void BindMesh(VoxelMesh *mesh)
 {
+    if (mesh->vbo == 0)
+    {
+        glGenBuffers(1, (GLuint *)&mesh->vbo);
+        mesh->vboDirty = true;
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
+    if (mesh->vboDirty)
+    {
+        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)mesh->count * sizeof(VoxelVertex), mesh->verts, GL_STATIC_DRAW);
+        mesh->vboDirty = false;
+    }
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glVertexPointer(3, GL_FLOAT, sizeof(VoxelVertex), &mesh->verts[0].x);
-    glTexCoordPointer(2, GL_FLOAT, sizeof(VoxelVertex), &mesh->verts[0].u);
+    glVertexPointer(3, GL_FLOAT, sizeof(VoxelVertex), (const void *)0);
+    glTexCoordPointer(2, GL_FLOAT, sizeof(VoxelVertex), (const void *)(3 * sizeof(float)));
 }
 
-void VoxelMesh_DrawOpaque(const VoxelMesh *mesh)
+static void UnbindMesh(void)
+{
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void VoxelMesh_DrawOpaque(VoxelMesh *mesh)
 {
     int i, cursor = 0;
     if (mesh->count == 0)
@@ -720,9 +1525,12 @@ void VoxelMesh_DrawOpaque(const VoxelMesh *mesh)
     if (getenv("EMERALD_VOXEL_NODEPTH"))
         glDisable(GL_DEPTH_TEST);
 #endif
-    SetPointers(mesh);
+    BindMesh(mesh);
     glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(VoxelVertex), &mesh->verts[0].r);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(VoxelVertex), (const void *)(5 * sizeof(float)));
+    // carved silhouettes and canopy plates leave their background at alpha 0
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER, 0.5f);
     for (i = 0; i < mesh->rangeCount; i++)
     {
         const VoxelMeshRange *r = &mesh->ranges[i];
@@ -734,9 +1542,8 @@ void VoxelMesh_DrawOpaque(const VoxelMesh *mesh)
     }
     if (mesh->count > cursor)
         glDrawArrays(GL_TRIANGLES, cursor, mesh->count - cursor);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisable(GL_ALPHA_TEST);
+    UnbindMesh();
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);
 #ifndef __ANDROID__
@@ -744,7 +1551,7 @@ void VoxelMesh_DrawOpaque(const VoxelMesh *mesh)
 #endif
 }
 
-void VoxelMesh_DrawGhosted(const VoxelMesh *mesh)
+void VoxelMesh_DrawGhosted(VoxelMesh *mesh)
 {
     int i;
     bool any = false;
@@ -754,17 +1561,19 @@ void VoxelMesh_DrawGhosted(const VoxelMesh *mesh)
         if (mesh->ghost[i]) { any = true; break; }
     if (!any || mesh->count == 0)
         return;
-    SetPointers(mesh);
+    BindMesh(mesh);
     glDisableClientState(GL_COLOR_ARRAY);
     glColor4f(0.85f, 0.85f, 0.85f, 0.38f);
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER, 0.1f);
     for (i = 0; i < mesh->rangeCount; i++)
     {
         const VoxelMeshRange *r = &mesh->ranges[i];
         if (mesh->ghost[i])
             glDrawArrays(GL_TRIANGLES, r->first, r->count);
     }
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisable(GL_ALPHA_TEST);
+    UnbindMesh();
 }
 
 #endif
