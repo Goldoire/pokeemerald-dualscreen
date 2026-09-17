@@ -37,7 +37,15 @@ typedef struct {
     int trees, treePairs, bushes, standees, standeeBoxes, standeeTall;
     int boxes, cliffs, flats, supports, lips, lipFaces, mats, matSkirts;
     int canopies, decks, deckFascias, pillars, furniture, buildings, gables, eaves;
+    int contactQuads;     // ground quads darkened where something tall stands beside them
 } VoxelMeshStats;
+
+// A sample of the contact-shaded ground quads, for the dump.
+#define VOXEL_CONTACT_KEEP 40
+typedef struct {
+    int16_t x, z;
+    uint8_t corner[4];    // NW, NE, SE, SW shades
+} VoxelContactRecord;
 
 // One building's roof as built: the ridge, its slopes and its gables.
 #define VOXEL_ROOF_KEEP 48
@@ -78,6 +86,8 @@ typedef struct {
     int profileCount;
     VoxelRoofRecord roofs[VOXEL_ROOF_KEEP];
     int roofCount;
+    VoxelContactRecord contacts[VOXEL_CONTACT_KEEP];
+    int contactCount;
 } VoxelMesh;
 
 void VoxelMesh_Init(VoxelMesh *mesh);

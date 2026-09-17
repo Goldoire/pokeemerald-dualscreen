@@ -1333,7 +1333,17 @@ static void BuildShapes(VoxelInstance *inst)
                     }
                 inMass = massN >= 3 || openN < 2;
             }
-            if (inst->indoor || c->cls == VC_CLIFF || c->behavior == 0x0C)
+            if (inst->indoor)
+            {
+                // Indoors the carve is trusted for one thing only: a potted
+                // plant, thin and green on the floor, stands as a slab. Wall
+                // bands, counters and everything pinned stay boxes.
+                if (rows == 1 && a[0]->green >= 40 && a[0]->solid < ART_STANDEE_SOLID && a[0]->solid >= 10 && bboxRows >= 8)
+                    shape = SH_STANDEE;
+                else
+                    shape = SH_BOX;
+            }
+            else if (c->cls == VC_CLIFF || c->behavior == 0x0C)
                 shape = SH_BOX;     // MB_MOUNTAIN_TOP blocked: the rock of a terrace, whatever it carves to
             else if (rows == 2 && a[1]->green >= ART_GREEN && a[1]->solid >= ART_LEAF_SOLID
                      && (topAbove || a[0]->brown >= 6 || a[0]->green >= 64))

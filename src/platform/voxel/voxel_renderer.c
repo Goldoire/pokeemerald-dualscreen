@@ -736,7 +736,7 @@ void VoxelRenderer_RequestDumpJson(const char *path)
     sDumpPending = true;
 }
 
-static void WriteDumpJson(const EffectDraw *effects, int effectCount, float playerX, float playerY, float playerZ)
+static void WriteDumpJson(const EffectDraw *effects, int effectCount, const ObjectDraw *draws, float playerX, float playerY, float playerZ)
 {
     FILE *f = fopen(sDumpPath, "w");
     int i;
@@ -777,7 +777,43 @@ static void WriteDumpJson(const EffectDraw *effects, int effectCount, float play
         fprintf(f, "%s{\"sprite\":%d,\"kind\":\"%s\",\"cell\":[%d,%d],\"w\":%d,\"h\":%d,\"upright\":%s,\"tile\":%d}",
                 i ? "," : "", d->sprite, kind, d->cellX, d->cellY, d->w, d->h, d->upright ? "true" : "false", sp->oam.tileNum);
     }
-    fprintf(f, "]},\n\"gl\":{\"error\":%u},\"camera\":{\"x\":%.2f,\"y\":%.2f,\"z\":%.2f,\"preset\":%d,\"pitch\":%.2f,\"distance\":%.2f,\"fov\":%.2f,\"sky\":\"%s\"}}\n",
+    fprintf(f, "]},\n\"objects\":[");
+    {
+        int n = 0;
+        for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
+        {
+            const struct ObjectEvent *o = &gObjectEvents[i];
+            if (!draws[i].valid) continue;
+            fprintf(f, "%s{\"i\":%d,\"x\":%.2f,\"y\":%.2f,\"z\":%.2f,\"w\":%d,\"h\":%d,\"cell\":[%d,%d],\"gfx\":%d,\"invisible\":%d}",
+                    n ? "," : "", i, draws[i].x, draws[i].y, draws[i].z, draws[i].w, draws[i].h,
+                    o->currentCoords.x - MAP_OFFSET, o->currentCoords.y - MAP_OFFSET_Y, o->graphicsId, o->invisible);
+            n++;
+        }
+    }
+    fprintf(f, "],\n\"ghosted\":[");
+    if (gVoxelInstanceCount > 0)
+    {
+        const VoxelMesh *m0 = &sMeshes[0];
+        int n = 0;
+        for (i = 0; i < m0->rangeCount; i++)
+        {
+            const VoxelMeshRange *rg = &m0->ranges[i];
+            if (!m0->ghost[i]) continue;
+            fprintf(f, "%s{\"i\":%d,\"x\":%d,\"z\":%d,\"rows\":%d,\"cols\":%d,\"first\":%d,\"count\":%d,\"top\":%.2f,\"base\":%.2f,\"building\":%d,\"verts\":[",
+                    n ? "," : "", i, rg->worldX, rg->worldZ, rg->rows, rg->cols, rg->first, rg->count, rg->top, rg->base, rg->building);
+            {
+                int k, lim = rg->count < 2000 ? rg->count : 2000;
+                for (k = 0; k < lim; k++)
+                {
+                    const VoxelVertex *vv = &m0->verts[rg->first + k];
+                    fprintf(f, "%s[%.3f,%.3f,%.3f,%.4f,%.4f]", k ? "," : "", vv->x, vv->y, vv->z, vv->u, vv->v);
+                }
+            }
+            fprintf(f, "]}");
+            n++;
+        }
+    }
+    fprintf(f, "],\n\"gl\":{\"error\":%u},\"camera\":{\"x\":%.2f,\"y\":%.2f,\"z\":%.2f,\"preset\":%d,\"pitch\":%.2f,\"distance\":%.2f,\"fov\":%.2f,\"sky\":\"%s\"}}\n",
             (unsigned)glGetError(), sCamera.x, sCamera.y, sCamera.z, sCamera.preset, sCamera.pitch, sCamera.distance, sCamera.fov,
             sCamera.preset == 1 ? "warm" : "day");
     fclose(f);
@@ -1109,16 +1145,20 @@ void VoxelRenderer_RenderFrame(void)
             glBindTexture(GL_TEXTURE_2D, sAtlasTex[i]);
             VoxelMesh_DrawGhosted(&sMeshes[i]);
         }
-    // x-ray silhouettes through anything still hiding an object
-    if (!(gVoxelDebugFlags & DBG_NO_XRAY))
+    // x-ray silhouette of the PLAYER through anything still hiding them
+    // (the ghosting above usually clears the way; this is the fallback).
+    // Other objects are left to the scenery: a walker behind a tree is
+    // simply behind a tree, and drawing every occluded sliver of every
+    // sprite through a round crown's grazing edge left stray blue lines.
+    if (!(gVoxelDebugFlags & DBG_NO_XRAY) && gPlayerAvatar.objectEventId < OBJECT_EVENTS_COUNT
+        && draws[gPlayerAvatar.objectEventId].valid)
     {
+        const ObjectDraw *pd = &draws[gPlayerAvatar.objectEventId];
         glDepthFunc(GL_GREATER);
         glEnable(GL_ALPHA_TEST);
         glAlphaFunc(GL_GREATER, 0.5f);
         glColor4f(0.6f, 0.8f, 1.0f, 0.35f);
-        for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
-            if (draws[i].valid)
-                DrawBillboard(draws[i].x, draws[i].y, draws[i].z, draws[i].tex, draws[i].w, draws[i].h, -1.0f);
+        DrawBillboard(pd->x, pd->y, pd->z, pd->tex, pd->w, pd->h, -1.0f);
         glDisable(GL_ALPHA_TEST);
         glDepthFunc(GL_LEQUAL);
     }
@@ -1144,7 +1184,7 @@ void VoxelRenderer_RenderFrame(void)
     if (sScreenshotPending)
         SaveScreenshot(winW, winH);
     if (sDumpPending)
-        WriteDumpJson(effects, effectCount, playerX, playerY, playerZ);
+        WriteDumpJson(effects, effectCount, draws, playerX, playerY, playerZ);
     NoteFrameTime(frameStart);
     SDL_GL_SwapWindow(sdlWindow);
 }

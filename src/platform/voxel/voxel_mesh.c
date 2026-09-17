@@ -116,6 +116,7 @@ void VoxelMesh_Clear(VoxelMesh *mesh)
     memset(&mesh->stats, 0, sizeof(mesh->stats));
     mesh->profileCount = 0;
     mesh->roofCount = 0;
+    mesh->contactCount = 0;
 }
 
 void VoxelMesh_InvalidateGL(VoxelMesh *mesh)
@@ -197,6 +198,20 @@ static void TopRect(VoxelMesh *mesh, float x0, float x1, float z0, float z1, flo
          x1, y, z1, uv.u1, uv.v1,
          x0, y, z1, uv.u0, uv.v1,
          shade);
+}
+
+// Horizontal quad covering cell (x, z) with a shade per corner (NW, NE, SE,
+// SW), so contact shadow can creep in from the corners that touch a wall.
+static void TopQuadShaded(VoxelMesh *mesh, float x, float z, float y, UvRect uv, const int *sh)
+{
+    VoxelVertex *v = Reserve(mesh, 6);
+    Vtx(&v[0], x,        y, z,        uv.u0, uv.v0, sh[0], 255);
+    Vtx(&v[1], x + 1.0f, y, z,        uv.u1, uv.v0, sh[1], 255);
+    Vtx(&v[2], x + 1.0f, y, z + 1.0f, uv.u1, uv.v1, sh[2], 255);
+    Vtx(&v[3], x,        y, z,        uv.u0, uv.v0, sh[0], 255);
+    Vtx(&v[4], x + 1.0f, y, z + 1.0f, uv.u1, uv.v1, sh[2], 255);
+    Vtx(&v[5], x,        y, z + 1.0f, uv.u0, uv.v1, sh[3], 255);
+    mesh->count += 6;
 }
 
 // Vertical faces of cell (x, z) between heights y0 (bottom) and y1 (top).
@@ -360,6 +375,80 @@ static bool IsOpenColumn(const VoxelCell *c)
     return c && (c->cls == VC_WALL) && (c->shape == SH_TREE || c->shape == SH_BUSH || c->shape == SH_STANDEE
                                          || c->shape == SH_STANDEE_BOX || c->shape == SH_STANDEE_TALL
                                          || c->shape == SH_NONE || c->shape == SH_SUPPORT);
+}
+
+// Contact shadow: something tall standing beside a floor cell darkens the
+// floor's corners it touches -- a wall or building by a full step, a tree
+// or a fence post by a lighter one -- the way the mod's ambient occlusion
+// seats its columns in the ground.
+static bool IsTallBeside(const VoxelCell *n, float top)
+{
+    if (n == NULL || n->cls == VC_VOID)
+        return false;
+    if (n->shape == SH_TREE || n->shape == SH_BUSH || n->shape == SH_STANDEE
+        || n->shape == SH_STANDEE_TALL || n->shape == SH_STANDEE_BOX)
+        return false;                          // handled as a light contact
+    if (!(n->flags & VCF_BLOCKED))
+        return false;
+    if (n->building >= 0 || IsColumn(n))
+        return n->topH > top + 0.4f;
+    return false;
+}
+
+static bool IsLightBeside(const VoxelCell *n)
+{
+    return n && n->cls != VC_VOID && (n->shape == SH_TREE || n->shape == SH_BUSH || n->shape == SH_STANDEE
+                                       || n->shape == SH_STANDEE_TALL || n->shape == SH_STANDEE_BOX);
+}
+
+// Shade of the corner (cx, cz) in {0,1}^2 of cell (lx, ly) whose top is `top`.
+static int CornerShade(const VoxelInstance *inst, int lx, int ly, int cx, int cz, float top)
+{
+    int dark = 0, i;
+    static const int ox[3] = {-1, 0, -1};   // the three other cells sharing the corner:
+    static const int oz[3] = {-1, -1, 0};   // (cx-1,cz-1) (cx,cz-1) (cx-1,cz) relative to (lx+cx, ly+cz)
+    for (i = 0; i < 3; i++)
+    {
+        int nx = lx + cx + ox[i], nz = ly + cz + oz[i];
+        const VoxelCell *n;
+        if (nx == lx && nz == ly)
+            continue;
+        n = Nb(inst, nx, nz);
+        if (IsTallBeside(n, top)) dark += 45;
+        else if (IsLightBeside(n)) dark += 22;
+    }
+    // the cell diagonal from the corner is not one of the three above when
+    // cx/cz select it; count it too so a corner between two walls is darkest
+    {
+        int nx = lx + (cx ? 1 : -1), nz = ly + (cz ? 1 : -1);
+        const VoxelCell *n = Nb(inst, nx, nz);
+        if (IsTallBeside(n, top)) dark += 20;
+        else if (IsLightBeside(n)) dark += 10;
+    }
+    if (dark > 105) dark = 105;
+    return 255 - dark;
+}
+
+// The four corner shades of a floor cell; true when any corner is darkened.
+static bool ContactShades(const VoxelInstance *inst, int lx, int ly, float top, int *sh)
+{
+    sh[0] = CornerShade(inst, lx, ly, 0, 0, top);
+    sh[1] = CornerShade(inst, lx, ly, 1, 0, top);
+    sh[2] = CornerShade(inst, lx, ly, 1, 1, top);
+    sh[3] = CornerShade(inst, lx, ly, 0, 1, top);
+    return sh[0] < 255 || sh[1] < 255 || sh[2] < 255 || sh[3] < 255;
+}
+
+static void NoteContact(VoxelMesh *mesh, float x, float z, const int *sh)
+{
+    mesh->stats.contactQuads++;
+    if (mesh->contactCount < VOXEL_CONTACT_KEEP)
+    {
+        VoxelContactRecord *c = &mesh->contacts[mesh->contactCount++];
+        int i;
+        c->x = (int16_t)x; c->z = (int16_t)z;
+        for (i = 0; i < 4; i++) c->corner[i] = (uint8_t)sh[i];
+    }
 }
 
 // Interior room shell: the walls the GBA never draws, two courses tall
@@ -627,7 +716,16 @@ static void BuildSurface(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int
 
     if (c->shape == SH_SUPPORT) mesh->stats.supports++;
     else if (c->shape == SH_NONE && (c->flags & VCF_BLOCKED)) mesh->stats.flats++;
-    TopQuad(mesh, x, z, top, UvFor(c->metatile, variant), SHADE_TOP);
+    {
+        int sh[4];
+        if (ContactShades(inst, lx, ly, top, sh))
+        {
+            TopQuadShaded(mesh, x, z, top, UvFor(c->metatile, variant), sh);
+            NoteContact(mesh, x, z, sh);
+        }
+        else
+            TopQuad(mesh, x, z, top, UvFor(c->metatile, variant), SHADE_TOP);
+    }
     GroundFascias(mesh, inst, lx, ly, top, variant);
     ShellFaces(mesh, inst, c, x, z, c->groundH);
 
@@ -1470,10 +1568,21 @@ void VoxelMesh_WriteStatsJson(FILE *f, const VoxelMesh *mesh)
     fprintf(f, "{\"verts\":%d,\"ranges\":%d,\"trees\":%d,\"treePairs\":%d,\"bushes\":%d,\"standees\":%d,\"standeeBoxes\":%d,"
                "\"standeeTall\":%d,\"boxes\":%d,\"cliffs\":%d,\"flats\":%d,\"supports\":%d,\"lips\":%d,\"lipFaces\":%d,"
                "\"mats\":%d,\"matSkirts\":%d,\"canopies\":%d,\"decks\":%d,\"deckFascias\":%d,\"pillars\":%d,\"furniture\":%d,\"buildings\":%d,"
-               "\"gables\":%d,\"eaves\":%d",
+               "\"gables\":%d,\"eaves\":%d,\"contactQuads\":%d",
             mesh->count, mesh->rangeCount, s->trees, s->treePairs, s->bushes, s->standees, s->standeeBoxes, s->standeeTall,
             s->boxes, s->cliffs, s->flats, s->supports, s->lips, s->lipFaces, s->mats, s->matSkirts, s->canopies, s->decks,
-            s->deckFascias, s->pillars, s->furniture, s->buildings, s->gables, s->eaves);
+            s->deckFascias, s->pillars, s->furniture, s->buildings, s->gables, s->eaves, s->contactQuads);
+    {
+        int i;
+        fprintf(f, ",\"contacts\":[");
+        for (i = 0; i < mesh->contactCount; i++)
+        {
+            const VoxelContactRecord *cr = &mesh->contacts[i];
+            fprintf(f, "%s{\"x\":%d,\"z\":%d,\"c\":[%d,%d,%d,%d]}", i ? "," : "", cr->x, cr->z,
+                    cr->corner[0], cr->corner[1], cr->corner[2], cr->corner[3]);
+        }
+        fprintf(f, "]");
+    }
     {
         int i;
         fprintf(f, ",\"roofs\":[");
