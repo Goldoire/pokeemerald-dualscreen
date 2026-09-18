@@ -379,6 +379,19 @@ static float SideHeight(const VoxelCell *n)
 {
     if (n == NULL || n->cls == VC_VOID)
         return -1000.0f;
+    if (n->stepAxis)
+        return n->groundH;      // a flight: its lowest tread
+    return n->topH;
+}
+
+// The height a neighbour presents along a flight's axis: the tread of a
+// flight cell that faces us, else its surface.
+static float StepFacing(const VoxelCell *n, int axis, int half)
+{
+    if (n == NULL || n->cls == VC_VOID)
+        return -1000.0f;
+    if (n->stepAxis == axis)
+        return n->stepH[half];
     return n->topH;
 }
 
@@ -742,6 +755,69 @@ static void BuildDeck(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly
 // The ground each vacated cell paints (per build; 0xFFFF: its own art).
 static uint16_t *sGroundFor;
 
+// ---------------------------------------------------------------------------
+// A FLIGHT (Structures.lua buildGen3Flights): each cell is two 8px treads at
+// their ramped heights, each wearing its own half of the drawing, with a
+// riser wherever a tread stands over the next one down.
+// ---------------------------------------------------------------------------
+static void BuildFlight(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
+{
+    const VoxelCell *c = &inst->cells[ly * inst->width + lx];
+    float x = (float)(lx + inst->originX), z = (float)(ly + inst->originY);
+    int m = c->metatile, k, v = VOXEL_VAR_COMPOSED;
+    const VoxelCell *nbLo = c->stepAxis == 1 ? Nb(inst, lx, ly - 1) : Nb(inst, lx - 1, ly);  // north / west
+    const VoxelCell *nbHi = c->stepAxis == 1 ? Nb(inst, lx, ly + 1) : Nb(inst, lx + 1, ly);  // south / east
+    float h0 = c->stepH[0], h1 = c->stepH[1];
+    float before = StepFacing(nbLo, c->stepAxis, 1), after = StepFacing(nbHi, c->stepAxis, 0);
+
+    if (c->stepAxis == 1)
+    {
+        const VoxelCell *e = Nb(inst, lx + 1, ly), *wv = Nb(inst, lx - 1, ly);
+        for (k = 0; k < 2; k++)
+        {
+            float z0 = z + k * 0.5f, z1 = z0 + 0.5f, hk = c->stepH[k], he = SideHeight(e), hw = SideHeight(wv);
+            UvRect tread = UvRegion(m, v, 0.0f, 16.0f, k * 8.0f, k * 8.0f + 8.0f);
+            TopRect(mesh, x, x + 1.0f, z0, z1, hk, tread, SHADE_TOP);
+            if (he < hk)
+                WallX(mesh, x + 1.0f, z0, z1, he > hk - 4.0f ? he : hk - 4.0f, hk, true, tread, SHADE_EAST);
+            if (hw < hk)
+                WallX(mesh, x, z0, z1, hw > hk - 4.0f ? hw : hk - 4.0f, hk, false, tread, SHADE_WEST);
+        }
+        // risers: facing whichever way the flight goes down
+        if (h0 > h1 + 0.01f)
+            WallZ(mesh, x, x + 1.0f, z + 0.5f, h1, h0, true, UvRegion(m, v, 0.0f, 16.0f, 0.0f, 8.0f), SHADE_SOUTH);
+        else if (h1 > h0 + 0.01f)
+            WallZ(mesh, x, x + 1.0f, z + 0.5f, h0, h1, false, UvRegion(m, v, 0.0f, 16.0f, 8.0f, 16.0f), SHADE_NORTH);
+        if (h0 > before + 0.01f && before > -999.0f)
+            WallZ(mesh, x, x + 1.0f, z, before, h0, false, UvRegion(m, v, 0.0f, 16.0f, 0.0f, 8.0f), SHADE_NORTH);
+        if (h1 > after + 0.01f && after > -999.0f)
+            WallZ(mesh, x, x + 1.0f, z + 1.0f, after, h1, true, UvRegion(m, v, 0.0f, 16.0f, 8.0f, 16.0f), SHADE_SOUTH);
+    }
+    else
+    {
+        const VoxelCell *s = Nb(inst, lx, ly + 1), *nn = Nb(inst, lx, ly - 1);
+        for (k = 0; k < 2; k++)
+        {
+            float x0 = x + k * 0.5f, x1 = x0 + 0.5f, hk = c->stepH[k], hs = SideHeight(s), hn = SideHeight(nn);
+            UvRect tread = UvRegion(m, v, k * 8.0f, k * 8.0f + 8.0f, 0.0f, 16.0f);
+            TopRect(mesh, x0, x1, z, z + 1.0f, hk, tread, SHADE_TOP);
+            if (hs < hk)
+                WallZ(mesh, x0, x1, z + 1.0f, hs > hk - 4.0f ? hs : hk - 4.0f, hk, true, tread, SHADE_SOUTH);
+            if (hn < hk)
+                WallZ(mesh, x0, x1, z, hn > hk - 4.0f ? hn : hk - 4.0f, hk, false, tread, SHADE_NORTH);
+        }
+        if (h0 > h1 + 0.01f)
+            WallX(mesh, x + 0.5f, z, z + 1.0f, h1, h0, true, UvRegion(m, v, 0.0f, 8.0f, 0.0f, 16.0f), SHADE_EAST);
+        else if (h1 > h0 + 0.01f)
+            WallX(mesh, x + 0.5f, z, z + 1.0f, h0, h1, false, UvRegion(m, v, 8.0f, 16.0f, 0.0f, 16.0f), SHADE_WEST);
+        if (h0 > before + 0.01f && before > -999.0f)
+            WallX(mesh, x, z, z + 1.0f, before, h0, false, UvRegion(m, v, 0.0f, 8.0f, 0.0f, 16.0f), SHADE_WEST);
+        if (h1 > after + 0.01f && after > -999.0f)
+            WallX(mesh, x + 1.0f, z, z + 1.0f, after, h1, true, UvRegion(m, v, 8.0f, 16.0f, 0.0f, 16.0f), SHADE_EAST);
+    }
+}
+
+
 static void BuildSurface(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
 {
     const VoxelCell *c = &inst->cells[ly * inst->width + lx];
@@ -762,6 +838,7 @@ static void BuildSurface(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int
         else variant = VOXEL_VAR_GROUND;
     }
 
+    if (c->stepAxis) { BuildFlight(mesh, inst, lx, ly); return; }
     if (c->shape == SH_LIP) { BuildLedge(mesh, inst, lx, ly); return; }
     if (c->shape == SH_MAT) { BuildMat(mesh, inst, lx, ly); return; }
     if (c->shape == SH_DECK) { BuildDeck(mesh, inst, lx, ly); return; }

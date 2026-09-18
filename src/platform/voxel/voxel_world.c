@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #ifdef __ANDROID__
 #include <SDL.h>
 #else
@@ -23,6 +24,8 @@
 #include "voxel_scene.h"
 #include "voxel_building.h"
 #include "voxel_roles.h"
+#include "voxel_terrace.h"
+#include "voxel_paling.h"
 
 VoxelInstance gVoxelInstances[MAX_VOXEL_MAP_INSTANCES];
 int gVoxelInstanceCount = 0;
@@ -656,6 +659,351 @@ static void BuildCells(VoxelInstance *inst)
     free(land);
     free(resolved);
     free(refMeta);
+}
+
+// ---------------------------------------------------------------------------
+// FLIGHTS AND SCULPTED TERRACES (Structures.lua markGen3Stairs and
+// buildGen3TerraceLevels, data/gen3_terraces.lua).
+//
+// A flight is a run of stair cells -- banded art that fills its cell and
+// draws no face -- with open ground at both ends that cannot be walked
+// between without it. A terrace is the connected walkable floor cut at
+// water and at flights; a sculpted map names each terrace by its anchor and
+// gives it a level, and nothing infers over it.
+// ---------------------------------------------------------------------------
+#define FLIGHT_REJOIN 8
+
+static bool WaterBehavior(u8 b)
+{
+    return (b >= 0x10 && b <= 0x1A && b != 0x13) || b == 0x22 || b == 0x28 || b == 0x2A || b == 0x2B
+        || (b >= 0x50 && b <= 0x53);
+}
+
+// Map:isWalkableCell: the collision bits alone.
+static bool Walkable(const VoxelInstance *inst, int x, int y)
+{
+    const VoxelCell *c;
+    if (x < 0 || y < 0 || x >= inst->width || y >= inst->height)
+        return false;
+    c = &inst->cells[y * inst->width + x];
+    return c->cls != VC_VOID && !(c->flags & VCF_BLOCKED);
+}
+
+// Gen3.roleAt on a walkable cell.
+enum { WR_FLOOR, WR_WATER, WR_STAIR };
+static int WalkRole(const VoxelInstance *inst, const VoxelCell *c)
+{
+    const struct MapLayout *layout = inst->header->mapLayout;
+    const VoxelRole *r = VoxelRoles_Find(layout->primaryTileset, layout->secondaryTileset, c->metatile);
+    if (r == NULL || r->art == ROLE_ART_NONE)
+        return WR_FLOOR;
+    if (r->kind == ROLE_KIND_WATER && WaterBehavior(c->behavior))
+        return WR_WATER;
+    if (r->kind == ROLE_KIND_LEDGE)
+        return WR_FLOOR;
+    // banded, at most the one row of shadow under the bottom tread, and
+    // filling its cell: decking and rock faces are banded too
+    if (r->art == ROLE_ART_BANDED && r->face <= 1 && inst->used[c->metatile] && inst->art[c->metatile].solid >= 0.75f)
+        return WR_STAIR;
+    return WR_FLOOR;
+}
+
+// A doorway is the building's side, not a landing.
+static bool BuildingSide(const VoxelInstance *inst, int x, int y)
+{
+    const VoxelCell *c = &inst->cells[y * inst->width + x];
+    return c->cls == VC_DOOR || (c->flags & VCF_WARP);
+}
+
+// A rail is walked round, not a wall between two places. Only the fences
+// that are stated count: a ridge band carves as thin as a rail does.
+static bool RailingAt(const VoxelInstance *inst, int x, int y)
+{
+    const VoxelCell *c;
+    if (x < 0 || y < 0 || x >= inst->width || y >= inst->height)
+        return false;
+    c = &inst->cells[y * inst->width + x];
+    return (c->flags & VCF_BLOCKED) && c->cls != VC_VOID
+        && VoxelPaling_Find(inst->header->mapLayout, c->metatile, NULL) != NULL;
+}
+
+typedef struct {
+    int a, b;       // the landing cells: north and south, or west and east
+    int axis;       // 1: along y, 2: along x
+} FlightRec;
+
+static void MarkFlights(VoxelInstance *inst, int *flightOf, FlightRec *rec, int *nRec)
+{
+    int w = inst->width, h = inst->height, n = w * h, i;
+    uint8_t *cand = calloc(n, 1), *seen = calloc(n, 1), *inBlob = calloc(n, 1);
+    int *blob = malloc(n * sizeof(int)), *q = malloc(n * sizeof(int)), *dist = malloc(n * sizeof(int));
+    static const int ddx[4] = {1, -1, 0, 0};
+    static const int ddy[4] = {0, 0, 1, -1};
+    int flights = 0;
+
+    for (i = 0; i < n; i++)
+    {
+        VoxelCell *c = &inst->cells[i];
+        c->flags &= ~VCF_FLIGHT;
+        c->stepAxis = 0;
+        flightOf[i] = -1;
+        if (Walkable(inst, i % w, i / w) && c->cls != VC_DOOR && WalkRole(inst, c) == WR_STAIR)
+            cand[i] = 1;
+    }
+    for (i = 0; i < n; i++)
+    {
+        int nb = 0, head = 0, k, d, A = -1, B = -1, s0 = -1, n0 = -1, w0 = -1, e0 = -1, qh = 0, qt = 0;
+        bool rejoined = false;
+        if (!cand[i] || seen[i])
+            continue;
+        blob[nb++] = i;
+        seen[i] = 1;
+        while (head < nb)
+        {
+            int cur = blob[head++], cx = cur % w, cy = cur / w;
+            for (d = 0; d < 4; d++)
+            {
+                int nx = cx + ddx[d], ny = cy + ddy[d], j;
+                if (nx < 0 || ny < 0 || nx >= w || ny >= h)
+                    continue;
+                j = ny * w + nx;
+                if (cand[j] && !seen[j]) { seen[j] = 1; blob[nb++] = j; }
+            }
+        }
+        for (k = 0; k < nb; k++)
+            inBlob[blob[k]] = 1;
+        // the open landings at either end
+        for (k = 0; k < nb; k++)
+            for (d = 0; d < 4; d++)
+            {
+                int nx = blob[k] % w + ddx[d], ny = blob[k] / w + ddy[d], j;
+                if (!Walkable(inst, nx, ny))
+                    continue;
+                j = ny * w + nx;
+                if (cand[j] || BuildingSide(inst, nx, ny))
+                    continue;
+                if (d == 0 && e0 < 0) e0 = j;
+                if (d == 1 && w0 < 0) w0 = j;
+                if (d == 2 && s0 < 0) s0 = j;
+                if (d == 3 && n0 < 0) n0 = j;
+            }
+        if (n0 >= 0 && s0 >= 0) { A = n0; B = s0; }
+        else if (w0 >= 0 && e0 >= 0) { A = w0; B = e0; }
+        if (A >= 0)
+        {
+            // ...that cannot be walked between without it
+            for (k = 0; k < n; k++) dist[k] = -1;
+            dist[A] = 0;
+            q[qt++] = A;
+            while (qh < qt && !rejoined)
+            {
+                int cur = q[qh++];
+                if (dist[cur] >= FLIGHT_REJOIN)
+                    continue;
+                for (d = 0; d < 4 && !rejoined; d++)
+                {
+                    int nx = cur % w + ddx[d], ny = cur / w + ddy[d], j;
+                    if (nx < 0 || ny < 0 || nx >= w || ny >= h)
+                        continue;
+                    j = ny * w + nx;
+                    if (dist[j] >= 0 || inBlob[j])
+                        continue;
+                    if (!Walkable(inst, nx, ny) && !RailingAt(inst, nx, ny))
+                        continue;
+                    dist[j] = dist[cur] + 1;
+                    if (j == B)
+                        rejoined = true;
+                    q[qt++] = j;
+                }
+            }
+            if (!rejoined)
+            {
+                rec[*nRec].a = A;
+                rec[*nRec].b = B;
+                rec[*nRec].axis = (n0 >= 0 && s0 >= 0) ? 1 : 2;
+                for (k = 0; k < nb; k++)
+                {
+                    inst->cells[blob[k]].flags |= VCF_FLIGHT;
+                    flightOf[blob[k]] = *nRec;
+                }
+                (*nRec)++;
+                flights++;
+            }
+        }
+        for (k = 0; k < nb; k++)
+            inBlob[blob[k]] = 0;
+    }
+    // a muddy slope is a ramp between two elevations: the same join
+    for (i = 0; i < n; i++)
+        if (Walkable(inst, i % w, i / w) && inst->cells[i].cls == VC_SLOPE)
+            inst->cells[i].flags |= VCF_FLIGHT;
+    if (flights > 0)
+        printf("[Voxel] map %d:%d flights %d\n", inst->mapGroup, inst->mapNum, flights);
+    free(cand); free(seen); free(inBlob); free(blob); free(q); free(dist);
+}
+
+static bool Standable(const VoxelInstance *inst, int x, int y)
+{
+    const VoxelCell *c;
+    if (!Walkable(inst, x, y))
+        return false;
+    c = &inst->cells[y * inst->width + x];
+    if (c->flags & VCF_FLIGHT)
+        return false;
+    return WalkRole(inst, c) == WR_FLOOR;
+}
+
+// A FLIGHT RAMPS BETWEEN ITS LANDINGS (Structures.lua flightEnds and the
+// flights' 8px treads): the rise is the difference of the two landings,
+// spread evenly over the flight's tile rows, the bottom tread flush with the
+// low landing and the top one with the high.
+static void RampFlights(VoxelInstance *inst, const int *flightOf, const FlightRec *rec, int nRec)
+{
+    int f, i, w = inst->width, n = w * inst->height;
+    for (f = 0; f < nRec; f++)
+    {
+        float za = inst->cells[rec[f].a].groundH, zb = inst->cells[rec[f].b].groundH, lo, rise;
+        int lo0 = 1 << 30, hi0 = -1, tiles;
+        bool highFirst;         // the high landing is north (west)
+        if (fabsf(za - zb) < 0.01f)
+            continue;
+        highFirst = za > zb;
+        lo = highFirst ? zb : za;
+        rise = fabsf(za - zb);
+        for (i = 0; i < n; i++)
+            if (flightOf[i] == f)
+            {
+                int p = rec[f].axis == 1 ? i / w : i % w;
+                if (p < lo0) lo0 = p;
+                if (p > hi0) hi0 = p;
+            }
+        tiles = (hi0 - lo0 + 1) * 2;
+        for (i = 0; i < n; i++)
+            if (flightOf[i] == f)
+            {
+                VoxelCell *c = &inst->cells[i];
+                int p = rec[f].axis == 1 ? i / w : i % w, k;
+                for (k = 0; k < 2; k++)
+                {
+                    int t = (p - lo0) * 2 + k;              // from the north (west) end
+                    int up = highFirst ? (tiles - 1) - t : t;   // from the low end
+                    float hpx = rise * 16.0f * up / (tiles - 1);
+                    c->stepH[k] = lo + floorf(hpx + 0.5f) / 16.0f;
+                }
+                c->stepAxis = (uint8_t)rec[f].axis;
+                c->groundH = c->stepH[0] < c->stepH[1] ? c->stepH[0] : c->stepH[1];
+                c->topH = (c->stepH[0] + c->stepH[1]) * 0.5f;
+                c->underH = c->landH = c->groundH;
+            }
+    }
+}
+
+static void SculptTerraces(VoxelInstance *inst, const VoxelTerraceAnchor *a, int count);
+
+static void ApplySculptedTerraces(VoxelInstance *inst)
+{
+    int n = inst->width * inst->height, count;
+    const VoxelTerraceAnchor *a;
+    {
+        int *flightOf = malloc(n * sizeof(int)), nRec = 0;
+        FlightRec *rec = malloc((n + 1) * sizeof(FlightRec));
+        MarkFlights(inst, flightOf, rec, &nRec);
+        a = VoxelTerrace_For(inst->mapGroup, inst->mapNum, &count);
+        if (a != NULL)
+            SculptTerraces(inst, a, count);
+        RampFlights(inst, flightOf, rec, nRec);
+        free(flightOf);
+        free(rec);
+    }
+}
+
+static void SculptTerraces(VoxelInstance *inst, const VoxelTerraceAnchor *a, int count)
+{
+    int w = inst->width, h = inst->height, n = w * h, i, ncomp = 0, set = 0, missed = 0, stray = 0, clash = 0;
+    int *comp, *first, *level, *q;
+    float *ref;
+    bool *resolved;
+    static const int ddx[4] = {1, -1, 0, 0};
+    static const int ddy[4] = {0, 0, 1, -1};
+    comp = malloc(n * sizeof(int));
+    first = malloc(n * sizeof(int));
+    level = malloc(n * sizeof(int));
+    q = malloc(n * sizeof(int));
+    ref = malloc(n * sizeof(float));
+    resolved = malloc(n * sizeof(bool));
+    for (i = 0; i < n; i++) comp[i] = -1;
+    // the terraces: connected standable floor, in reading order
+    for (i = 0; i < n; i++)
+    {
+        int qh = 0, qt = 0, d;
+        if (comp[i] >= 0 || !Standable(inst, i % w, i / w))
+            continue;
+        first[ncomp] = i;
+        level[ncomp] = -1;
+        comp[i] = ncomp;
+        q[qt++] = i;
+        while (qh < qt)
+        {
+            int cur = q[qh++];
+            for (d = 0; d < 4; d++)
+            {
+                int nx = cur % w + ddx[d], ny = cur / w + ddy[d], j;
+                if (!Standable(inst, nx, ny))
+                    continue;
+                j = ny * w + nx;
+                if (comp[j] < 0) { comp[j] = ncomp; q[qt++] = j; }
+            }
+        }
+        ncomp++;
+    }
+    // ...and the table's levels, by anchor
+    for (i = 0; i < count; i++)
+    {
+        int k = (a[i].x < w && a[i].y < h) ? comp[a[i].y * w + a[i].x] : -1;
+        if (k < 0) { missed++; continue; }
+        if (first[k] != a[i].y * w + a[i].x) stray++;
+        if (level[k] >= 0 && level[k] != a[i].level) clash++;
+        level[k] = a[i].level;
+        set++;
+    }
+    // every terrace at its level; everything else takes the lowest level
+    // around it, as the elevation model does
+    for (i = 0; i < n; i++)
+    {
+        VoxelCell *c = &inst->cells[i];
+        resolved[i] = false;
+        ref[i] = c->cls == VC_WATER ? c->groundH + 0.125f : c->groundH;
+        if (IsBridgeLike((VoxelClass)c->cls))
+            resolved[i] = true;
+        else if (c->cls == VC_WATER)
+        {
+            // the water is the datum the levels count up from
+            resolved[i] = true;
+            ref[i] = 0.0f;
+        }
+        else if (comp[i] >= 0)
+        {
+            resolved[i] = true;
+            if (level[comp[i]] >= 0)
+                ref[i] = (float)level[comp[i]];
+        }
+    }
+    CarryInward(inst, resolved, WantAll, ref, NULL, false);
+    for (i = 0; i < n; i++)
+    {
+        VoxelCell *c = &inst->cells[i];
+        float g = ref[i];
+        if (c->cls == VC_VOID || IsBridgeLike((VoxelClass)c->cls))
+            continue;
+        if (c->cls == VC_WATER)
+            g -= 0.125f;
+        c->groundH = c->topH = c->underH = c->landH = g;
+        if (c->cls == VC_LEDGE)
+            c->topH = g + LEDGE_RIM;
+    }
+    printf("[Voxel] map %d:%d sculpted:%d terraces, %d anchors set, %d missed, %d not first, %d clashing\n",
+               inst->mapGroup, inst->mapNum, ncomp, set, missed, stray, clash);
+    free(comp); free(first); free(level); free(q); free(ref); free(resolved);
 }
 
 // A trunk row: a narrow wooden silhouette on open ground (Route 119's
@@ -1501,6 +1849,7 @@ static void RebuildInstance(VoxelInstance *inst)
         ai.topMask = inst->topMask;
         ai.background = inst->background;
         VoxelArt_Build(&ai, inst->pixels, inst->art);
+        ApplySculptedTerraces(inst);    // heights the drawing states and the ROM does not
         inst->floorCount = 0;
         for (i = 0; i < n && inst->floorCount < 12; i++)
             if (floorSet[order[i]])

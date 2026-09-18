@@ -102,6 +102,7 @@ typedef enum {
 #define VCF_VACATED     0x200 // walkable crown whose art moved onto a hull: painted as ground
 #define VCF_PALING      0x400 // an authored fence stands here (with VCF_SCENE)
 #define VCF_BASIN       0x800 // an authored fountain stands here (with VCF_SCENE)
+#define VCF_FLIGHT      0x1000 // a stair cell of a flight joining two terraces
 
 // Hulls anchored on a cell (voxel_hull.h).
 #define VH_NONE      0
@@ -140,6 +141,8 @@ typedef struct {
     uint16_t fasciaMeta; // decks: the art of the drawn underside on the open side (0xFFFF: own)
     uint16_t groundMeta; // the ground painted where scenery vacated the cell (0xFFFF: its own art, ground-filled)
     uint8_t  hull;       // VH_*: what hull, if any, is anchored on this cell
+    uint8_t  stepAxis;   // a flight's cell: 1 climbs along y, 2 along x, 0 flat
+    float    stepH[2];   // its two 8px treads: north (west) half, south (east) half
 } VoxelCell;
 
 // A building (voxel_building.h): the blocked run north of a door, found the
