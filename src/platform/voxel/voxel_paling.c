@@ -8,6 +8,36 @@
 
 extern const struct Tileset gTileset_General;
 extern const struct Tileset gTileset_Mauville;
+extern const struct Tileset gTileset_Rustboro;
+
+// ---------------------------------------------------------------------------
+// RUSTBORO CITY'S FOUNTAIN (General + Rustboro, 824..842: laid once each, all
+// nine on RustboroCity -- and the same ids are Slateport's moored boat on
+// another pair, which is why this is keyed on the pair). The outer plan is
+// the drawn silhouette (x 1..46 on rows 12..33, the north edge 11..36); the
+// water sits seven stone pixels in; the spout is a disc of radius 6 dead
+// centre. Kerb 12, water 9, crown 19 are the four stated numbers.
+// ---------------------------------------------------------------------------
+static const VoxelBasinFigure sRustboroFountain = {
+    "rustboro city fountain",
+    3, 3,
+    { 824, 825, 826, 832, 833, 834, 840, 841, 842 },
+    22.5f, 34.0f,
+    15.5f, 25.0f,
+    6.0f,
+    12, 9, 19,
+    24, 35, 45,
+    24, 5, 7,
+    24, 18, 27,
+};
+
+const VoxelBasinFigure *VoxelBasin_ForAnchor(const struct MapLayout *layout, int m)
+{
+    if (layout && layout->primaryTileset == &gTileset_General && layout->secondaryTileset == &gTileset_Rustboro
+        && m == sRustboroFountain.meta[0])
+        return &sRustboroFountain;
+    return NULL;
+}
 
 // ---------------------------------------------------------------------------
 // THE MAUVILLE LOG PALING (a SECONDARY fence: General + Mauville, pieces

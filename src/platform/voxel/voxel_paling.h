@@ -59,6 +59,29 @@ typedef struct {
     const VoxelPalingPiece *pieces;
 } VoxelPalingFigure;
 
+// ---------------------------------------------------------------------------
+// Basins (data/gen3_palings.lua `basins`, Structures.lua buildGen3Basins): a
+// fountain is a ring in plan, and its plan is what is drawn. The drawing is
+// an exact octagon; the kerb, the water and the jet are stated heights, and
+// every surface wears the drawing's own texel at its plan position.
+// ---------------------------------------------------------------------------
+typedef struct {
+    const char *name;
+    uint8_t w, h;               // the block of metatiles the figure is drawn on
+    uint16_t meta[9];           // row-major
+    float outerHalf, outerDiag; // the kerb's outer plan: half-extent and L1 limit about the block centre
+    float innerHalf, innerDiag; // the water's plan
+    float jetRadius;            // the spout's plan
+    uint8_t kerb, water, crown; // STATED heights in pixels over the street
+    uint8_t faceCol, faceY0, faceY1;    // the moulding profile: one drawn column, bottom-up
+    uint8_t lipCol, lipY0, lipY1;       // the inside of the kerb above the water
+    uint8_t plumeCol, plumeY0, plumeY1; // the jet's body
+} VoxelBasinFigure;
+
+// The basin whose block starts with metatile `m` on this layout's pair, NULL
+// if none.
+const VoxelBasinFigure *VoxelBasin_ForAnchor(const struct MapLayout *layout, int m);
+
 // The piece metatile `m` is on this layout's tileset pair, NULL if none;
 // `fig` receives the figure it belongs to.
 const VoxelPalingPiece *VoxelPaling_Find(const struct MapLayout *layout, int m, const VoxelPalingFigure **fig);

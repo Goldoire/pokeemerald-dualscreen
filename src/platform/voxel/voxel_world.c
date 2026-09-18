@@ -1423,6 +1423,12 @@ static void ApplyScenery(VoxelInstance *inst)
                     c->groundH = c->topH = SeaLevel(inst, x, y);
                 }
             }
+            else if (sc == SC_BASIN && c)
+            {
+                c->flags |= VCF_SCENE | VCF_BASIN;
+                c->shape = SH_BASIN;
+                c->groundH = c->topH = PalingZ(inst, x, y);
+            }
             else if (sc == SC_PALING && c && (c->flags & VCF_BLOCKED))
             {
                 c->flags |= VCF_SCENE | VCF_PALING;
@@ -1520,6 +1526,8 @@ static void RebuildInstance(VoxelInstance *inst)
                 c->shape = SH_HULL;
             else if (c->flags & VCF_PALING)
                 c->shape = SH_PALING;
+            else if (c->flags & VCF_BASIN)
+                c->shape = SH_BASIN;
             else if (c->flags & VCF_SCENE)
                 c->shape = SH_SIGN;
         }

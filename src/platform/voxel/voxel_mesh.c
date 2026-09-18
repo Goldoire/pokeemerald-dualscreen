@@ -754,7 +754,8 @@ static void BuildSurface(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int
     // A cell scenery stood up (a hull, a sign) or whose art moved onto a
     // hull paints the ground the drawing stands on: the matched floor
     // metatile, else its own picture with the object filled in ground.
-    if (c->shape == SH_HULL || c->shape == SH_SIGN || c->shape == SH_PALING || (c->flags & VCF_VACATED))
+    if (c->shape == SH_HULL || c->shape == SH_SIGN || c->shape == SH_PALING || c->shape == SH_BASIN
+        || (c->flags & VCF_VACATED))
     {
         uint16_t g = sGroundFor ? sGroundFor[ly * inst->width + lx] : 0xFFFF;
         if (g != 0xFFFF) { art = g; variant = VOXEL_VAR_COMPOSED; }
@@ -2183,6 +2184,141 @@ static void BuildPaling(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int 
 }
 
 // ---------------------------------------------------------------------------
+// Basins (Structures.lua buildGen3Basins): the kerb's ring between the outer
+// and inner octagons, the water inside it, the jet's disc in the middle. Each
+// plan pixel's lid wears the drawing's texel there; the ring's outer faces
+// wear the moulding profile, its inner faces the drawn lip, the jet the drawn
+// plume -- one drawn row per world pixel, never stretched.
+// ---------------------------------------------------------------------------
+enum { BASIN_NONE, BASIN_KERB, BASIN_WATER, BASIN_JET };
+
+static int BasinKind(const VoxelBasinFigure *f, int bx, int bz)
+{
+    float cx = f->w * 8 - 0.5f, cz = f->h * 8 - 0.5f;
+    float dx = fabsf(bx - cx), dz = fabsf(bz - cz);
+    bool outer = dx <= f->outerHalf && dz <= f->outerHalf && dx + dz <= f->outerDiag;
+    bool inner = dx <= f->innerHalf && dz <= f->innerHalf && dx + dz <= f->innerDiag;
+    if (!outer)
+        return BASIN_NONE;
+    if (!inner)
+        return BASIN_KERB;
+    if ((bx - cx) * (bx - cx) + (bz - cz) * (bz - cz) <= f->jetRadius * f->jetRadius)
+        return BASIN_JET;
+    return BASIN_WATER;
+}
+
+static void BasinUv(const VoxelBasinFigure *f, int bx, int by, float *u, float *v)
+{
+    int m = f->meta[(by / 16) * f->w + bx / 16];
+    UvPixel(m, VOXEL_VAR_COMPOSED, bx % 16, by % 16, u, v);
+}
+
+// One world pixel of face on side `dir` (0 south, 1 north, 2 east, 3 west)
+// of plan pixel (x, z), wearing drawn column `col` rows r0..r1, row r1 at yLo.
+static void BasinFace(VoxelMesh *mesh, const VoxelBasinFigure *f, int col, int r0, int r1,
+                      float x, float z, float yLo, int dir, float foot)
+{
+    const float p = 1.0f / 16.0f, d = 0.45f * ATLAS_TEXEL;
+    int r = r0;
+    static const int shade[4] = { PAL_SOUTH, PAL_NORTH, PAL_SIDE, PAL_SIDE };
+    while (r <= r1)
+    {
+        int rEnd = (r / 16) * 16 + 15 < r1 ? (r / 16) * 16 + 15 : r1;
+        float yTop = yLo + (r1 - r + 1) * p, yBot = yLo + (r1 - rEnd) * p;
+        float u, vT, vB, dummy;
+        BasinUv(f, col, r, &u, &vT);
+        BasinUv(f, col, rEnd, &dummy, &vB);
+        vT -= d; vB += d;
+        switch (dir)
+        {
+        case 0: PalQuad(mesh, x, yBot, z + p, x + p, yBot, z + p, x + p, yTop, z + p, x, yTop, z + p,
+                        u, vB, u, vB, u, vT, u, vT, shade[dir], foot); break;
+        case 1: PalQuad(mesh, x + p, yBot, z, x, yBot, z, x, yTop, z, x + p, yTop, z,
+                        u, vB, u, vB, u, vT, u, vT, shade[dir], foot); break;
+        case 2: PalQuad(mesh, x + p, yBot, z + p, x + p, yBot, z, x + p, yTop, z, x + p, yTop, z + p,
+                        u, vB, u, vB, u, vT, u, vT, shade[dir], foot); break;
+        default: PalQuad(mesh, x, yBot, z, x, yBot, z + p, x, yTop, z + p, x, yTop, z,
+                         u, vB, u, vB, u, vT, u, vT, shade[dir], foot); break;
+        }
+        r = rEnd + 1;
+    }
+}
+
+static void BuildBasin(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
+{
+    const VoxelCell *c = &inst->cells[ly * inst->width + lx];
+    const VoxelBasinFigure *f = VoxelBasin_ForAnchor(inst->header->mapLayout, c->metatile);
+    static const int ndx[4] = {0, 0, 1, -1};
+    static const int ndz[4] = {1, -1, 0, 0};
+    const float p = 1.0f / 16.0f, d = 0.45f * ATLAS_TEXEL;
+    float ox = (float)(lx + inst->originX), oz = (float)(ly + inst->originY), foot = 0.0f;
+    int bw, bh, bx, bz, k, dy, dx;
+    bool have = false;
+    VoxelMeshRange r;
+    if (f == NULL || VoxelScene_SpanAt(inst, lx, ly) != f->w)
+        return;     // not the block's anchor
+    bw = f->w * 16;
+    bh = f->h * 16;
+    // the foot: the lowest of the block's cells
+    for (dy = 0; dy < f->h; dy++)
+        for (dx = 0; dx < f->w; dx++)
+        {
+            const VoxelCell *e = Nb(inst, lx + dx, ly + dy);
+            if (e && (!have || e->groundH < foot)) { foot = e->groundH; have = true; }
+        }
+    mesh->stats.signs++;
+    BeginRange(mesh, &r, (int)ox, (int)oz, -1, foot, foot + f->crown / 16.0f);
+    for (bz = 0; bz < bh; bz++)
+    {
+        // lids: runs of one kind inside one metatile are one quad
+        bx = 0;
+        while (bx < bw)
+        {
+            int kind = BasinKind(f, bx, bz), e = bx;
+            float y, u0, u1, v, dummy;
+            while (e + 1 < bw && (e + 1) % 16 != 0 && BasinKind(f, e + 1, bz) == kind)
+                e++;
+            if (kind != BASIN_NONE)
+            {
+                y = foot + (kind == BASIN_KERB ? f->kerb : kind == BASIN_JET ? f->crown : f->water) * p;
+                BasinUv(f, bx, bz, &u0, &v);
+                BasinUv(f, e, bz, &u1, &dummy);
+                PalQuad(mesh, ox + bx * p, y, oz + bz * p, ox + (e + 1) * p, y, oz + bz * p,
+                        ox + (e + 1) * p, y, oz + (bz + 1) * p, ox + bx * p, y, oz + (bz + 1) * p,
+                        u0 - d, v - d, u1 + d, v - d, u1 + d, v + d, u0 - d, v + d, PAL_TOP, foot);
+            }
+            bx = e + 1;
+        }
+        // faces
+        for (bx = 0; bx < bw; bx++)
+        {
+            int kind = BasinKind(f, bx, bz);
+            float x = ox + bx * p, z = oz + bz * p;
+            if (kind == BASIN_NONE || kind == BASIN_WATER)
+                continue;
+            for (k = 0; k < 4; k++)
+            {
+                int nk = BasinKind(f, bx + ndx[k], bz + ndz[k]);
+                if (kind == BASIN_KERB && nk == BASIN_NONE)
+                {
+                    int rows = f->faceY1 - f->faceY0 + 1;
+                    BasinFace(mesh, f, f->faceCol, f->faceY0, f->faceY1, x, z, foot, k, foot);
+                    // the profile is a pixel short of the stated kerb: the
+                    // last pixel wears the plan's own texel there
+                    if (rows < f->kerb)
+                        BasinFace(mesh, f, bx, bz, bz, x, z, foot + rows * p, k, foot);
+                }
+                else if (kind == BASIN_KERB && nk != BASIN_KERB)
+                    BasinFace(mesh, f, f->lipCol, f->lipY0, f->lipY1, x, z, foot + f->water * p, k, foot);
+                else if (kind == BASIN_JET && nk != BASIN_JET)
+                    BasinFace(mesh, f, f->plumeCol, f->plumeY0, f->plumeY1, x, z, foot + f->water * p, k, foot);
+            }
+        }
+    }
+    EndRange(mesh, &r);
+}
+
+// ---------------------------------------------------------------------------
 // Instance build
 // ---------------------------------------------------------------------------
 // Two tree anchors side by side whose four metatiles are the consecutive
@@ -2236,7 +2372,7 @@ void VoxelMesh_BuildInstance(VoxelMesh *mesh, const VoxelInstance *inst)
         for (x = 0; x < inst->width; x++)
         {
             const VoxelCell *c = &inst->cells[y * inst->width + x];
-            if (c->shape == SH_SIGN || c->shape == SH_PALING)
+            if (c->shape == SH_SIGN || c->shape == SH_PALING || c->shape == SH_BASIN)
                 sGroundFor[y * inst->width + x] = (uint16_t)VoteGround(inst, x, y);
         }
 
@@ -2249,7 +2385,7 @@ void VoxelMesh_BuildInstance(VoxelMesh *mesh, const VoxelInstance *inst)
             if (c->building >= 0 && ((c->flags & VCF_BLOCKED) || c->cls == VC_DOOR))
                 continue;   // the building draws it; a walkable cell under its eave keeps its ground
             if ((c->cls == VC_WALL || c->cls == VC_CLIFF) && c->shape != SH_NONE && c->shape != SH_SUPPORT
-                && c->shape != SH_HULL && c->shape != SH_SIGN && c->shape != SH_PALING)
+                && c->shape != SH_HULL && c->shape != SH_SIGN && c->shape != SH_PALING && c->shape != SH_BASIN)
                 continue;   // columns below
             if ((c->cls == VC_WALL || c->cls == VC_CLIFF) && (c->flags & VCF_CONSUMED))
                 continue;
@@ -2294,6 +2430,8 @@ void VoxelMesh_BuildInstance(VoxelMesh *mesh, const VoxelInstance *inst)
                 BuildSign(mesh, inst, x, y);
             else if (inst->cells[y * inst->width + x].shape == SH_PALING)
                 BuildPaling(mesh, inst, x, y);
+            else if (inst->cells[y * inst->width + x].shape == SH_BASIN)
+                BuildBasin(mesh, inst, x, y);
     free(done);
     free(sGroundFor);
     sGroundFor = NULL;

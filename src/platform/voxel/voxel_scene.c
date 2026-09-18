@@ -425,6 +425,29 @@ void VoxelScene_Classify(VoxelInstance *inst)
         return;
     }
 
+    // ---- basins: an authored fountain claims its whole block, before a
+    // cylinder can lathe its centre or a wall found a slab over it ----
+    for (cy = 0; cy < inst->height; cy++)
+        for (cx = 0; cx < inst->width; cx++)
+        {
+            const VoxelBasinFigure *f = VoxelBasin_ForAnchor(inst->header->mapLayout, VoxelScene_MetatileAt(inst, cx, cy));
+            int dx, dy;
+            bool whole = f != NULL && cx + f->w <= inst->width && cy + f->h <= inst->height;
+            for (dy = 0; whole && dy < f->h; dy++)
+                for (dx = 0; whole && dx < f->w; dx++)
+                    if (VoxelScene_MetatileAt(inst, cx + dx, cy + dy) != f->meta[dy * f->w + dx])
+                        whole = false;
+            if (!whole)
+                continue;
+            for (dy = 0; dy < f->h; dy++)
+                for (dx = 0; dx < f->w; dx++)
+                {
+                    c.claimed[Idx(&c, cx + dx, cy + dy)] = 1;
+                    scene[Idx(&c, cx + dx, cy + dy)] = SC_BASIN;
+                }
+            span[Idx(&c, cx, cy)] = f->w;
+        }
+
     // ---- palings: an authored fence claims its cells first, before a
     // cylinder can lathe its end pieces or a carve stand its arms (a piece on
     // a passable cell is decoration, and is left alone) ----
@@ -669,7 +692,7 @@ void VoxelScene_Classify(VoxelInstance *inst)
         {
             int i = Idx(&c, cx, cy);
             uint8_t b = inst->cells[cy * inst->width + cx].behavior;
-            if (scene[i] && scene[i] != SC_PALING && ((b >= 0x38 && b <= 0x3F) || b == MB_BERRY_TREE_SOIL))
+            if (scene[i] && scene[i] != SC_PALING && scene[i] != SC_BASIN && ((b >= 0x38 && b <= 0x3F) || b == MB_BERRY_TREE_SOIL))
                 scene[i] = SC_NONE;
         }
     free(c.claimed);
