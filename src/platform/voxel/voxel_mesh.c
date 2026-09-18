@@ -839,6 +839,12 @@ static void BuildColumn(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int 
     }
     topMeta = rowMeta[rows - 1];
 
+    // the floor the mass stands on, outside its range: hidden while the
+    // column is solid, it is what shows when the column is ghosted
+    if (c->flags & VCF_FADEABLE)
+        for (j = 0; j < rows; j++)
+            TopQuad(mesh, x, z - j, base, UvFor(rowMeta[j], VOXEL_VAR_GROUND), SHADE_TOP);
+
     BeginRange(mesh, &r, (int)x, (int)z, -1, base, top);
     r.rows = rows;
 

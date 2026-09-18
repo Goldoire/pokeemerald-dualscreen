@@ -1270,7 +1270,7 @@ static void RenderBattle3D(int winW, int winH)
         Begin2D();
         glDisable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
-        glColor4f(fr, fg, fb, fade * 0.85f);
+        glColor4f(fr, fg, fb, fade);
         glBegin(GL_QUADS);
         glVertex2f(0.0f, 0.0f); glVertex2f(1.0f, 0.0f); glVertex2f(1.0f, 1.0f); glVertex2f(0.0f, 1.0f);
         glEnd();
@@ -1525,7 +1525,7 @@ void VoxelRenderer_RenderFrame(void)
         Begin2D();
         glDisable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
-        glColor4f(fr, fg, fb, fade * 0.85f);
+        glColor4f(fr, fg, fb, fade);
         glBegin(GL_QUADS);
         glVertex2f(0.0f, 0.0f); glVertex2f(1.0f, 0.0f); glVertex2f(1.0f, 1.0f); glVertex2f(0.0f, 1.0f);
         glEnd();

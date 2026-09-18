@@ -1013,9 +1013,15 @@ static void BuildShapes(VoxelInstance *inst)
             c->depthPx = StandeeDepthFor(a[0]);
             if (shape == SH_NONE)
             {
+                // nothing stands here: every row paints its own floor, so
+                // none may stay folded into a column that is never drawn
                 for (k = 0; k < rows; k++)
                     if (rowCell[k])
-                        ((VoxelCell *)rowCell[k])->topH = c->groundH;
+                    {
+                        VoxelCell *rc = (VoxelCell *)rowCell[k];
+                        rc->topH = c->groundH;
+                        rc->flags &= ~VCF_CONSUMED;
+                    }
             }
             // In the canopy town the trees stand one course under the walkways.
             if (shape == SH_TREE && inst->profile.canopyWalk)

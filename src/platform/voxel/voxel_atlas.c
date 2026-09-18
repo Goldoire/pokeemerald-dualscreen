@@ -8,6 +8,7 @@
 #include "global.h"
 #include "fieldmap.h"
 #include "decompress.h"
+#include "palette.h"
 #include "voxel_paling.h"
 
 extern unsigned char PLTT[];
@@ -293,17 +294,19 @@ void VoxelAtlas_DecodeFromVram(const struct MapLayout *layout, const uint16_t *l
         return;
     src.tiles[0] = VRAM_;
     src.tiles[1] = VRAM_ + 512 * 32;
+    // the UNFADED palettes: a fade is drawn over the whole world at once,
+    // not baked into the one quadrant that is decoded live
     for (p = 0; p < 16; p++)
-        src.palettes[p] = (const uint16_t *)(PLTT + p * 32);
+        src.palettes[p] = gPlttBufferUnfaded + p * 16;
     Decode(layout, &src, liveMap, liveCount, rgba512, VOXEL_ATLAS_QUAD, NULL, NULL, NULL);
 }
 
 uint32_t VoxelAtlas_VramChecksum(void)
 {
-    // FNV-style over the BG tile block and the 13 BG palettes; tile animations
-    // and fades touch these and nothing else the atlas reads.
+    // FNV-style over the BG tile block and the 13 unfaded BG palettes; tile
+    // animations and palette swaps touch these and nothing else the atlas reads.
     const uint32_t *w = (const uint32_t *)VRAM_;
-    const uint32_t *pal = (const uint32_t *)PLTT;
+    const uint32_t *pal = (const uint32_t *)gPlttBufferUnfaded;
     uint32_t h = 2166136261u;
     int i;
     for (i = 0; i < (1024 * 32) / 4; i += 2)
