@@ -10,6 +10,7 @@
 //   dumpjson <path>         write the world model, mesh counts and effects as JSON
 //   camera <0|1>            the voxel camera setting: play or diorama
 //   warp <group> <num> <x> <y>   warp the player (overworld only)
+//   wild <species> <level>  start a wild battle (overworld only)
 //   quit                    exit the game
 //
 // Debug only; compiled into NATIVE_LINUX builds and inert without the env var.
@@ -32,6 +33,8 @@
 #include "platform.h"
 #include "platform/dualscreen.h"
 #include "voxel/voxel_renderer.h"
+#include "pokemon.h"
+#include "battle_setup.h"
 
 extern bool isRunning;
 
@@ -39,6 +42,8 @@ static SDL_SpinLock sWarpLock;
 static bool sWarpPending = false;
 static int sWarpGroup, sWarpNum, sWarpX, sWarpY;
 static int sWarpCooldown = 0;
+static bool sWildPending = false;
+static int sWildSpecies, sWildLevel;
 
 // Any thread may ask for a warp; the game thread performs it.
 void DebugHarness_RequestWarp(int group, int num, int x, int y)
@@ -85,6 +90,12 @@ static int ReaderThread(void *param)
             {
                 DebugHarness_RequestWarp(g, n, x, y);
             }
+            else if (sscanf(line, "wild %d %d", &g, &n) == 2)
+            {
+                SDL_AtomicLock(&sWarpLock);
+                sWildSpecies = g; sWildLevel = n; sWildPending = true;
+                SDL_AtomicUnlock(&sWarpLock);
+            }
             else if (sscanf(line, "flags %u", &mask) == 1)
             {
                 gVoxelDebugFlags = mask;
@@ -124,6 +135,16 @@ void DebugHarness_Tick(void)
     if (sWarpCooldown > 0)
         sWarpCooldown--;
     SDL_AtomicLock(&sWarpLock);
+    if (sWildPending && gMain.callback2 == CB2_Overworld && !gPaletteFade.active && !sWarpPending)
+    {
+        sWildPending = false;
+        SDL_AtomicUnlock(&sWarpLock);
+        SDL_Log("[Harness] wild battle: species %d level %d", sWildSpecies, sWildLevel);
+        ZeroEnemyPartyMons();
+        CreateMon(&gEnemyParty[0], sWildSpecies, sWildLevel, USE_RANDOM_IVS, FALSE, 0, OT_ID_PLAYER_ID, 0);
+        BattleSetup_StartWildBattle();
+        return;
+    }
     if (sWarpPending && sWarpCooldown == 0 && gMain.callback2 == CB2_Overworld && !gPaletteFade.active)
     {
         go = true;

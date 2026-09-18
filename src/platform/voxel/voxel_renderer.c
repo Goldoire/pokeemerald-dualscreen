@@ -26,6 +26,10 @@
 #include "voxel_atlas.h"
 #include "voxel_camera.h"
 #include "voxel_mesh.h"
+#include "voxel_battle.h"
+#include "battle.h"
+#include "battle_anim.h"
+#include "constants/battle.h"
 
 extern SDL_Window *sdlWindow;
 extern unsigned char PLTT[];
@@ -937,6 +941,315 @@ static void NoteFrameTime(Uint64 start)
     }
 }
 
+// ---------------------------------------------------------------------------
+// Battles on the map (voxel_battle.h): the map from the battle rig, the
+// battlers standing on it as cards, the GBA's battle screen over the top with
+// its own terrain and battler sprites taken out.
+// ---------------------------------------------------------------------------
+static VoxelArena sArena;
+static bool sArenaLive = false;
+static GLuint sBattlerTex[MAX_BATTLERS_COUNT];
+static int sBattlerW[MAX_BATTLERS_COUNT], sBattlerH[MAX_BATTLERS_COUNT], sBattlerPad[MAX_BATTLERS_COUNT];
+static uint32_t sBattlerHash[MAX_BATTLERS_COUNT];
+
+// A card's scale (lib/BattleScene.lua): a Pokemon's 56 drawn pixels span one
+// cell, so a 64px frame stands 1.14 cells tall.
+#define CARD_TEXELS_PER_CELL 56.0f
+
+// The sprite's current frame as a texture, and how many empty rows its
+// drawing leaves under it (its feet).
+static void UpdateBattlerTexture(int b, const struct Sprite *sprite)
+{
+    int w, h, tx, ty, px, py, pad;
+    uint32_t hash;
+    u8 *pixels;
+    const u16 *palData = (const u16 *)(PLTT + 0x200 + sprite->oam.paletteNum * 32);
+    GetSpriteDimensions(sprite->oam.shape, sprite->oam.size, &w, &h);
+    hash = SpriteContentHash(sprite, w, h);
+    sBattlerW[b] = w;
+    sBattlerH[b] = h;
+    if (sBattlerTex[b] != 0 && hash == sBattlerHash[b])
+        return;
+    sBattlerHash[b] = hash;
+    pixels = calloc(w * h, 4);
+    if (pixels == NULL)
+        return;
+    for (ty = 0; ty < h / 8; ty++)
+        for (tx = 0; tx < w / 8; tx++)
+        {
+            int offset = (sprite->oam.tileNum + ty * (w / 8) + tx) * 32;
+            const u8 *tile;
+            if (offset + 32 > 0x8000)
+                continue;
+            tile = VRAM_ + 0x10000 + offset;
+            for (py = 0; py < 8; py++)
+                for (px = 0; px < 8; px++)
+                {
+                    u8 idx = tile[(py * 8 + px) / 2];
+                    u8 *out = pixels + ((ty * 8 + py) * w + tx * 8 + px) * 4;
+                    idx = (px & 1) ? (idx >> 4) : (idx & 0xF);
+                    if (idx)
+                    {
+                        u16 c = palData[idx];
+                        out[0] = (c & 0x1F) * 255 / 31;
+                        out[1] = ((c >> 5) & 0x1F) * 255 / 31;
+                        out[2] = ((c >> 10) & 0x1F) * 255 / 31;
+                        out[3] = 255;
+                    }
+                }
+        }
+    // the feet: empty rows under the lowest drawn one (gMonFrontPicCoords'
+    // y_offset, measured off the frame instead of looked up)
+    for (pad = 0; pad < h; pad++)
+    {
+        int row = h - 1 - pad, x;
+        bool any = false;
+        for (x = 0; x < w && !any; x++)
+            any = pixels[(row * w + x) * 4 + 3] != 0;
+        if (any)
+            break;
+    }
+    sBattlerPad[b] = pad < h ? pad : 0;
+    if (sBattlerTex[b] == 0)
+        glGenTextures(1, &sBattlerTex[b]);
+    glBindTexture(GL_TEXTURE_2D, sBattlerTex[b]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    free(pixels);
+    sSpriteUploads++;
+}
+
+// A card standing upright at (x, y, z), turned to face the eye.
+static void DrawCard(int b, float x, float y, float z, const float *eye)
+{
+    float k = 1.0f / CARD_TEXELS_PER_CELL, w = (float)sBattlerW[b], h = (float)sBattlerH[b];
+    float yaw = atan2f(eye[0] - x, eye[2] - z), rx = cosf(yaw), rz = -sinf(yaw);
+    float left = -w * 0.5f * k, right = w * 0.5f * k;
+    float bottom = -sBattlerPad[b] * k, top = (h - sBattlerPad[b]) * k;
+    glBindTexture(GL_TEXTURE_2D, sBattlerTex[b]);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(x + rx * left, y + bottom, z + rz * left);
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(x + rx * right, y + bottom, z + rz * right);
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(x + rx * right, y + top, z + rz * right);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(x + rx * left, y + top, z + rz * left);
+    glEnd();
+}
+
+// Take the battlers' own sprites (and their shadows) out of the OAM the PPU
+// reads, for the overlay pass; `restore` puts them back.
+static uint8_t sOamSaved[128 * 8];
+static void HideBattlerOam(bool restore)
+{
+    int i, b;
+    struct OamData *oam = (struct OamData *)OAM;
+    if (restore)
+    {
+        memcpy(OAM, sOamSaved, sizeof(sOamSaved));
+        return;
+    }
+    memcpy(sOamSaved, OAM, sizeof(sOamSaved));
+    for (b = 0; b < gBattlersCount && b < MAX_BATTLERS_COUNT; b++)
+    {
+        int ids[2], n;
+        ids[0] = gBattlerSpriteIds[b];
+        ids[1] = gBattleSpritesDataPtr ? gBattleSpritesDataPtr->healthBoxesData[b].shadowSpriteId : MAX_SPRITES;
+        for (n = 0; n < 2; n++)
+        {
+            const struct Sprite *s;
+            if (ids[n] >= MAX_SPRITES)
+                continue;
+            s = &gSprites[ids[n]];
+            if (!s->inUse)
+                continue;
+            for (i = 0; i < 128; i++)
+                if (oam[i].tileNum == s->oam.tileNum && oam[i].paletteNum == s->oam.paletteNum
+                    && oam[i].shape == s->oam.shape && oam[i].size == s->oam.size)
+                    oam[i].affineMode = ST_OAM_AFFINE_ERASE;
+        }
+    }
+}
+
+// The battle screen without its terrain: BG3 off, BG1/BG2 off while they
+// still carry the intro's sliding terrain (char base 1), the battlers' own
+// sprites removed, the backdrop cut to alpha 0.
+static void RenderBattleOverlay(int winW, int winH)
+{
+    uint16_t oldDispCnt = REG_DISPCNT;
+    uint16_t backdrop = *(uint16_t *)PLTT;
+    int i, pixelCount = gRenderWidth * DISPLAY_HEIGHT;
+    float x0, y0, x1, y1;
+    uint16_t hide = DISPCNT_BG3_ON;
+    GLuint tex;
+
+    if (((REG_BG1CNT >> 2) & 3) == 1) hide |= DISPCNT_BG1_ON;
+    if (((REG_BG2CNT >> 2) & 3) == 1) hide |= DISPCNT_BG2_ON;
+    REG_DISPCNT &= ~hide;
+    HideBattlerOam(false);
+    memset(sGbaImage, 0, pixelCount * sizeof(sGbaImage[0]));
+    DrawFrame(sGbaImage);
+    HideBattlerOam(true);
+    REG_DISPCNT = oldDispCnt;
+    for (i = 0; i < pixelCount; i++)
+    {
+        uint16_t c = sGbaImage[i];
+        if (c == backdrop)
+            sRgbaImage[i] = 0;
+        else
+        {
+            uint32_t r = (c & 0x1F) * 255 / 31;
+            uint32_t g = ((c >> 5) & 0x1F) * 255 / 31;
+            uint32_t b = ((c >> 10) & 0x1F) * 255 / 31;
+            sRgbaImage[i] = r | (g << 8) | (b << 16) | (255u << 24);
+        }
+    }
+    Begin2D();
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    sOverlayFlip ^= 1;
+    if (sOverlayTex[sOverlayFlip] == 0)
+        sOverlayTex[sOverlayFlip] = MakeTexture();
+    tex = sOverlayTex[sOverlayFlip];
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gRenderWidth, DISPLAY_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, sRgbaImage);
+    sOverlayUploads++;
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    FrameRect(winW, winH, &x0, &y0, &x1, &y1);
+    ScreenQuad(x0, y0, x1, y1);
+    glDisable(GL_BLEND);
+}
+
+// Is a battle being fought on the map this frame?
+static bool BattleOnMap(void)
+{
+    if (!gMain.inBattle || gVoxelInstanceCount <= 0 || gBattleSpritesDataPtr == NULL)
+    {
+        sArenaLive = false;
+        return false;
+    }
+    if (!sArenaLive)
+    {
+        sArenaLive = VoxelBattle_FindArena(&sArena);
+        memset(sBattlerHash, 0, sizeof(sBattlerHash));
+    }
+    return sArenaLive;
+}
+
+static void RenderBattle3D(int winW, int winH)
+{
+    float eye[3], focus[3], fovGB, fade = FadeAmount(), fr, fg, fb, x0, y0, x1, y1, frameH;
+    VoxelCamera cam;
+    bool indoor = gVoxelInstances[0].indoor;
+    int i, b;
+
+    glViewport(0, 0, winW, winH);
+    FadeColor(&fr, &fg, &fb);
+    {
+        float sr = 0.05f, sg = 0.05f, sb = 0.07f;
+        glClearColor(sr + (fr - sr) * fade, sg + (fg - sg) * fade, sb + (fb - sb) * fade, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        if (!indoor)
+        {
+            float tr = 0.36f, tg = 0.62f, tb = 0.92f, br = 0.78f, bg = 0.89f, bb = 0.98f;
+            Begin2D();
+            glDisable(GL_TEXTURE_2D);
+            glDisable(GL_BLEND);
+            glBegin(GL_QUADS);
+            glColor4f(tr + (fr - tr) * fade, tg + (fg - tg) * fade, tb + (fb - tb) * fade, 1.0f);
+            glVertex2f(0.0f, 0.0f); glVertex2f(1.0f, 0.0f);
+            glColor4f(br + (fr - br) * fade, bg + (fg - bg) * fade, bb + (fb - bb) * fade, 1.0f);
+            glVertex2f(1.0f, 1.0f); glVertex2f(0.0f, 1.0f);
+            glEnd();
+            glEnable(GL_TEXTURE_2D);
+        }
+    }
+
+    // the rig, framing the GBA screen's 160 rows where the frame sits
+    VoxelBattle_Rig(&sArena, eye, focus, &fovGB);
+    FrameRect(winW, winH, &x0, &y0, &x1, &y1);
+    frameH = (y1 - y0) * (float)winH;
+    memset(&cam, 0, sizeof(cam));
+    cam.x = eye[0]; cam.y = eye[1]; cam.z = eye[2];
+    cam.targetX = focus[0]; cam.targetY = focus[1]; cam.targetZ = focus[2];
+    cam.fov = 2.0f * atanf(tanf(fovGB * 0.5f * 3.14159265f / 180.0f) * (float)winH / (frameH > 1.0f ? frameH : 1.0f))
+              * 180.0f / 3.14159265f;
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glDepthMask(GL_TRUE);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_BLEND);
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    VoxelCamera_ApplyProjection(&cam, winW, winH);
+    VoxelCamera_ApplyView(&cam);
+
+    // the map, nobody on it
+    for (i = 0; i < gVoxelInstanceCount; i++)
+    {
+        int r;
+        for (r = 0; r < sMeshes[i].rangeCount; r++)
+            sMeshes[i].ghost[r] = false;
+        for (r = 0; r < sMeshes[i].stampCount; r++)
+            sMeshes[i].stamps[r].ghost = false;
+        glBindTexture(GL_TEXTURE_2D, sAtlasTex[i]);
+        VoxelMesh_DrawOpaque(&sMeshes[i]);
+        VoxelMesh_DrawHulls(&sMeshes[i], false, sArena.midX, sArena.midZ, 34.0f);
+    }
+
+    // the battlers, feet on the arena
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER, 0.5f);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    for (b = 0; b < gBattlersCount && b < MAX_BATTLERS_COUNT; b++)
+    {
+        u8 id = gBattlerSpriteIds[b];
+        const struct Sprite *s;
+        float x, z;
+        int side, flank;
+        if (id >= MAX_SPRITES)
+            continue;
+        s = &gSprites[id];
+        if (!s->inUse || s->invisible || gBattleSpritesDataPtr->battlerData[b].invisible)
+            continue;
+        side = GetBattlerSide(b);
+        flank = GetBattlerPosition(b) >> 1;
+        x = side == B_SIDE_PLAYER ? sArena.allyX : sArena.foeX;
+        z = side == B_SIDE_PLAYER ? sArena.allyZ : sArena.foeZ;
+        if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
+            x += flank ? 0.6f : -0.6f;
+        UpdateBattlerTexture(b, s);
+        glDisable(GL_ALPHA_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDepthMask(GL_FALSE);
+        DrawShadow(x, sArena.groundY, z - 0.5f, 0.45f);
+        glDepthMask(GL_TRUE);
+        glDisable(GL_BLEND);
+        glEnable(GL_ALPHA_TEST);
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        DrawCard(b, x, sArena.groundY, z, eye);
+    }
+    glDisable(GL_ALPHA_TEST);
+
+    // the palette fade over everything the game did not fade itself
+    if (fade > 0.0f)
+    {
+        Begin2D();
+        glDisable(GL_TEXTURE_2D);
+        glEnable(GL_BLEND);
+        glColor4f(fr, fg, fb, fade * 0.85f);
+        glBegin(GL_QUADS);
+        glVertex2f(0.0f, 0.0f); glVertex2f(1.0f, 0.0f); glVertex2f(1.0f, 1.0f); glVertex2f(0.0f, 1.0f);
+        glEnd();
+        glEnable(GL_TEXTURE_2D);
+    }
+    RenderBattleOverlay(winW, winH);
+}
+
 void VoxelRenderer_RenderFrame(void)
 {
     int winW, winH, i;
@@ -955,6 +1268,15 @@ void VoxelRenderer_RenderFrame(void)
     keys = SDL_GetKeyboardState(NULL);
     (void)keys;
 
+    if (BattleOnMap())
+    {
+        SDL_GL_GetDrawableSize(sdlWindow, &winW, &winH);
+        RenderBattle3D(winW, winH);
+        if (sScreenshotPending) SaveScreenshot(winW, winH);
+        SDL_GL_SwapWindow(sdlWindow);
+        sNeedCameraSnap = true;
+        return;
+    }
     if (!VoxelWorld_IsMapAvailable())
     {
         RenderFallback2D();
