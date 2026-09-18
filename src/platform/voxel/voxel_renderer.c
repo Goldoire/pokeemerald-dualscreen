@@ -66,6 +66,7 @@ static GLuint sScreenTex = 0;             // 2D fallback / UI overlay
 static GLuint sOverlayTex[2] = {0, 0};    // ping-pong: never re-specify an in-flight texture
 static int sOverlayFlip = 0;
 static GLuint sShadowTex = 0;
+static uint8_t sOamSaved[128 * 8];   // the OAM, while an overlay pass has entries erased
 static GLuint sObjTex[OBJECT_EVENTS_COUNT];
 static int sObjW[OBJECT_EVENTS_COUNT], sObjH[OBJECT_EVENTS_COUNT];
 static uint32_t sObjHash[OBJECT_EVENTS_COUNT];   // what the texture currently holds
@@ -468,6 +469,42 @@ static void RenderFallback2D(void)
     ScreenQuad(x0, y0, x1, y1);
 }
 
+// Leave in the OAM only the entries of sprites the game positions on the
+// screen (coordOffsetEnabled clear); the OAM is saved to sOamSaved first and
+// the caller restores it. False when there is nothing to keep.
+static bool KeepScreenSpaceOam(void)
+{
+    struct OamData *oam = (struct OamData *)OAM;
+    int i, k, nKeep = 0;
+    static struct { uint16_t tile; uint8_t pal, shape, size; } keep[MAX_SPRITES];
+    memcpy(sOamSaved, OAM, sizeof(sOamSaved));
+    for (k = 0; k < MAX_SPRITES; k++)
+    {
+        const struct Sprite *s = &gSprites[k];
+        if (!s->inUse || s->invisible || s->coordOffsetEnabled)
+            continue;
+        keep[nKeep].tile = s->oam.tileNum;
+        keep[nKeep].pal = s->oam.paletteNum;
+        keep[nKeep].shape = s->oam.shape;
+        keep[nKeep].size = s->oam.size;
+        nKeep++;
+    }
+    if (nKeep == 0)
+        return false;
+    for (i = 0; i < 128; i++)
+    {
+        bool hit = false;
+        if (oam[i].affineMode == ST_OAM_AFFINE_ERASE)
+            continue;
+        for (k = 0; k < nKeep && !hit; k++)
+            hit = oam[i].tileNum == keep[k].tile && oam[i].paletteNum == keep[k].pal
+               && oam[i].shape == keep[k].shape && oam[i].size == keep[k].size;
+        if (!hit)
+            oam[i].affineMode = ST_OAM_AFFINE_ERASE;
+    }
+    return true;
+}
+
 // The GBA's text layer (BG0: dialogue, menus, the map name) laid over the 3D
 // scene, keyed on the backdrop colour.
 static void RenderUiOverlay(int winW, int winH)
@@ -479,11 +516,17 @@ static void RenderUiOverlay(int winW, int winH)
     bool anyVisible = false;
     GLuint tex;
 
-    // BG1-3 and OBJ off: only the text layer.
-    REG_DISPCNT &= ~(DISPCNT_BG1_ON | DISPCNT_BG2_ON | DISPCNT_BG3_ON | DISPCNT_OBJ_ON);
+    // BG1-3 off: the text layer, and of the sprites only those the game
+    // places on the SCREEN rather than on the map -- falling rain and snow,
+    // a field move's cut-in, an item icon. Everything anchored to the map is
+    // drawn in 3D already.
+    REG_DISPCNT &= ~(DISPCNT_BG1_ON | DISPCNT_BG2_ON | DISPCNT_BG3_ON);
+    if (!KeepScreenSpaceOam())
+        REG_DISPCNT &= ~DISPCNT_OBJ_ON;
     memset(sGbaImage, 0, pixelCount * sizeof(sGbaImage[0]));
     DrawFrame(sGbaImage);
     REG_DISPCNT = oldDispCnt;
+    memcpy(OAM, sOamSaved, sizeof(sOamSaved));
 
     for (i = 0; i < pixelCount; i++)
     {
@@ -1071,7 +1114,6 @@ static void DrawCard(int b, const struct Sprite *sp, float x, float y, float z, 
 
 // Take the battlers' own sprites (and their shadows) out of the OAM the PPU
 // reads, for the overlay pass; `restore` puts them back.
-static uint8_t sOamSaved[128 * 8];
 static void HideBattlerOam(bool restore)
 {
     int i, b;
