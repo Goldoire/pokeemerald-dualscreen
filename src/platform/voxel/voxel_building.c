@@ -684,8 +684,24 @@ void VoxelBuildings_Find(VoxelInstance *inst)
                     if (LeafyAt(&b, taken[k].cx, y))
                         break;
                     Claim(&b, &cells, taken[k].cx, y, id);
+                    taken[k].top = y;
                 }
             }
+            // ...AND THE WALK-BEHIND EDGE OF ONE ROOF IS ONE EDGE. Past the
+            // reference: where some columns grew up through the roof's
+            // overhead edge and their neighbours did not (the same drawing
+            // laid on more than four houses is not "rare"), the rest take
+            // the same overhead rows, or the building's ends stand a row
+            // proud of its middle.
+            for (k = 0; k < nTaken; k++)
+                for (y = taken[k].top - 1; y >= tMin; y--)
+                {
+                    const VoxelArtInfo *st = Art(&b, Meta(&b, taken[k].cx, y));
+                    if (BlockedAt(&b, taken[k].cx, y) || !(st && st->overhead && st->solid >= 0.9f && !st->leafy))
+                        break;
+                    Claim(&b, &cells, taken[k].cx, y, id);
+                    taken[k].top = y;
+                }
         }
 
         // ---- two more rows of one-off art across the top ----

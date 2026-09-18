@@ -1464,9 +1464,16 @@ void VoxelWorld_WriteCellsJson(FILE *f, const VoxelInstance *inst)
     {
         const VoxelBuilding *b = &inst->buildings[m];
         fprintf(f, "%s{\"minX\":%d,\"maxX\":%d,\"minY\":%d,\"maxY\":%d,\"door\":[%d,%d],\"rows\":%d,\"roofRows\":%d,"
-                   "\"overhead\":%d,\"roofed\":%d,\"flat\":%d,\"base\":%.3f,\"eave\":%.3f,\"peak\":%.3f}",
+                   "\"overhead\":%d,\"roofed\":%d,\"flat\":%d,\"base\":%.3f,\"eave\":%.3f,\"peak\":%.3f",
                 m ? "," : "", b->minX, b->maxX, b->minY, b->maxY, b->doorX, b->doorY, b->bldRows, b->roofRows,
                 b->overheadRows, b->roofed, b->flatRoof, b->base, b->eave, b->peak);
+        {
+            int c;
+            fprintf(f, ",\"cols\":[");
+            for (c = 0; c <= b->maxX - b->minX && c < BLD_COLS; c++)
+                fprintf(f, "%s[%d,%d]", c ? "," : "", b->colTop[c], b->colFront[c]);
+            fprintf(f, "],\"artAbove\":%d}", b->roofArtAbove);
+        }
     }
     fprintf(f, "],\n\"art\":[");
     for (m = 0; m < 1024; m++)

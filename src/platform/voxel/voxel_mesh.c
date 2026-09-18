@@ -1568,6 +1568,152 @@ static void BuildBuilding(VoxelMesh *mesh, const VoxelInstance *inst, int b)
 }
 
 // ---------------------------------------------------------------------------
+// The border ring (Structures.lua gen3RingCarved, standGen3Apron): past an
+// unconnected edge the map's border patch carries on. A foliage border is
+// carved into tree hulls two cells deep -- four where no neighbouring map's
+// own ring can reach -- with a floor laid under them at the height of the
+// map edge; a sea border carries the sea on; nothing is laid under a
+// connected neighbour's body, which draws itself there.
+// ---------------------------------------------------------------------------
+#define RING_ROUND 2        // cells: always carved
+#define RING_DEEP  4        // cells: carved where no other map reaches
+#define RING_REACH 6        // cells: how far another map's own ring reaches
+#define RING_SEA   6        // cells: a sea border runs to the mod's horizon
+
+enum { BORDER_OTHER, BORDER_FOLIAGE, BORDER_WATER };
+
+static uint8_t *sRingCarve;       // per scene-grid cell: carved ring (1), or not
+static uint16_t *sRingGround;     // per scene-grid cell: the ground a hull left there
+
+static bool IsWaterBehavior(uint8_t b)
+{
+    return (b >= 0x10 && b <= 0x1A) || b == 0x22 || b == 0x28 || b == 0x2A || b == 0x2B || (b >= 0x50 && b <= 0x53);
+}
+
+static int BorderKind(const VoxelInstance *inst)
+{
+    const struct MapLayout *layout = inst->header->mapLayout;
+    int i, leafy = 0, water = 0;
+    if (layout->border == NULL)
+        return BORDER_OTHER;
+    for (i = 0; i < 4; i++)
+    {
+        int m = layout->border[i] & 0x3FF;
+        if (inst->used[m] && inst->art[m].leafy)
+            leafy++;
+        if (IsWaterBehavior(inst->meta[m].behavior))
+            water++;
+    }
+    if (water >= 3)
+        return BORDER_WATER;
+    if (leafy >= 3)
+        return BORDER_FOLIAGE;
+    return BORDER_OTHER;
+}
+
+// Is world cell (wx, wz) inside another instance's body, grown by `grow`?
+static bool OtherBodyNear(const VoxelInstance *inst, int wx, int wz, int grow)
+{
+    int i;
+    for (i = 0; i < gVoxelInstanceCount; i++)
+    {
+        const VoxelInstance *o = &gVoxelInstances[i];
+        if (o == inst || o->cells == NULL)
+            continue;
+        if (wx >= o->originX - grow && wx < o->originX + o->width + grow
+            && wz >= o->originY - grow && wz < o->originY + o->height + grow)
+            return true;
+    }
+    return false;
+}
+
+static void MarkRing(const VoxelInstance *inst, int kind)
+{
+    int x, y, n = inst->sceneW * inst->sceneH;
+    sRingCarve = calloc(n, 1);
+    sRingGround = malloc(n * sizeof(uint16_t));
+    memset(sRingGround, 0xFF, n * sizeof(uint16_t));
+    if (inst->indoor || inst->scene == NULL)
+        return;
+    for (y = -VOXEL_SCENE_RING; y < inst->height + VOXEL_SCENE_RING; y++)
+        for (x = -VOXEL_SCENE_RING; x < inst->width + VOXEL_SCENE_RING; x++)
+        {
+            int dtx = x < 0 ? -x : (x >= inst->width ? x - inst->width + 1 : 0);
+            int dty = y < 0 ? -y : (y >= inst->height ? y - inst->height + 1 : 0);
+            int dt = dtx > dty ? dtx : dty, wx = x + inst->originX, wz = y + inst->originY, limit;
+            if (dt == 0)
+                continue;
+            if (OtherBodyNear(inst, wx, wz, 0))
+                continue;     // a connected neighbour draws itself here
+            limit = kind == BORDER_WATER ? RING_SEA : RING_DEEP;
+            if (dt > limit)
+                continue;
+            if (dt > RING_ROUND && OtherBodyNear(inst, wx, wz, RING_REACH))
+                continue;     // another map's own ring reaches here
+            sRingCarve[(y + VOXEL_SCENE_RING) * inst->sceneW + (x + VOXEL_SCENE_RING)] = 1;
+        }
+}
+
+static bool RingCarved(const VoxelInstance *inst, int x, int y)
+{
+    int gx = x + VOXEL_SCENE_RING, gy = y + VOXEL_SCENE_RING;
+    if (sRingCarve == NULL || gx < 0 || gy < 0 || gx >= inst->sceneW || gy >= inst->sceneH)
+        return false;
+    return sRingCarve[gy * inst->sceneW + gx] != 0;
+}
+
+// The height the map edge nearest a ring cell stands at.
+static const VoxelCell *EdgeCell(const VoxelInstance *inst, int x, int y)
+{
+    int ex = x < 0 ? 0 : (x >= inst->width ? inst->width - 1 : x);
+    int ey = y < 0 ? 0 : (y >= inst->height ? inst->height - 1 : y);
+    return &inst->cells[ey * inst->width + ex];
+}
+
+static void BuildRing(VoxelMesh *mesh, const VoxelInstance *inst, int kind)
+{
+    int x, y;
+    if (sRingCarve == NULL)
+        return;
+    for (y = -VOXEL_SCENE_RING; y < inst->height + VOXEL_SCENE_RING; y++)
+        for (x = -VOXEL_SCENE_RING; x < inst->width + VOXEL_SCENE_RING; x++)
+        {
+            int gi = (y + VOXEL_SCENE_RING) * inst->sceneW + (x + VOXEL_SCENE_RING);
+            const VoxelCell *e;
+            float h, wx = (float)(x + inst->originX), wz = (float)(y + inst->originY);
+            int m;
+            if (!sRingCarve[gi])
+                continue;
+            e = EdgeCell(inst, x, y);
+            if (e->cls == VC_VOID)
+                continue;
+            m = VoxelScene_MetatileAt(inst, x, y);
+            if (m < 0)
+                continue;
+            if (kind == BORDER_WATER)
+            {
+                // the sea carries on at the sea's own level
+                h = e->cls == VC_WATER ? e->groundH : e->groundH - 0.125f;
+                if (e->cls != VC_WATER && e->groundH > 0.0f)
+                    h = -0.125f;
+                TopQuad(mesh, wx, wz, h, UvFor(m, VOXEL_VAR_COMPOSED), SHADE_TOP);
+                continue;
+            }
+            // THE FOREST FLOOR: a floor at the height of the map edge, the
+            // ground the hull standing here matched, else the patch's own art
+            h = (e->flags & VCF_BLOCKED) || e->cls == VC_WATER ? e->groundH : e->topH;
+            if (e->cls == VC_WATER)
+                h = e->groundH + 0.125f;
+            if (sRingGround[gi] != 0xFFFF)
+                TopQuad(mesh, wx, wz, h, UvFor(sRingGround[gi], VOXEL_VAR_COMPOSED), SHADE_TOP);
+            else if (inst->hullGrid && inst->hullGrid[gi] != VH_NONE && inst->floorCount > 0)
+                TopQuad(mesh, wx, wz, h, UvFor(inst->floorMetas[0], VOXEL_VAR_COMPOSED), SHADE_TOP);
+            else
+                TopQuad(mesh, wx, wz, h, UvFor(m, VOXEL_VAR_GROUND), SHADE_TOP);
+        }
+}
+
+// ---------------------------------------------------------------------------
 // Hulls (voxel_hull.h): one template per distinct drawing, stamped wherever
 // it stands (Structures.lua buildCylinders).
 // ---------------------------------------------------------------------------
@@ -1624,6 +1770,7 @@ static void SetGround(const VoxelInstance *inst, int x, int y, int meta)
 static float HullFoot(const VoxelInstance *inst, int x, int y, int span)
 {
     int dx, dy;
+    const VoxelCell *e;
     for (dy = 0; dy < span; dy++)
         for (dx = 0; dx < span; dx++)
         {
@@ -1631,7 +1778,13 @@ static float HullFoot(const VoxelInstance *inst, int x, int y, int span)
             if (cx >= 0 && cy >= 0 && cx < inst->width && cy < inst->height)
                 return inst->cells[cy * inst->width + cx].groundH;
         }
-    return 0.0f;
+    // in the border ring: the map edge it abuts
+    {
+        int ex = x < 0 ? 0 : (x >= inst->width ? inst->width - 1 : x);
+        int ey = y < 0 ? 0 : (y >= inst->height ? inst->height - 1 : y);
+        e = &inst->cells[ey * inst->width + ex];
+    }
+    return (e->flags & VCF_BLOCKED) ? e->groundH : e->topH;
 }
 
 static void BuildHulls(VoxelMesh *mesh, const VoxelInstance *inst)
@@ -1667,10 +1820,22 @@ static void BuildHulls(VoxelMesh *mesh, const VoxelInstance *inst)
                 metas[0] = VoxelScene_MetatileAt(inst, x, y);
                 nx = ny = 16;
             }
-            // the border ring beyond the body is not drawn yet: only hulls
-            // whose footprint reaches the body stand
-            if (x + span <= 0 || y + span <= 0 || x >= inst->width || y >= inst->height)
-                continue;
+            // a hull stands where its footprint reaches the body or the
+            // carved border ring
+            {
+                bool reach = false;
+                for (dy = 0; dy < span && !reach; dy++)
+                    for (dx = 0; dx < span && !reach; dx++)
+                    {
+                        int cx = x + dx, cy = y + dy;
+                        if (cx >= 0 && cy >= 0 && cx < inst->width && cy < inst->height)
+                            reach = true;
+                        else if (RingCarved(inst, cx, cy))
+                            reach = true;
+                    }
+                if (!reach)
+                    continue;
+            }
             tpl = HullTemplate(mesh, inst, nx, ny, metas);
             if (mesh->hullTpls[tpl].count == 0)
                 continue;
@@ -1679,7 +1844,13 @@ static void BuildHulls(VoxelMesh *mesh, const VoxelInstance *inst)
                      (float)(y + inst->originY) + span * 0.5f, span * 0.5f, ny / 16.0f);
             for (dy = 0; dy < span; dy++)
                 for (dx = 0; dx < span; dx++)
+                {
+                    int gx = x + dx + VOXEL_SCENE_RING, gy = y + dy + VOXEL_SCENE_RING;
                     SetGround(inst, x + dx, y + dy, mesh->hullTpls[tpl].bgMeta);
+                    if (sRingGround && gx >= 0 && gy >= 0 && gx < inst->sceneW && gy < inst->sceneH
+                        && mesh->hullTpls[tpl].bgMeta >= 0)
+                        sRingGround[gy * inst->sceneW + gx] = (uint16_t)mesh->hullTpls[tpl].bgMeta;
+                }
             if (code == VH_STACKED && y - 1 >= 0 && x >= 0 && x < inst->width
                 && (inst->cells[(y - 1) * inst->width + x].flags & VCF_VACATED))
                 SetGround(inst, x, y - 1, mesh->hullTpls[tpl].bgMeta);
@@ -1934,7 +2105,16 @@ void VoxelMesh_BuildInstance(VoxelMesh *mesh, const VoxelInstance *inst)
     done = calloc(inst->width * inst->height, sizeof(bool));
     sGroundFor = malloc(inst->width * inst->height * sizeof(uint16_t));
     memset(sGroundFor, 0xFF, inst->width * inst->height * sizeof(uint16_t));
-    BuildHulls(mesh, inst);
+    {
+        int kind = BorderKind(inst);
+        MarkRing(inst, kind);
+        BuildHulls(mesh, inst);
+        BuildRing(mesh, inst, kind);
+        free(sRingCarve);
+        free(sRingGround);
+        sRingCarve = NULL;
+        sRingGround = NULL;
+    }
     for (y = 0; y < inst->height; y++)
         for (x = 0; x < inst->width; x++)
         {
