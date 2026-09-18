@@ -110,6 +110,36 @@ static const VoxelPalingFigure sRailFence = {
     sizeof(sRailPieces) / sizeof(sRailPieces[0]), sRailPieces,
 };
 
+// ---------------------------------------------------------------------------
+// THE MAUVILLE GREY RAIL FENCE (General + Mauville, 803/845/846/944): the
+// white rail fence's drawing in grey steel, laid round Verdanturf's houses.
+// Not in DramaticShapes' profile -- there 845 passes the boulder test (solid,
+// capped, tapering, a lump of four) and is lathed into four stone drums --
+// but it is the same figure, measured the same way:
+//   post  columns 2..5 of 845 across, 846's drawn head (rows 0..3) through,
+//         rows 3..12 of 845 tall (row 12 is the foot; 13..14 its shadow)
+//   rail  one: face rows 7..8 under a lit top at rows 5..6, as the white
+//         fence's upper rail; the rows below it are open ground
+//   pieces 845 the east-west run, 846 the north-south lane on the west of
+//         its cell, 803 its south end (it closes on the full-width shadow),
+//         944 its north end (row 0 is grass)
+// ---------------------------------------------------------------------------
+static const VoxelPalingPiece sGreyRailPieces[] = {
+    { 803, 2, 1, { { 2, 4 }, { 2, 12 } }, { { 'z', 2, 0, 14 } } },
+    { 845, 2, 1, { { 2, 12 }, { 10, 12 } }, { { 'x', 12, 0, 16 } } },
+    { 846, 2, 1, { { 2, 4 }, { 2, 12 } }, { { 'z', 2, 0, 16 } } },
+    { 944, 2, 1, { { 2, 4 }, { 2, 12 } }, { { 'z', 2, 1, 16 } } },
+};
+
+static const VoxelPalingFigure sGreyRail = {
+    "mauville grey rail fence",
+    4, 4, 10,
+    845, 2, 3, 12,
+    846, 2, 0,
+    1, { { 7, 8, 5, 6, 0 } },
+    sizeof(sGreyRailPieces) / sizeof(sGreyRailPieces[0]), sGreyRailPieces,
+};
+
 // The figures this layout's pair carries: the pair's own first, then its
 // primary's (Structures.lua palingsFor).
 static int FiguresFor(const struct MapLayout *layout, const VoxelPalingFigure **out)
@@ -118,7 +148,10 @@ static int FiguresFor(const struct MapLayout *layout, const VoxelPalingFigure **
     if (layout == NULL)
         return 0;
     if (layout->primaryTileset == &gTileset_General && layout->secondaryTileset == &gTileset_Mauville)
+    {
         out[n++] = &sLogPaling;
+        out[n++] = &sGreyRail;
+    }
     if (layout->primaryTileset == &gTileset_General)
         out[n++] = &sRailFence;
     return n;
@@ -135,7 +168,7 @@ static const VoxelPalingPiece *PieceIn(const VoxelPalingFigure *f, int m)
 
 const VoxelPalingPiece *VoxelPaling_Find(const struct MapLayout *layout, int m, const VoxelPalingFigure **fig)
 {
-    const VoxelPalingFigure *figs[2];
+    const VoxelPalingFigure *figs[3];
     int n = FiguresFor(layout, figs), i;
     for (i = 0; i < n; i++)
     {
@@ -151,7 +184,7 @@ const VoxelPalingPiece *VoxelPaling_Find(const struct MapLayout *layout, int m, 
 
 void VoxelPaling_MarkUsed(const struct MapLayout *layout, bool *used)
 {
-    const VoxelPalingFigure *figs[2];
+    const VoxelPalingFigure *figs[3];
     int n = FiguresFor(layout, figs), i, k;
     for (i = 0; i < n; i++)
         for (k = 0; k < figs[i]->nPieces; k++)
