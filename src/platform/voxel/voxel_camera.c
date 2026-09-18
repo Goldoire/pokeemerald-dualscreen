@@ -78,11 +78,13 @@ void VoxelCamera_ApplyPreset(VoxelCamera *cam, int preset)
     }
     else
     {
-        // Steep enough that a house rarely hides the street behind it,
-        // shallow enough that facades read as walls rather than as paint.
-        cam->pitch = 50.0f;
-        cam->distance = 13.5f;
-        cam->fov = 40.0f;
+        // The mod's FULL rung (lib/VoxelState.lua, lib/Voxel3D.lua): 35
+        // degrees off straight down, the eye one screen height (160 px, ten
+        // cells) from the focus, and the field of view that frames exactly
+        // that screen height when looking straight down: 2 atan(1/2).
+        cam->pitch = 55.0f;
+        cam->distance = 10.0f;
+        cam->fov = 53.13f;
     }
 }
 

@@ -15,6 +15,8 @@
 #include <math.h>
 #include "global.h"
 #include "voxel_atlas.h"
+#include "voxel_hull.h"
+#include "voxel_scene.h"
 
 // ---------------------------------------------------------------------------
 // Geometry helpers
@@ -22,12 +24,13 @@
 #define ATLAS_TEXEL (1.0f / VOXEL_ATLAS_SIZE)
 #define UV_INSET (0.5f * ATLAS_TEXEL)
 
-// Face shading. Light from the south-east and above.
-#define SHADE_TOP   255
-#define SHADE_SOUTH 236
-#define SHADE_EAST  200
-#define SHADE_WEST  178
-#define SHADE_NORTH 150
+// Face shading (lib/Voxel3D.lua FACE_SHADE): the sun hangs in the south-east,
+// so south and east are the lit flanks, north and west the shaded ones.
+#define SHADE_TOP   255     // 1.00
+#define SHADE_SOUTH 230     // 0.90
+#define SHADE_EAST  214     // 0.84
+#define SHADE_WEST  184     // 0.72
+#define SHADE_NORTH 173     // 0.68
 
 // Shapes (lib/Structures.lua): a standee is PINNED_DEPTH.prop voxels thick,
 // a tall-grass mat GRASS_MAT high, a deck a quarter course of planking, a
@@ -97,8 +100,24 @@ void VoxelMesh_Init(VoxelMesh *mesh)
     mesh->vboDirty = true;
 }
 
+static void FreeHulls(VoxelMesh *mesh)
+{
+    int i;
+    for (i = 0; i < mesh->hullTplCount; i++)
+    {
+        if (mesh->hullTpls[i].vbo)
+            glDeleteBuffers(1, (GLuint *)&mesh->hullTpls[i].vbo);
+        VoxelHull_Free(&mesh->hullTpls[i]);
+    }
+    mesh->hullTplCount = 0;
+    mesh->stampCount = 0;
+}
+
 void VoxelMesh_Free(VoxelMesh *mesh)
 {
+    FreeHulls(mesh);
+    free(mesh->hullTpls);
+    free(mesh->stamps);
     free(mesh->verts);
     free(mesh->ranges);
     free(mesh->ghost);
@@ -110,6 +129,7 @@ void VoxelMesh_Free(VoxelMesh *mesh)
 
 void VoxelMesh_Clear(VoxelMesh *mesh)
 {
+    FreeHulls(mesh);
     mesh->count = 0;
     mesh->rangeCount = 0;
     mesh->vboDirty = true;
@@ -121,6 +141,9 @@ void VoxelMesh_Clear(VoxelMesh *mesh)
 
 void VoxelMesh_InvalidateGL(VoxelMesh *mesh)
 {
+    int i;
+    for (i = 0; i < mesh->hullTplCount; i++)
+        mesh->hullTpls[i].vbo = 0;
     mesh->vbo = 0;
     mesh->vboDirty = true;
 }
@@ -469,12 +492,11 @@ static void ShellFaces(VoxelMesh *mesh, const VoxelInstance *inst, const VoxelCe
 
 // Fascias from a surface's top down to lower neighbours, in the ground's
 // own texture (a terrace step with no cliff art drawn).
-static void GroundFascias(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly, float top, int variant)
+static void GroundFasciasMeta(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly, float top, int meta, int variant)
 {
-    const VoxelCell *c = &inst->cells[ly * inst->width + lx];
     float x = (float)(lx + inst->originX);
     float z = (float)(ly + inst->originY);
-    UvRect uv = UvFor(c->metatile, variant);
+    UvRect uv = UvFor(meta, variant);
     static const int dx[4] = {0, 0, 1, -1};
     static const int dy[4] = {1, -1, 0, 0};
     int d;
@@ -502,6 +524,11 @@ static void GroundFascias(VoxelMesh *mesh, const VoxelInstance *inst, int lx, in
         else if (d == 2) EastFace(mesh, x, z, nh, top, uv, SHADE_EAST - 60);
         else WestFace(mesh, x, z, nh, top, uv, SHADE_WEST - 60);
     }
+}
+
+static void GroundFascias(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly, float top, int variant)
+{
+    GroundFasciasMeta(mesh, inst, lx, ly, top, inst->cells[ly * inst->width + lx].metatile, variant);
 }
 
 // ---------------------------------------------------------------------------
@@ -702,6 +729,9 @@ static void BuildDeck(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly
 // ---------------------------------------------------------------------------
 // Surfaces: ground, water, walkable pins, flat blocked cells, canopies
 // ---------------------------------------------------------------------------
+// The ground each vacated cell paints (per build; 0xFFFF: its own art).
+static uint16_t *sGroundFor;
+
 static void BuildSurface(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
 {
     const VoxelCell *c = &inst->cells[ly * inst->width + lx];
@@ -709,6 +739,17 @@ static void BuildSurface(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int
     float z = (float)(ly + inst->originY);
     float top = c->topH;
     int variant = c->shape == SH_SUPPORT ? VOXEL_VAR_GROUND : VOXEL_VAR_COMPOSED;
+    int art = c->metatile;
+
+    // A cell scenery stood up (a hull, a sign) or whose art moved onto a
+    // hull paints the ground the drawing stands on: the matched floor
+    // metatile, else its own picture with the object filled in ground.
+    if (c->shape == SH_HULL || c->shape == SH_SIGN || (c->flags & VCF_VACATED))
+    {
+        uint16_t g = sGroundFor ? sGroundFor[ly * inst->width + lx] : 0xFFFF;
+        if (g != 0xFFFF) { art = g; variant = VOXEL_VAR_COMPOSED; }
+        else variant = VOXEL_VAR_GROUND;
+    }
 
     if (c->shape == SH_LIP) { BuildLedge(mesh, inst, lx, ly); return; }
     if (c->shape == SH_MAT) { BuildMat(mesh, inst, lx, ly); return; }
@@ -720,13 +761,13 @@ static void BuildSurface(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int
         int sh[4];
         if (ContactShades(inst, lx, ly, top, sh))
         {
-            TopQuadShaded(mesh, x, z, top, UvFor(c->metatile, variant), sh);
+            TopQuadShaded(mesh, x, z, top, UvFor(art, variant), sh);
             NoteContact(mesh, x, z, sh);
         }
         else
-            TopQuad(mesh, x, z, top, UvFor(c->metatile, variant), SHADE_TOP);
+            TopQuad(mesh, x, z, top, UvFor(art, variant), SHADE_TOP);
     }
-    GroundFascias(mesh, inst, lx, ly, top, variant);
+    GroundFasciasMeta(mesh, inst, lx, ly, top, art, variant);
     ShellFaces(mesh, inst, c, x, z, c->groundH);
 
     if (c->overhead)
@@ -1467,6 +1508,333 @@ static void BuildBuilding(VoxelMesh *mesh, const VoxelInstance *inst, int b)
 }
 
 // ---------------------------------------------------------------------------
+// Hulls (voxel_hull.h): one template per distinct drawing, stamped wherever
+// it stands (Structures.lua buildCylinders).
+// ---------------------------------------------------------------------------
+static int HullTemplate(VoxelMesh *mesh, const VoxelInstance *inst, int nx, int ny, const int *metas)
+{
+    int n = (nx / 16) * (ny / 16), i;
+    VoxelHullTemplate *t;
+    for (i = 0; i < mesh->hullTplCount; i++)
+    {
+        t = &mesh->hullTpls[i];
+        if (t->nx == nx && t->ny == ny && memcmp(t->metas, metas, n * sizeof(int)) == 0)
+            return i;
+    }
+    if (mesh->hullTplCount + 1 > mesh->hullTplCap)
+    {
+        mesh->hullTplCap = mesh->hullTplCap ? mesh->hullTplCap * 2 : 32;
+        mesh->hullTpls = realloc(mesh->hullTpls, mesh->hullTplCap * sizeof(VoxelHullTemplate));
+    }
+    t = &mesh->hullTpls[mesh->hullTplCount++];
+    // a drawing that carves to nothing is remembered too, so it is not
+    // carved again for every cell that lays it
+    VoxelHull_Build(t, inst, nx, ny, metas, inst->floorMetas, inst->floorCount);
+    mesh->stats.hullTemplates++;
+    return mesh->hullTplCount - 1;
+}
+
+static void AddStamp(VoxelMesh *mesh, int tpl, float x, float y, float z, float halfW, float height)
+{
+    VoxelHullStamp *s;
+    if (mesh->stampCount + 1 > mesh->stampCap)
+    {
+        mesh->stampCap = mesh->stampCap ? mesh->stampCap * 2 : 64;
+        mesh->stamps = realloc(mesh->stamps, mesh->stampCap * sizeof(VoxelHullStamp));
+    }
+    s = &mesh->stamps[mesh->stampCount++];
+    s->tpl = tpl;
+    s->x = x; s->y = y; s->z = z;
+    s->halfW = halfW;
+    s->height = height;
+    s->ghost = false;
+    mesh->stats.hulls++;
+    mesh->stats.hullQuads += mesh->hullTpls[tpl].count / 6;
+}
+
+static void SetGround(const VoxelInstance *inst, int x, int y, int meta)
+{
+    if (x < 0 || y < 0 || x >= inst->width || y >= inst->height || meta < 0)
+        return;
+    sGroundFor[y * inst->width + x] = (uint16_t)meta;
+}
+
+// The height a hull anchored at (x, y) stands at: the anchor cell's foot, or
+// for an anchor in the border ring the first body cell of its footprint.
+static float HullFoot(const VoxelInstance *inst, int x, int y, int span)
+{
+    int dx, dy;
+    for (dy = 0; dy < span; dy++)
+        for (dx = 0; dx < span; dx++)
+        {
+            int cx = x + dx, cy = y + dy;
+            if (cx >= 0 && cy >= 0 && cx < inst->width && cy < inst->height)
+                return inst->cells[cy * inst->width + cx].groundH;
+        }
+    return 0.0f;
+}
+
+static void BuildHulls(VoxelMesh *mesh, const VoxelInstance *inst)
+{
+    int x, y;
+    if (inst->hullGrid == NULL || inst->pixels == NULL)
+        return;
+    for (y = -VOXEL_SCENE_RING; y < inst->height + VOXEL_SCENE_RING; y++)
+        for (x = -VOXEL_SCENE_RING; x < inst->width + VOXEL_SCENE_RING; x++)
+        {
+            int gi = (y + VOXEL_SCENE_RING) * inst->sceneW + (x + VOXEL_SCENE_RING);
+            int code = inst->hullGrid[gi], metas[9], span = 1, nx, ny, tpl, dx, dy;
+            float foot;
+            if (code == VH_NONE || code == VH_PARTNER)
+                continue;
+            if (code == VH_CANOPY)
+            {
+                span = VoxelScene_SpanAt(inst, x, y);
+                if (span < 2) span = 2;
+                for (dy = 0; dy < span; dy++)
+                    for (dx = 0; dx < span; dx++)
+                        metas[dy * span + dx] = VoxelScene_MetatileAt(inst, x + dx, y + dy);
+                nx = ny = 16 * span;
+            }
+            else if (code == VH_STACKED)
+            {
+                metas[0] = VoxelScene_MetatileAt(inst, x, y - 1);
+                metas[1] = VoxelScene_MetatileAt(inst, x, y);
+                nx = 16; ny = 32;
+            }
+            else
+            {
+                metas[0] = VoxelScene_MetatileAt(inst, x, y);
+                nx = ny = 16;
+            }
+            // the border ring beyond the body is not drawn yet: only hulls
+            // whose footprint reaches the body stand
+            if (x + span <= 0 || y + span <= 0 || x >= inst->width || y >= inst->height)
+                continue;
+            tpl = HullTemplate(mesh, inst, nx, ny, metas);
+            if (mesh->hullTpls[tpl].count == 0)
+                continue;
+            foot = HullFoot(inst, x, y, span);
+            AddStamp(mesh, tpl, (float)(x + inst->originX) + span * 0.5f, foot,
+                     (float)(y + inst->originY) + span * 0.5f, span * 0.5f, ny / 16.0f);
+            for (dy = 0; dy < span; dy++)
+                for (dx = 0; dx < span; dx++)
+                    SetGround(inst, x + dx, y + dy, mesh->hullTpls[tpl].bgMeta);
+            if (code == VH_STACKED && y - 1 >= 0 && x >= 0 && x < inst->width
+                && (inst->cells[(y - 1) * inst->width + x].flags & VCF_VACATED))
+                SetGround(inst, x, y - 1, mesh->hullTpls[tpl].bgMeta);
+        }
+}
+
+// ---------------------------------------------------------------------------
+// Signs (Structures.lua extractObjects + buildObject, forced `signpost`
+// pool): the drawing cut out per pixel and stood up two voxels thick, one
+// drawn row to one pixel of height, in the depth band of the tile row its
+// foot is drawn in. The cell under it paints its neighbours' floor.
+// ---------------------------------------------------------------------------
+#define SIGN_DEPTH 2
+#define OBJ_FRONT  255
+#define OBJ_BACK   173
+#define OBJ_SIDE   199
+#define OBJ_TOP    255
+#define OBJ_BOTTOM 140
+
+// The floor a vacated cell paints: the commonest walkable, non-water
+// metatile beside it, a ring at a time out to three cells, else the map's floor.
+static int VoteGround(const VoxelInstance *inst, int x, int y)
+{
+    int r;
+    for (r = 1; r <= 3; r++)
+    {
+        static const int ddx[4] = {1, -1, 0, 0};
+        static const int ddy[4] = {0, 0, 1, -1};
+        int metas[4], counts[4], n = 0, i, d, best = -1, bestN = 0;
+        for (d = 0; d < 4; d++)
+        {
+            int nx = x + ddx[d] * r, ny = y + ddy[d] * r;
+            const VoxelCell *nb;
+            if (nx < 0 || ny < 0 || nx >= inst->width || ny >= inst->height)
+                continue;
+            nb = &inst->cells[ny * inst->width + nx];
+            if ((nb->flags & (VCF_BLOCKED | VCF_VACATED)) || nb->cls == VC_VOID || nb->cls == VC_WATER
+                || nb->shape == SH_MAT || nb->shape == SH_DECK || nb->shape == SH_LIP)
+                continue;
+            for (i = 0; i < n; i++)
+                if (metas[i] == nb->metatile) { counts[i]++; break; }
+            if (i == n) { metas[n] = nb->metatile; counts[n] = 1; n++; }
+        }
+        for (i = 0; i < n; i++)
+            if (counts[i] > bestN) { bestN = counts[i]; best = metas[i]; }
+        if (best >= 0)
+            return best;
+    }
+    return inst->floorCount > 0 ? inst->floorMetas[0] : -1;
+}
+
+// A quad with per-corner shades from each corner's height over the foot
+// (ChunkMesher groundShades: the floor blocks half the sky near it).
+static void ObjQuad(VoxelMesh *mesh, const float *p, const float *uv, int shade, float foot)
+{
+    static const int order[6] = {0, 1, 2, 0, 2, 3};
+    VoxelVertex *v = Reserve(mesh, 6);
+    int k;
+    for (k = 0; k < 6; k++)
+    {
+        int i = order[k];
+        float h = (p[i * 3 + 1] - foot) * 16.0f, sh = (float)shade;
+        if (h < 6.0f)
+            sh *= 1.0f - 0.288f * (1.0f - (h < 0 ? 0 : h) / 6.0f);
+        Vtx(&v[k], p[i * 3], p[i * 3 + 1], p[i * 3 + 2], uv[i * 2], uv[i * 2 + 1], (int)sh, 255);
+    }
+    mesh->count += 6;
+    mesh->stats.signQuads++;
+}
+
+static void BuildSign(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
+{
+    const VoxelCell *c = &inst->cells[ly * inst->width + lx];
+    int m = c->metatile, px, py, i;
+    uint8_t fig[256], air[18 * 18], comp[256];
+    int lowY[64], nComp = 0;
+    int stack[18 * 18], sp = 0;
+    float ox = (float)(lx + inst->originX), oz = (float)(ly + inst->originY), foot = c->groundH;
+    VoxelMeshRange r;
+
+    // opaque pixels are the figure; transparent ones the flood from the
+    // ring cannot reach are holes in it, textured like the rest
+    memset(air, 0, sizeof(air));
+    for (py = -1; py <= 16; py++)
+        for (px = -1; px <= 16; px++)
+            if (px < 0 || py < 0 || px > 15 || py > 15)
+            {
+                air[(py + 1) * 18 + px + 1] = 1;
+                stack[sp++] = (py + 1) * 18 + px + 1;
+            }
+    while (sp > 0)
+    {
+        int k = stack[--sp], kx = k % 18, ky = k / 18, d;
+        static const int ddx[4] = {1, -1, 0, 0};
+        static const int ddy[4] = {0, 0, 1, -1};
+        for (d = 0; d < 4; d++)
+        {
+            int nx = kx + ddx[d], ny = ky + ddy[d], j;
+            if (nx < 0 || ny < 0 || nx >= 18 || ny >= 18)
+                continue;
+            j = ny * 18 + nx;
+            if (air[j])
+                continue;
+            if (nx >= 1 && ny >= 1 && nx <= 16 && ny <= 16 && CarvedAlpha(inst, m, nx - 1, ny - 1))
+                continue;
+            air[j] = 1;
+            stack[sp++] = j;
+        }
+    }
+    for (py = 0; py < 16; py++)
+        for (px = 0; px < 16; px++)
+            fig[py * 16 + px] = !air[(py + 1) * 18 + px + 1];
+    // 8-connected components, each standing in the depth band of the tile
+    // row its lowest pixel is drawn in
+    memset(comp, 0xFF, sizeof(comp));
+    for (i = 0; i < 256; i++)
+    {
+        int s2 = 0, st[256];
+        if (!fig[i] || comp[i] != 0xFF || nComp >= 64)
+            continue;
+        comp[i] = (uint8_t)nComp;
+        lowY[nComp] = i / 16;
+        st[s2++] = i;
+        while (s2 > 0)
+        {
+            int k = st[--s2], kx = k % 16, ky = k / 16, ddx, ddy;
+            if (ky > lowY[nComp]) lowY[nComp] = ky;
+            for (ddy = -1; ddy <= 1; ddy++)
+                for (ddx = -1; ddx <= 1; ddx++)
+                {
+                    int nx = kx + ddx, ny = ky + ddy, j;
+                    if (nx < 0 || ny < 0 || nx > 15 || ny > 15)
+                        continue;
+                    j = ny * 16 + nx;
+                    if (fig[j] && comp[j] == 0xFF)
+                    {
+                        comp[j] = (uint8_t)nComp;
+                        st[s2++] = j;
+                    }
+                }
+        }
+        nComp++;
+    }
+    if (nComp == 0)
+        return;
+    mesh->stats.signs++;
+    BeginRange(mesh, &r, (int)ox, (int)oz, -1, foot, foot + 1.0f);
+
+#define FIG(x, y) ((x) >= 0 && (y) >= 0 && (x) < 16 && (y) < 16 && fig[(y) * 16 + (x)])
+    for (py = 0; py < 16; py++)
+    {
+        px = 0;
+        while (px < 16)
+        {
+            int k = py * 16 + px, px2 = px, cc;
+            float x0, x1, y0, y1, z0, z1, u0, u1, v0, v1, ua, va;
+            if (!fig[k]) { px++; continue; }
+            cc = comp[k];
+            while (px2 + 1 < 16 && fig[k + (px2 + 1 - px)] && comp[k + (px2 + 1 - px)] == cc)
+                px2++;
+            z0 = oz + (float)((lowY[cc] / 8) * 8 + (8 - SIGN_DEPTH) / 2) / 16.0f;
+            z1 = z0 + SIGN_DEPTH / 16.0f;
+            y0 = foot + (float)(lowY[cc] - py) / 16.0f;
+            y1 = y0 + 1.0f / 16.0f;
+            x0 = ox + px / 16.0f;
+            x1 = ox + (px2 + 1) / 16.0f;
+            UvPixel(m, VOXEL_VAR_COMPOSED, px, py, &u0, &v0);
+            UvPixel(m, VOXEL_VAR_COMPOSED, px2, py, &u1, &v1);
+            {
+                // the front and back of the run, the drawing across it
+                float du = 0.45f * ATLAS_TEXEL;
+                float q[12] = { x0, y0, z1,  x1, y0, z1,  x1, y1, z1,  x0, y1, z1 };
+                float uv[8] = { u0 - du, v0 + du,  u1 + du, v0 + du,  u1 + du, v0 - du,  u0 - du, v0 - du };
+                float qb[12] = { x1, y0, z0,  x0, y0, z0,  x0, y1, z0,  x1, y1, z0 };
+                float uvb[8] = { u1 + du, v0 + du,  u0 - du, v0 + du,  u0 - du, v0 - du,  u1 + du, v0 - du };
+                ObjQuad(mesh, q, uv, OBJ_FRONT, foot);
+                ObjQuad(mesh, qb, uvb, OBJ_BACK, foot);
+            }
+            // lids, undersides and ends: one texel each
+            for (i = px; i <= px2; i++)
+            {
+                float xa = ox + i / 16.0f, xb = xa + 1.0f / 16.0f;
+                UvPixel(m, VOXEL_VAR_COMPOSED, i, py, &ua, &va);
+                {
+                    float fl[8] = { ua, va, ua, va, ua, va, ua, va };
+                    if (!FIG(i, py - 1))
+                    {
+                        float q[12] = { xa, y1, z0,  xb, y1, z0,  xb, y1, z1,  xa, y1, z1 };
+                        ObjQuad(mesh, q, fl, OBJ_TOP, foot);
+                    }
+                    if (lowY[cc] - py > 0 && !FIG(i, py + 1))
+                    {
+                        float q[12] = { xa, y0, z1,  xb, y0, z1,  xb, y0, z0,  xa, y0, z0 };
+                        ObjQuad(mesh, q, fl, OBJ_BOTTOM, foot);
+                    }
+                    if (!FIG(i - 1, py))
+                    {
+                        float q[12] = { xa, y0, z0,  xa, y0, z1,  xa, y1, z1,  xa, y1, z0 };
+                        ObjQuad(mesh, q, fl, OBJ_SIDE, foot);
+                    }
+                    if (!FIG(i + 1, py))
+                    {
+                        float q[12] = { xb, y0, z1,  xb, y0, z0,  xb, y1, z0,  xb, y1, z1 };
+                        ObjQuad(mesh, q, fl, OBJ_SIDE, foot);
+                    }
+                }
+            }
+            px = px2 + 1;
+        }
+    }
+#undef FIG
+    EndRange(mesh, &r);
+}
+
+// ---------------------------------------------------------------------------
 // Instance build
 // ---------------------------------------------------------------------------
 // Two tree anchors side by side whose four metatiles are the consecutive
@@ -1504,6 +1872,16 @@ void VoxelMesh_BuildInstance(VoxelMesh *mesh, const VoxelInstance *inst)
     if (inst->cells == NULL)
         return;
     done = calloc(inst->width * inst->height, sizeof(bool));
+    sGroundFor = malloc(inst->width * inst->height * sizeof(uint16_t));
+    memset(sGroundFor, 0xFF, inst->width * inst->height * sizeof(uint16_t));
+    BuildHulls(mesh, inst);
+    for (y = 0; y < inst->height; y++)
+        for (x = 0; x < inst->width; x++)
+        {
+            const VoxelCell *c = &inst->cells[y * inst->width + x];
+            if (c->shape == SH_SIGN)
+                sGroundFor[y * inst->width + x] = (uint16_t)VoteGround(inst, x, y);
+        }
 
     for (y = 0; y < inst->height; y++)
         for (x = 0; x < inst->width; x++)
@@ -1513,7 +1891,8 @@ void VoxelMesh_BuildInstance(VoxelMesh *mesh, const VoxelInstance *inst)
                 continue;
             if (c->building >= 0 && ((c->flags & VCF_BLOCKED) || c->cls == VC_DOOR))
                 continue;   // the building draws it; a walkable cell under its eave keeps its ground
-            if ((c->cls == VC_WALL || c->cls == VC_CLIFF) && c->shape != SH_NONE && c->shape != SH_SUPPORT)
+            if ((c->cls == VC_WALL || c->cls == VC_CLIFF) && c->shape != SH_NONE && c->shape != SH_SUPPORT
+                && c->shape != SH_HULL && c->shape != SH_SIGN)
                 continue;   // columns below
             if ((c->cls == VC_WALL || c->cls == VC_CLIFF) && (c->flags & VCF_CONSUMED))
                 continue;
@@ -1552,7 +1931,13 @@ void VoxelMesh_BuildInstance(VoxelMesh *mesh, const VoxelInstance *inst)
         }
     for (b = 0; b < inst->buildingCount; b++)
         BuildBuilding(mesh, inst, b);
+    for (y = 0; y < inst->height; y++)
+        for (x = 0; x < inst->width; x++)
+            if (inst->cells[y * inst->width + x].shape == SH_SIGN)
+                BuildSign(mesh, inst, x, y);
     free(done);
+    free(sGroundFor);
+    sGroundFor = NULL;
     mesh->vboDirty = true;
 
     if (getenv("EMERALD_VOXEL_DUMP") && inst == &gVoxelInstances[0])
@@ -1565,7 +1950,9 @@ void VoxelMesh_BuildInstance(VoxelMesh *mesh, const VoxelInstance *inst)
 void VoxelMesh_WriteStatsJson(FILE *f, const VoxelMesh *mesh)
 {
     const VoxelMeshStats *s = &mesh->stats;
-    fprintf(f, "{\"verts\":%d,\"ranges\":%d,\"trees\":%d,\"treePairs\":%d,\"bushes\":%d,\"standees\":%d,\"standeeBoxes\":%d,"
+    fprintf(f, "{\"hulls\":%d,\"hullTemplates\":%d,\"hullQuads\":%d,\"signs\":%d,\"signQuads\":%d,",
+            s->hulls, s->hullTemplates, s->hullQuads, s->signs, s->signQuads);
+    fprintf(f, "\"verts\":%d,\"ranges\":%d,\"trees\":%d,\"treePairs\":%d,\"bushes\":%d,\"standees\":%d,\"standeeBoxes\":%d,"
                "\"standeeTall\":%d,\"boxes\":%d,\"cliffs\":%d,\"flats\":%d,\"supports\":%d,\"lips\":%d,\"lipFaces\":%d,"
                "\"mats\":%d,\"matSkirts\":%d,\"canopies\":%d,\"decks\":%d,\"deckFascias\":%d,\"pillars\":%d,\"furniture\":%d,\"buildings\":%d,"
                "\"gables\":%d,\"eaves\":%d,\"contactQuads\":%d",
@@ -1669,6 +2056,67 @@ void VoxelMesh_ComputeGhosts(VoxelMesh *mesh, float px, float py, float pz, floa
         }
         mesh->ghost[i] = ghost;
     }
+    // hulls: like a column, the mass's near edge is its northmost row
+    for (i = 0; i < mesh->stampCount; i++)
+    {
+        VoxelHullStamp *s = &mesh->stamps[i];
+        float northZ = s->z - s->halfW, dz = northZ - (pz + 0.5f), reach = 1.1f + s->halfW, rayY;
+        s->ghost = false;
+        if (gVoxelDebugFlags & 2u)
+            continue;
+        if (fabsf(s->x - px) <= reach && dz >= -0.5f - s->halfW && dz < 4.0f)
+        {
+            rayY = dz < 0.0f ? py + 1.05f : py + 0.9f + dz * camTanPitch;
+            if (s->y + s->height > rayY && s->z > pz + 0.2f)
+                s->ghost = true;
+        }
+    }
+}
+
+// Hull stamps: each template drawn where it stands, translated. `ghosted`
+// picks the pass; stamps further than `radius` from (cx, cz) are skipped.
+void VoxelMesh_DrawHulls(VoxelMesh *mesh, bool ghosted, float cx, float cz, float radius)
+{
+    int i, bound = -1;
+    if (mesh->stampCount == 0)
+        return;
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    if (!ghosted)
+        glEnableClientState(GL_COLOR_ARRAY);
+    for (i = 0; i < mesh->stampCount; i++)
+    {
+        const VoxelHullStamp *s = &mesh->stamps[i];
+        VoxelHullTemplate *t = &mesh->hullTpls[s->tpl];
+        if (s->ghost != ghosted || t->count == 0)
+            continue;
+        if (fabsf(s->x - cx) > radius || fabsf(s->z - cz) > radius)
+            continue;
+        if (s->tpl != bound)
+        {
+            if (t->vbo == 0)
+            {
+                glGenBuffers(1, (GLuint *)&t->vbo);
+                glBindBuffer(GL_ARRAY_BUFFER, t->vbo);
+                glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)t->count * sizeof(VoxelHullVertex), t->verts, GL_STATIC_DRAW);
+            }
+            else
+                glBindBuffer(GL_ARRAY_BUFFER, t->vbo);
+            glVertexPointer(3, GL_FLOAT, sizeof(VoxelHullVertex), (const void *)0);
+            glTexCoordPointer(2, GL_FLOAT, sizeof(VoxelHullVertex), (const void *)(3 * sizeof(float)));
+            if (!ghosted)
+                glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(VoxelHullVertex), (const void *)(5 * sizeof(float)));
+            bound = s->tpl;
+        }
+        glPushMatrix();
+        glTranslatef(s->x, s->y, s->z);
+        glDrawArrays(GL_TRIANGLES, 0, t->count);
+        glPopMatrix();
+    }
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 static void BindMesh(VoxelMesh *mesh)

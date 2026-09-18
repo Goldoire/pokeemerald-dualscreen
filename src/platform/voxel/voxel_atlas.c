@@ -42,7 +42,7 @@ static inline uint32_t Bgr15ToRgba(uint16_t c)
 // layer set. Returns opaque pixel counts per layer.
 static void ComposeMetatile(const TileSource *src, const uint16_t *metatileData,
                             uint32_t *out /*256*/, uint32_t *top /*256 or NULL*/, uint8_t *mask /*32 or NULL*/,
-                            int *opaqueBot, int *opaqueTop)
+                            uint32_t *bottom /*256 or NULL*/, int *opaqueBot, int *opaqueTop)
 {
     int layer, i, px, py;
     int counts[2] = {0, 0};
@@ -52,6 +52,8 @@ static void ComposeMetatile(const TileSource *src, const uint16_t *metatileData,
         out[i] = 255u << 24;
     if (top)
         memset(top, 0, 256 * sizeof(uint32_t));
+    if (bottom)
+        memset(bottom, 0, 256 * sizeof(uint32_t));
     if (mask)
         memset(mask, 0, 32);
 
@@ -91,6 +93,8 @@ static void ComposeMetatile(const TileSource *src, const uint16_t *metatileData,
                     counts[layer]++;
                     c = Bgr15ToRgba(palette[idx]);
                     out[p] = c;
+                    if (layer == 0 && bottom)
+                        bottom[p] = c;
                     if (layer == 1)
                     {
                         if (top) top[p] = c;
@@ -176,7 +180,7 @@ static void Decode(const struct MapLayout *layout, const TileSource *src, const 
 
     for (m = 0; m < 1024; m++)
     {
-        uint32_t px[256], topPx[256];
+        uint32_t px[256], topPx[256], botPx[256];
         uint8_t mask[32];
         int bot = 0, top = 0;
         const uint16_t *data;
@@ -186,13 +190,18 @@ static void Decode(const struct MapLayout *layout, const TileSource *src, const 
         data = MetatileData(layout, m);
         if (data == NULL)
             continue;
-        ComposeMetatile(src, data, px, topPx, mask, &bot, &top);
+        ComposeMetatile(src, data, px, topPx, mask, botPx, &bot, &top);
 
         if (rgba)
         {
             BlitTile(rgba, stride, m, 0, 0, px);
             if (stride == VOXEL_ATLAS_SIZE)
+            {
+                // the top layer alone, and the bottom layer alone in the
+                // ground quadrant until the art pass reads it (voxel_art.h)
                 BlitTile(rgba, stride, m, VOXEL_ATLAS_QUAD, VOXEL_ATLAS_QUAD, topPx);
+                BlitTile(rgba, stride, m, VOXEL_ATLAS_QUAD, 0, botPx);
+            }
         }
         if (topMask)
             memcpy(&topMask[m * 32], mask, 32);

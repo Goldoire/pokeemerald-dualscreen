@@ -8,18 +8,41 @@
 #include <stdint.h>
 
 // ---------------------------------------------------------------------------
-// Reading the drawing.
+// Reading the drawing (lib/Gen3.lua `analyse`, `bakeShape`,
+// `shapeDataForMap`; DramaticShapes, MIT).
 //
-// The cartridge states what a cell is; it does not state what shape the thing
-// standing on it has. That is in the pixels. Following DramaticShapes'
-// Gen 3 shape surface: find the map's GROUND colours (what its walkable floor
-// is painted in, minus any colour the object art leans on), carve them out of
-// every metatile, and what survives is the silhouette of whatever stands
-// there: a tree's crown and trunk, a fence's palings, a signboard on its post.
+// Emerald draws an object on its top layer over the ground on its bottom
+// layer, so the ground colours identify themselves: the bottom layer under a
+// nearly full top layer (a roof, a crown) is ground by construction. Those
+// colours, minus any the object art leans on, are the BACKGROUND set; the
+// SHAPE SURFACE is the picture with every below-player pixel painted in a
+// background colour, and no above-player pixel over it, cut to alpha 0.
+// Everything that makes a shape -- hulls, per-pixel props, grass, flowers --
+// reads that surface.
+//
+// "Below" and "above" are the player's layers: a COVERED metatile draws both
+// its tile layers below the player and nothing above.
 // ---------------------------------------------------------------------------
 
 typedef struct {
-    uint8_t solid;        // silhouette pixels, 0..255 of the 256 in the cell
+    // --- the reference's per-metatile record (Gen3.analyse) ---
+    uint16_t n1, n2;      // opaque pixels drawn below / above the player
+    uint16_t top2, bot2;  // above-player pixels in the upper / lower tile row
+    float solid;          // non-background share of the cell (below non-bg + all above), 0..1
+    float leafFrac;       // foliage share of the drawn pixels
+    float leafFrac2;      // foliage share carried on the above-player layer
+    float mr, mg, mb;     // mean colour of the drawn (object) pixels, 0..1
+    float warmth, darkness, brightness;
+    uint8_t rows2[16];    // above-player pixels per row
+    uint8_t rowsCovered;  // rows with at least half their width above the player
+    bool leafy;           // solid > 0.25, mostly foliage, the blue taken out
+    bool overhead;        // n2 >= 192: a surface seen from above over ground
+    bool overhang;        // above-player art on >= 14 rows: a roof's eave
+    bool seamless;        // tiles with itself (a floor)
+    float mapSolid;       // share of the cell that survives THIS map's carve (per-map floor widened)
+
+    // --- the carve's silhouette, measured off the map's shape surface ---
+    uint8_t solid8;       // carved pixels, 0..255 of the 256 in the cell
     uint8_t x0, x1;       // silhouette column extent, inclusive (x1 < x0: none)
     uint8_t y0, y1;       // silhouette row extent, inclusive (0 = top)
     uint8_t green;        // green-dominant silhouette pixels, 0..255
@@ -35,18 +58,28 @@ typedef struct {
     uint8_t colFill[16];  // silhouette pixels per column
 } VoxelArtInfo;
 
-struct VoxelInstanceTag;
+typedef struct {
+    const bool *used;          // [1024] metatiles the map lays
+    const uint8_t *layerType;  // [1024] METATILE_LAYER_TYPE_*
+    const bool *floor;         // [1024] this map's floor metatiles (top walkable ones)
+    const uint8_t *topMask;    // [1024 * 32] pixels the top TILE layer set
+    uint8_t *background;       // out, optional: [VOXEL_ART_BG_BYTES] bit per 15-bit colour, the map's background set
+} VoxelArtInput;
 
-// Compute ground colours from the instance's floor cells, then the silhouette
-// record for every used metatile, and write the ground-filled and carved
-// variants into the 1024x1024 atlas buffer (see voxel_atlas.h for the layout).
-// `usedByFloor[m]` marks metatiles laid on walkable floor cells;
-// `topAbove[m]` says the metatile's top layer is drawn above the player (so
-// its pixels are object art, never ground).
-// `useCount[m]` is how many cells lay the metatile: a colour is ground only
-// when the floor shows more of it than the objects do.
-void VoxelArt_Build(const bool *used, const bool *usedByFloor, const bool *topAbove, const uint16_t *useCount,
-                    const uint8_t *topMask, uint32_t *rgba1024, VoxelArtInfo *art /*1024*/);
+#define VOXEL_ART_BG_BYTES 4096
+static inline bool VoxelArt_BgHas(const uint8_t *bits, uint32_t rgba)
+{
+    uint32_t k = ((rgba & 0xFF) >> 3) | ((((rgba >> 8) & 0xFF) >> 3) << 5) | ((((rgba >> 16) & 0xFF) >> 3) << 10);
+    return bits && ((bits[k >> 3] >> (k & 7)) & 1);
+}
+
+// On entry the atlas (voxel_atlas.h layout) holds the composed picture in
+// its first quadrant, the bottom tile layer in the ground quadrant (alpha 0
+// where it draws nothing) and the top tile layer in the top quadrant.
+// Measures every used metatile into `art` and rewrites the ground quadrant
+// (the picture with the object filled in ground colour: what lies under a
+// cutout) and the carved quadrant (the shape surface).
+void VoxelArt_Build(const VoxelArtInput *in, uint32_t *rgba1024, VoxelArtInfo *art /*1024*/);
 
 #endif
 #endif

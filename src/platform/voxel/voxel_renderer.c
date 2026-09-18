@@ -1108,6 +1108,7 @@ void VoxelRenderer_RenderFrame(void)
         VoxelMesh_ComputeGhosts(&sMeshes[i], playerX, playerY, playerZ, VoxelCamera_TanPitch(&sCamera));
         glBindTexture(GL_TEXTURE_2D, sAtlasTex[i]);
         VoxelMesh_DrawOpaque(&sMeshes[i]);
+        VoxelMesh_DrawHulls(&sMeshes[i], false, playerX, playerZ, 34.0f);
     }
 
     // ---- objects and field effects ----
@@ -1144,6 +1145,9 @@ void VoxelRenderer_RenderFrame(void)
         {
             glBindTexture(GL_TEXTURE_2D, sAtlasTex[i]);
             VoxelMesh_DrawGhosted(&sMeshes[i]);
+            glEnable(GL_BLEND);
+            glColor4f(0.85f, 0.85f, 0.85f, 0.38f);
+            VoxelMesh_DrawHulls(&sMeshes[i], true, playerX, playerZ, 34.0f);
         }
     // x-ray silhouette of the PLAYER through anything still hiding them
     // (the ghosting above usually clears the way; this is the fallback).

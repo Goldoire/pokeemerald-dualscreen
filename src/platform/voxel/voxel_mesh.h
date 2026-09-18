@@ -34,6 +34,7 @@ typedef struct {
 
 // What the build made, for the dump the gates read.
 typedef struct {
+    int hulls, hullTemplates, hullQuads, signs, signQuads;
     int trees, treePairs, bushes, standees, standeeBoxes, standeeTall;
     int boxes, cliffs, flats, supports, lips, lipFaces, mats, matSkirts;
     int canopies, decks, deckFascias, pillars, furniture, buildings, gables, eaves;
@@ -72,9 +73,23 @@ typedef struct {
     int rings;
 } VoxelTreeProfile;
 
+// A hull template (voxel_hull.h) stood at one place in the world.
+typedef struct {
+    int tpl;
+    float x, y, z;        // world position of the hull's foot, on its axis
+    float halfW, height;  // footprint half-width and height, world units (ghosting, culling)
+    bool ghost;
+} VoxelHullStamp;
+
+struct VoxelHullTemplateTag;
+
 typedef struct {
     VoxelVertex *verts;
     int count, capacity;
+    struct VoxelHullTemplateTag *hullTpls;
+    int hullTplCount, hullTplCap;
+    VoxelHullStamp *stamps;
+    int stampCount, stampCap;
     VoxelMeshRange *ranges;
     int rangeCount, rangeCapacity;
     // Ranges are sorted by `first`; the opaque pass skips ghosted ones.
@@ -108,6 +123,10 @@ void VoxelMesh_ComputeGhosts(VoxelMesh *mesh, float playerX, float playerY, floa
 // Draw with the instance's atlas bound. Opaque pass skips ghosted ranges.
 void VoxelMesh_DrawOpaque(VoxelMesh *mesh);
 void VoxelMesh_DrawGhosted(VoxelMesh *mesh);
+
+// Hull stamps (trees, bushes, boulders): the opaque pass or the ghosted one;
+// stamps further than `radius` from (cx, cz) are skipped.
+void VoxelMesh_DrawHulls(VoxelMesh *mesh, bool ghosted, float cx, float cz, float radius);
 
 // The build counts as JSON.
 void VoxelMesh_WriteStatsJson(FILE *f, const VoxelMesh *mesh);

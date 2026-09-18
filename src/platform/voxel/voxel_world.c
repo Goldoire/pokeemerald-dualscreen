@@ -20,6 +20,8 @@
 #include "constants/maps.h"
 #include "voxel_atlas.h"
 #include "voxel_art.h"
+#include "voxel_scene.h"
+#include "voxel_roles.h"
 
 VoxelInstance gVoxelInstances[MAX_VOXEL_MAP_INSTANCES];
 int gVoxelInstanceCount = 0;
@@ -221,7 +223,7 @@ static VoxelMapProfile ProfileFor(int group, int num)
 // Metatile pins (data/gen3_shapes.lua, `metatiles`): the only way to say
 // "that cell is a fridge". Keyed on the tileset that owns the id.
 // ---------------------------------------------------------------------------
-static VoxelClass PinFor(const struct MapLayout *layout, int metatile, bool *walkablePin)
+VoxelClass VoxelWorld_PinFor(const struct MapLayout *layout, int metatile, bool *walkablePin)
 {
     *walkablePin = false;
     if (layout->secondaryTileset == &gTileset_BrendansMaysHouse)
@@ -797,6 +799,7 @@ static void BuildCells(VoxelInstance *inst)
             memset(c, 0, sizeof(*c));
             c->building = -1;
             c->fasciaMeta = 0xFFFF;
+            c->groundMeta = 0xFFFF;
             c->metatile = block & MAPGRID_METATILE_ID_MASK;
             c->collision = (block & MAPGRID_COLLISION_MASK) >> MAPGRID_COLLISION_SHIFT;
             c->elevation = (block & MAPGRID_ELEVATION_MASK) >> MAPGRID_ELEVATION_SHIFT;
@@ -834,7 +837,7 @@ static void BuildCells(VoxelInstance *inst)
             {
                 cls = VC_GROUND;   // the passability guard
             }
-            pin = PinFor(layout, c->metatile, &walkablePin);
+            pin = VoxelWorld_PinFor(layout, c->metatile, &walkablePin);
             if (pin != VC_COUNT)
             {
                 if ((c->flags & VCF_BLOCKED) || walkablePin)
@@ -1019,12 +1022,12 @@ static void BuildCells(VoxelInstance *inst)
 // 124/169 under the 22/23 leaves and the 198/199 crown).
 static bool IsTrunkArt(const VoxelArtInfo *a)
 {
-    return a->solid < 160 && a->solid >= 10 && a->botWidth <= 10 && a->brown >= 12 && a->green < 64;
+    return a->solid8 < 160 && a->solid8 >= 10 && a->botWidth <= 10 && a->brown >= 12 && a->green < 64;
 }
 
 static bool IsLeafyArt(const VoxelArtInfo *a)
 {
-    return a->green >= 64 && a->solid >= 64;
+    return a->green >= 64 && a->solid8 >= 64;
 }
 
 // Blocked rows stack into columns once the art is read: landscape stands at
@@ -1050,7 +1053,7 @@ static void BuildColumns(VoxelInstance *inst)
             float northG = 0.0f, southG = 0.0f;
             VoxelCell *s;
 
-            if (c->cls != VC_WALL || (c->flags & VCF_CONSUMED) || c->building >= 0)
+            if (c->cls != VC_WALL || (c->flags & (VCF_CONSUMED | VCF_SCENE)) || c->building >= 0)
                 continue;
             seen[0] = c->metatile;
             if (!inst->indoor && IsTrunkArt(&inst->art[c->metatile]))
@@ -1059,7 +1062,7 @@ static void BuildColumns(VoxelInstance *inst)
             {
                 VoxelCell *n = CellPtr(inst, x, y - rows);
                 bool dup = false;
-                if (n == NULL || n->cls != VC_WALL || (n->flags & VCF_CONSUMED) || n->building >= 0)
+                if (n == NULL || n->cls != VC_WALL || (n->flags & (VCF_CONSUMED | VCF_SCENE)) || n->building >= 0)
                     break;
                 if (!inst->indoor)
                 {
@@ -1293,14 +1296,14 @@ static void BuildShapes(VoxelInstance *inst)
             int rows = c->stack, shape = SH_BOX, solidMax = 0, bboxRows;
             bool topAbove, inMass = false;
 
-            if ((c->cls != VC_WALL && c->cls != VC_CLIFF) || rows <= 0 || c->building >= 0)
+            if ((c->cls != VC_WALL && c->cls != VC_CLIFF) || rows <= 0 || c->building >= 0 || (c->flags & VCF_SCENE))
                 continue;
             if (rows > 4) rows = 4;
             for (k = 0; k < rows; k++)
             {
                 rowCell[k] = CellPtr(inst, x, y - k);
                 a[k] = &inst->art[rowCell[k] ? rowCell[k]->metatile : c->metatile];
-                if (a[k]->solid > solidMax) solidMax = a[k]->solid;
+                if (a[k]->solid8 > solidMax) solidMax = a[k]->solid8;
             }
             topAbove = rowCell[rows - 1] && (rowCell[rows - 1]->flags & VCF_ABOVE);
             bboxRows = a[0]->y1 >= a[0]->y0 ? a[0]->y1 - a[0]->y0 + 1 : 0;
@@ -1316,7 +1319,7 @@ static void BuildShapes(VoxelInstance *inst)
                 {
                     const VoxelCell *nb = CellPtr(inst, x + mdx[d2], y + mdy[d2]);
                     if (nb && (nb->flags & VCF_BLOCKED) && nb->cls != VC_VOID
-                        && (nb->building >= 0 || inst->art[nb->metatile].solid >= ART_STANDEE_SOLID))
+                        && (nb->building >= 0 || inst->art[nb->metatile].solid8 >= ART_STANDEE_SOLID))
                         massN++;
                 }
                 // open sides around the whole stack (water and ledges count as open)
@@ -1338,29 +1341,29 @@ static void BuildShapes(VoxelInstance *inst)
                 // Indoors the carve is trusted for one thing only: a potted
                 // plant, thin and green on the floor, stands as a slab. Wall
                 // bands, counters and everything pinned stay boxes.
-                if (rows == 1 && a[0]->green >= 40 && a[0]->solid < ART_STANDEE_SOLID && a[0]->solid >= 10 && bboxRows >= 8)
+                if (rows == 1 && a[0]->green >= 40 && a[0]->solid8 < ART_STANDEE_SOLID && a[0]->solid8 >= 10 && bboxRows >= 8)
                     shape = SH_STANDEE;
                 else
                     shape = SH_BOX;
             }
             else if (c->cls == VC_CLIFF || c->behavior == 0x0C)
                 shape = SH_BOX;     // MB_MOUNTAIN_TOP blocked: the rock of a terrace, whatever it carves to
-            else if (rows == 2 && a[1]->green >= ART_GREEN && a[1]->solid >= ART_LEAF_SOLID
+            else if (rows == 2 && a[1]->green >= ART_GREEN && a[1]->solid8 >= ART_LEAF_SOLID
                      && (topAbove || a[0]->brown >= 6 || a[0]->green >= 64))
                 shape = SH_TREE;
-            else if (rows >= 3 && a[rows - 1]->green >= ART_GREEN && a[rows - 1]->solid >= ART_LEAF_SOLID
+            else if (rows >= 3 && a[rows - 1]->green >= ART_GREEN && a[rows - 1]->solid8 >= ART_LEAF_SOLID
                      && a[rows - 2]->green >= ART_GREEN)
                 shape = SH_TREE;
-            else if (rows == 1 && a[0]->green >= ART_LEAF_SOLID && a[0]->solid >= 100
-                     && a[0]->solid < 236 && a[0]->boxy < ART_BOXY)
+            else if (rows == 1 && a[0]->green >= ART_LEAF_SOLID && a[0]->solid8 >= 100
+                     && a[0]->solid8 < 236 && a[0]->boxy < ART_BOXY)
                 shape = SH_BUSH;
             else if (solidMax < 10)
                 shape = SH_NONE;          // a blocked cell painted as ground: nothing stands here
-            else if (rows == 2 && a[0]->solid < ART_STANDEE_SOLID && a[1]->solid < ART_STANDEE_SOLID
-                     && a[1]->solid >= 10 && !inMass)
+            else if (rows == 2 && a[0]->solid8 < ART_STANDEE_SOLID && a[1]->solid8 < ART_STANDEE_SOLID
+                     && a[1]->solid8 >= 10 && !inMass)
                 shape = SH_STANDEE_TALL;
-            else if (rows == 1 && a[0]->solid < ART_STANDEE_SOLID && bboxRows >= 8 && !inMass)
-                shape = (a[0]->boxy >= ART_BOXY && a[0]->solid >= 40) ? SH_STANDEE_BOX : SH_STANDEE;
+            else if (rows == 1 && a[0]->solid8 < ART_STANDEE_SOLID && bboxRows >= 8 && !inMass)
+                shape = (a[0]->boxy >= ART_BOXY && a[0]->solid8 >= 40) ? SH_STANDEE_BOX : SH_STANDEE;
             else
                 shape = SH_BOX;
 
@@ -1450,6 +1453,187 @@ static void MarkFloorMetatiles(VoxelInstance *inst)
     }
 }
 
+// ---------------------------------------------------------------------------
+// Scenery (voxel_scene.h) onto the cells: which hull each claimed cell
+// belongs to (Structures.lua buildCylinders), and the height it stands at.
+// ---------------------------------------------------------------------------
+
+// A TREE STANDS IN THE GROUND IT GROWS OUT OF: the lowest walkable land
+// beside it; a cell with none keeps its own reading (`grounded` false).
+static float StandZ(VoxelInstance *inst, int x, int y, bool *grounded)
+{
+    static const int dx[4] = {1, -1, 0, 0};
+    static const int dy[4] = {0, 0, 1, -1};
+    float best = 0.0f;
+    bool have = false;
+    int d;
+    for (d = 0; d < 4; d++)
+    {
+        VoxelCell *n = CellPtr(inst, x + dx[d], y + dy[d]);
+        if (n == NULL || (n->flags & VCF_BLOCKED) || n->cls == VC_VOID || n->cls == VC_WATER)
+            continue;
+        if (!have || n->groundH < best)
+            best = n->groundH;
+        have = true;
+    }
+    if (grounded) *grounded = have;
+    if (have)
+        return best;
+    {
+        VoxelCell *c = CellPtr(inst, x, y);
+        return c ? c->groundH : 0.0f;
+    }
+}
+
+static int SceneGridIdx(const VoxelInstance *inst, int x, int y)
+{
+    int gx = x + VOXEL_SCENE_RING, gy = y + VOXEL_SCENE_RING;
+    if (gx < 0 || gy < 0 || gx >= inst->sceneW || gy >= inst->sceneH)
+        return -1;
+    return gy * inst->sceneW + gx;
+}
+
+static bool RoundAt(const VoxelInstance *inst, int x, int y)
+{
+    int s = VoxelScene_At(inst, x, y);
+    return s == SC_CANOPY || s == SC_CYLINDER;
+}
+
+// Mark cell (x, y) of the body as belonging to a hull anchored at (ax, ay).
+static void ClaimForHull(VoxelInstance *inst, int x, int y, int ax, int ay)
+{
+    VoxelCell *c = CellPtr(inst, x, y);
+    bool grounded;
+    float z;
+    if (c == NULL || c->cls == VC_VOID)
+        return;
+    if (c->flags & VCF_BLOCKED)
+        c->flags |= VCF_SCENE;
+    else
+        c->flags |= VCF_VACATED;
+    c->shape = SH_HULL;
+    // per cell: a quarter with no ground of its own takes the stamp's
+    z = StandZ(inst, x, y, &grounded);
+    if (!grounded)
+        z = StandZ(inst, ax, ay, NULL);
+    c->groundH = z;
+    c->topH = z;
+}
+
+static void ApplyScenery(VoxelInstance *inst)
+{
+    int x, y, i;
+    uint8_t *grouped;
+    VoxelScene_Classify(inst);
+    free(inst->hullGrid);
+    inst->hullGrid = calloc(inst->sceneW * inst->sceneH, 1);
+    grouped = calloc(inst->sceneW * inst->sceneH, 1);
+    for (i = 0; i < inst->width * inst->height; i++)
+        inst->cells[i].hull = VH_NONE;
+    if (inst->hullGrid == NULL || grouped == NULL || inst->scene == NULL)
+    {
+        free(grouped);
+        return;
+    }
+
+    for (y = -VOXEL_SCENE_RING; y < inst->height + VOXEL_SCENE_RING; y++)
+        for (x = -VOXEL_SCENE_RING; x < inst->width + VOXEL_SCENE_RING; x++)
+        {
+            int gi = SceneGridIdx(inst, x, y), sc = VoxelScene_At(inst, x, y);
+            VoxelCell *c = CellPtr(inst, x, y);
+            if (sc == SC_NONE || (c && (c->building >= 0 || c->cls == VC_VOID)))
+                continue;
+            if (grouped[gi] && !(sc == SC_CANOPY && VoxelScene_SharedAt(inst, x, y)))
+                continue;
+            if (sc == SC_CANOPY)
+            {
+                int span = VoxelScene_SpanAt(inst, x, y), dx, dy;
+                bool whole = true;
+                if (span < 2) span = 2;
+                for (dy = 0; dy < span; dy++)
+                    for (dx = 0; dx < span; dx++)
+                        if ((dx || dy) && !RoundAt(inst, x + dx, y + dy))
+                            whole = false;
+                if (!whole)
+                    continue;
+                inst->hullGrid[gi] = VH_CANOPY;
+                for (dy = 0; dy < span; dy++)
+                    for (dx = 0; dx < span; dx++)
+                    {
+                        int gj = SceneGridIdx(inst, x + dx, y + dy);
+                        VoxelCell *p = CellPtr(inst, x + dx, y + dy);
+                        if (gj < 0) continue;
+                        if (dx || dy)
+                        {
+                            grouped[gj] = 1;
+                            if (inst->hullGrid[gj] == VH_NONE)
+                                inst->hullGrid[gj] = VH_PARTNER;
+                        }
+                        if (p && p->building < 0)
+                        {
+                            ClaimForHull(inst, x + dx, y + dy, x, y);
+                            p->hull = (dx || dy) ? (p->hull == VH_CANOPY ? VH_CANOPY : VH_PARTNER) : VH_CANOPY;
+                        }
+                    }
+            }
+            else if (sc == SC_CYLINDER)
+            {
+                // A TREE IN A STAND IS TWO CELLS TALL when a crown is drawn
+                // over it: leafy, and either full-bleed or all overhang.
+                int mB = VoxelScene_MetatileAt(inst, x, y - 1);
+                bool stacked = false, crownWalk = false;
+                if (!inst->indoor && mB >= 0 && inst->used[mB] && inst->art[mB].leafy
+                    && SceneGridIdx(inst, x, y - 1) >= 0)
+                {
+                    const VoxelRole *r = VoxelRoles_Find(inst->header->mapLayout->primaryTileset,
+                                                         inst->header->mapLayout->secondaryTileset, mB);
+                    bool fullBleed = inst->art[mB].solid >= 0.99f;
+                    bool allOverhang = r && r->material == ROLE_MAT_GREEN && r->cap == 0 && r->face > 0;
+                    bool blockedAbove = inst->profile.canopyWalk;
+                    float floorZ = c ? c->groundH : 0.0f;
+                    static const int ndx[5] = {0, 1, -1, 0, 0};
+                    static const int ndy[5] = {0, 0, 0, 1, -1};
+                    int d;
+                    for (d = 0; d < 5; d++)
+                    {
+                        VoxelCell *n = CellPtr(inst, x + ndx[d], y + ndy[d]);
+                        if (n && !(n->flags & VCF_BLOCKED) && n->cls != VC_VOID && n->groundH >= floorZ + 1.0f)
+                            blockedAbove = true;
+                    }
+                    if ((fullBleed || allOverhang) && !blockedAbove)
+                    {
+                        VoxelCell *north = CellPtr(inst, x, y - 1);
+                        stacked = true;
+                        crownWalk = north && !(north->flags & VCF_BLOCKED);
+                    }
+                }
+                inst->hullGrid[gi] = stacked ? VH_STACKED : VH_SINGLE;
+                if (c && c->building < 0)
+                {
+                    ClaimForHull(inst, x, y, x, y);
+                    c->hull = inst->hullGrid[gi];
+                }
+                if (crownWalk)
+                {
+                    VoxelCell *north = CellPtr(inst, x, y - 1);
+                    if (north && north->building < 0 && north->hull == VH_NONE)
+                    {
+                        ClaimForHull(inst, x, y - 1, x, y);
+                        north->hull = VH_PARTNER;
+                    }
+                }
+            }
+            else if (sc == SC_SIGNPOST && c && (c->flags & VCF_BLOCKED))
+            {
+                bool grounded;
+                c->flags |= VCF_SCENE;
+                c->shape = SH_SIGN;
+                c->groundH = c->topH = StandZ(inst, x, y, &grounded);
+            }
+        }
+    free(grouped);
+}
+
 // The whole model for one instance: art, cells, silhouettes, shapes.
 static void RebuildInstance(VoxelInstance *inst)
 {
@@ -1466,22 +1650,68 @@ static void RebuildInstance(VoxelInstance *inst)
     MarkFloorMetatiles(inst);   // needs the classes, not the columns
     if (inst->pixels && inst->topMask)
     {
-        static bool topAbove[1024];
-        static uint16_t useCount[1024];
-        int m;
-        memset(useCount, 0, sizeof(useCount));
-        for (m = 0; m < inst->width * inst->height; m++)
-            if (inst->cells[m].cls != VC_VOID && useCount[inst->cells[m].metatile] < 0xFFFF)
-                useCount[inst->cells[m].metatile]++;
+        // THE FLOOR OF THIS PARTICULAR MAP (Gen3.lua floorMetatiles): the
+        // metatiles laid on walkable cells, commonest first, kept while they
+        // cover the bulk of the walkable area -- at most twelve, each laid
+        // at least three times or still inside the first 60%.
+        static uint8_t layerType[1024];
+        static bool floorSet[1024];
+        static int counts[1024];
+        int order[1024], n = 0, total = 0, acc = 0, i, j, m;
+        VoxelArtInput ai;
+        memset(counts, 0, sizeof(counts));
+        memset(floorSet, 0, sizeof(floorSet));
+        for (i = 0; i < inst->width * inst->height; i++)
+            if (!(inst->cells[i].flags & VCF_BLOCKED) && inst->cells[i].cls != VC_VOID)
+            {
+                counts[inst->cells[i].metatile]++;
+                total++;
+            }
         for (m = 0; m < 1024; m++)
-            topAbove[m] = inst->meta[m].topOpaque > 0;
-        VoxelArt_Build(inst->used, inst->usedByFloor, topAbove, useCount, inst->topMask, inst->pixels, inst->art);
+            if (counts[m] > 0)
+                order[n++] = m;
+        for (i = 1; i < n; i++)
+            for (j = i; j > 0 && counts[order[j]] > counts[order[j - 1]]; j--)
+            {
+                int t = order[j]; order[j] = order[j - 1]; order[j - 1] = t;
+            }
+        for (i = 0; i < n && i < 12; i++)
+            if (counts[order[i]] >= 3 || acc * 10 < total * 6)
+            {
+                floorSet[order[i]] = true;
+                acc += counts[order[i]];
+            }
+        for (m = 0; m < 1024; m++)
+            layerType[m] = inst->meta[m].layerType;
+        ai.used = inst->used;
+        ai.layerType = layerType;
+        ai.floor = floorSet;
+        ai.topMask = inst->topMask;
+        ai.background = inst->background;
+        VoxelArt_Build(&ai, inst->pixels, inst->art);
+        inst->floorCount = 0;
+        for (i = 0; i < n && inst->floorCount < 12; i++)
+            if (floorSet[order[i]])
+                inst->floorMetas[inst->floorCount++] = order[i];
+        ApplyScenery(inst);     // hulls and signs leave the column machinery
     }
     else
         memset(inst->art, 0, sizeof(inst->art));
     BuildColumns(inst);         // stacks read the art: wood under leaves, never under rock
     BuildShapes(inst);
     SettleShapesByMetatile(inst);
+    // BuildShapes resets every cell's shape: put the scenery's back
+    {
+        int i;
+        for (i = 0; i < inst->width * inst->height; i++)
+        {
+            VoxelCell *c = &inst->cells[i];
+            if (c->hull != VH_NONE)
+                c->shape = SH_HULL;
+            else if (c->flags & VCF_SCENE)
+                c->shape = SH_SIGN;
+        }
+    }
 
     if (getenv("EMERALD_VOXEL_DUMP"))
         VoxelWorld_DumpInstance(inst);
@@ -1603,7 +1833,7 @@ void VoxelWorld_WriteCellsJson(FILE *f, const VoxelInstance *inst)
         fprintf(f, "%s\n{\"m\":%d,\"floor\":%s,\"beh\":%d,\"layer\":%d,\"topOpaque\":%d,\"botOpaque\":%d,\"solid\":%d,\"green\":%d,\"brown\":%d,\"boxy\":%d,"
                    "\"x0\":%d,\"x1\":%d,\"y0\":%d,\"y1\":%d,\"topW\":%d,\"midW\":%d,\"botW\":%d,\"bgFill\":%d,\"rails\":%d,\"plate\":%d}",
                 first ? "" : ",", m, inst->usedByFloor[m] ? "true" : "false", mi->behavior, mi->layerType, mi->topOpaque, mi->botOpaque,
-                a->solid, a->green, a->brown, a->boxy, a->x0, a->x1, a->y0, a->y1, a->topWidth, a->midWidth, a->botWidth, a->bgFill, a->rails, a->plate);
+                a->solid8, a->green, a->brown, a->boxy, a->x0, a->x1, a->y0, a->y1, a->topWidth, a->midWidth, a->botWidth, a->bgFill, a->rails, a->plate);
         first = 0;
     }
     fprintf(f, "],\n\"cells\":[");
@@ -1630,9 +1860,17 @@ static void FreeInstances(void)
         free(gVoxelInstances[i].cells);
         free(gVoxelInstances[i].pixels);
         free(gVoxelInstances[i].topMask);
+        free(gVoxelInstances[i].scene);
+        free(gVoxelInstances[i].sceneSpan);
+        free(gVoxelInstances[i].sceneShared);
+        free(gVoxelInstances[i].hullGrid);
         gVoxelInstances[i].cells = NULL;
         gVoxelInstances[i].pixels = NULL;
         gVoxelInstances[i].topMask = NULL;
+        gVoxelInstances[i].scene = NULL;
+        gVoxelInstances[i].sceneSpan = NULL;
+        gVoxelInstances[i].sceneShared = NULL;
+        gVoxelInstances[i].hullGrid = NULL;
     }
     gVoxelInstanceCount = 0;
 }

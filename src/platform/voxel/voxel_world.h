@@ -82,6 +82,8 @@ typedef enum {
     SH_MAT,            // tall grass lifted as a mat with skirts
     SH_DECK,           // a bridge deck with fascia, posts or embankment
     SH_SUPPORT,        // a blocked cell that is a deck's drawn underside: flat, its art on the fascia
+    SH_HULL,           // part of a round hull (voxel_hull.h): the cell paints its matched ground
+    SH_SIGN,           // a board on a post: the drawing cut per pixel, two voxels thick
     SH_COUNT
 } VoxelShape;
 
@@ -94,6 +96,15 @@ typedef enum {
 #define VCF_SHELL_N     0x20  // interior: draw the room shell on the north edge
 #define VCF_SHELL_E     0x40
 #define VCF_SHELL_W     0x80
+#define VCF_SCENE       0x100 // scenery (voxel_scene.h) stands here: a hull, a sign; the cell keeps its foot height
+#define VCF_VACATED     0x200 // walkable crown whose art moved onto a hull: painted as ground
+
+// Hulls anchored on a cell (voxel_hull.h).
+#define VH_NONE      0
+#define VH_CANOPY    1   // a 2x2 or 3x3 drawing: one hull over the block, anchored top-left
+#define VH_SINGLE    2   // one cell of drawing: a 16px ball
+#define VH_STACKED   3   // a crown drawn in the cell above: 16 wide, 32 tall
+#define VH_PARTNER   4   // a cell of a canopy block: no hull of its own
 
 // Lip edges of a ledge cell.
 #define LIP_N 1
@@ -108,7 +119,7 @@ typedef struct {
     uint8_t  elevation;  // 0..15
     uint8_t  layerType;  // METATILE_LAYER_TYPE_*
     uint8_t  cls;        // VoxelClass
-    uint8_t  flags;      // VCF_*
+    uint16_t flags;      // VCF_*
     int16_t  building;   // index into the instance's building list, or -1
     uint8_t  stack;      // rows stacked into this column (anchor cells only)
     uint8_t  shape;      // VoxelShape (anchor cells and surfaces)
@@ -122,6 +133,8 @@ typedef struct {
     float    lift;       // bridges: courses the deck stands over its bank
     uint16_t underMeta;  // bridges: the art laid under the deck
     uint16_t fasciaMeta; // decks: the art of the drawn underside on the open side (0xFFFF: own)
+    uint16_t groundMeta; // the ground painted where scenery vacated the cell (0xFFFF: its own art, ground-filled)
+    uint8_t  hull;       // VH_*: what hull, if any, is anchored on this cell
 } VoxelCell;
 
 // A door-run building: every column it owns has rows [top..facadeRow].
@@ -179,6 +192,14 @@ typedef struct VoxelInstanceTag {
     bool usedByFloor[1024];
     uint32_t *pixels;     // the 1024x1024 atlas (voxel_atlas.h), kept for uploads
     uint8_t *topMask;     // 1024 * 32 bytes: which pixels the top layer drew
+    uint8_t background[VOXEL_ART_BG_BYTES];   // the map's ground colours (voxel_art.h)
+    uint8_t *scene;       // scenery grid (voxel_scene.h), sceneW x sceneH, the body plus a ring
+    uint8_t *sceneSpan;
+    uint8_t *sceneShared;
+    uint8_t *hullGrid;    // VH_* over the scenery grid: the hulls, anchors and partners
+    int sceneW, sceneH;
+    int floorMetas[12];   // this map's floor metatiles (voxel_art.h)
+    int floorCount;
     VoxelBuilding buildings[MAX_VOXEL_BUILDINGS];
     int buildingCount;
     uint16_t shellMeta;   // interior: art for the room shell
@@ -207,6 +228,11 @@ float VoxelWorld_WalkHeightAt(int worldX, int worldY);         // where a walker
 
 // Class heights, in courses.
 float VoxelWorld_ClassHeight(VoxelClass cls);
+
+// The profile's metatile pin for `metatile` of the layout's pair, VC_COUNT
+// when none; `walkablePin` says it applies to walkable cells too.
+struct MapLayout;
+VoxelClass VoxelWorld_PinFor(const struct MapLayout *layout, int metatile, bool *walkablePin);
 
 // Debug dumps through SDL_Log, and the JSON cell dump the gates read.
 void VoxelWorld_DumpInstance(const VoxelInstance *inst);
