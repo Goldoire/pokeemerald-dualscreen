@@ -18,12 +18,16 @@
 // 64 px at the player and 56 at the foe -- so the game's own health boxes,
 // move animations and shadows sit where they always did.
 // ---------------------------------------------------------------------------
-#define RIG_SIDE    97.242f
-#define RIG_BACK   169.612f
-#define RIG_HEIGHT  44.535f
-#define RIG_LOOKX   -2.490f
-#define RIG_LOOKY    2.098f
-#define RIG_FRAMEH  37.289f
+typedef struct { float side, back, height, lookX, lookY, frameH; } Rig;
+static const Rig sRigs[2] = {
+    { 97.242f, 169.612f, 44.535f, -2.490f, 2.098f, 37.289f },   // tele, on Emerald's own feet
+    // WIDE (BattleCam.lua): the close rig for a map with no long clear
+    // sightline -- a clearing ringed by trees. Its marks do not land on the
+    // GBA's own, so it is only taken where the tele rig cannot see.
+    { 41.98f, 41.16f, 28.48f, -3.24f, -1.35f, 55.62f },
+};
+#define RIG_SIDE   (sRigs[0].side)
+#define RIG_BACK   (sRigs[0].back)
 
 // The two arena shapes (BattleArena.lua), offsets from the north-west
 // corner: a wide one with room round the pair, a narrow one that fits a
@@ -130,13 +134,6 @@ static bool Fits(const VoxelInstance *inst, const Shape *s, int x0, int y0, bool
             else if (level && fabsf(h - h0) > 0.01f)
                 return false;
         }
-    // the eye must look in from over the map (the rig stands six cells east
-    // and ten south of the pair)
-    {
-        int ex = x0 + s->ax + (int)(RIG_SIDE / 16.0f), ey = y0 + (s->fy + s->ay) / 2 + (int)(RIG_BACK / 16.0f);
-        if (ex < -4 || ey < -4 || ex >= inst->width + 4 || ey >= inst->height + 4)
-            return false;
-    }
     return true;
 }
 
@@ -163,9 +160,10 @@ bool VoxelBattle_FindArena(VoxelArena *arena)
     {
         const Shape *s = &sShapes[si & 1];
         bool surf = surfing || si >= 2;
-        for (pass = 0; pass < 3; pass++)
+        for (pass = 0; pass < 4; pass++)
         {
-            bool level = pass == 0, clear = pass < 2;
+            bool level = pass == 0, clear = pass < 3;
+            int rig = pass == 2 ? 1 : 0;
             int x, y, bestX = 0, bestY = 0;
             float best = -1.0f;
             for (y = 0; y + s->h <= inst->height; y++)
@@ -179,6 +177,7 @@ bool VoxelBattle_FindArena(VoxelArena *arena)
                     if (clear)
                     {
                         VoxelArena probe = *arena;
+                        probe.rig = rig;
                         Place(&probe, inst, s, x, y);
                         if (!Clear(&probe))
                             continue;
@@ -190,6 +189,7 @@ bool VoxelBattle_FindArena(VoxelArena *arena)
             if (best >= 0.0f)
             {
                 Place(arena, inst, s, bestX, bestY);
+                arena->rig = rig;
                 arena->valid = true;
                 return true;
             }
@@ -209,19 +209,20 @@ bool VoxelBattle_FindArena(VoxelArena *arena)
 
 void VoxelBattle_Rig(const VoxelArena *arena, float *eye, float *focus, float *fovDeg)
 {
+    const Rig *r = &sRigs[arena->rig ? 1 : 0];
     float dx, dy, dz, dist;
-    eye[0] = arena->midX + RIG_SIDE / 16.0f;
-    eye[1] = arena->groundY + RIG_HEIGHT / 16.0f;
-    eye[2] = arena->midZ + RIG_BACK / 16.0f;
-    focus[0] = arena->midX + RIG_LOOKX / 16.0f;
-    focus[1] = arena->groundY + RIG_LOOKY / 16.0f;
+    eye[0] = arena->midX + r->side / 16.0f;
+    eye[1] = arena->groundY + r->height / 16.0f;
+    eye[2] = arena->midZ + r->back / 16.0f;
+    focus[0] = arena->midX + r->lookX / 16.0f;
+    focus[1] = arena->groundY + r->lookY / 16.0f;
     focus[2] = arena->midZ;
     dx = eye[0] - focus[0];
     dy = eye[1] - focus[1];
     dz = eye[2] - focus[2];
     dist = sqrtf(dx * dx + dy * dy + dz * dz);
     // the field of view that frames the rig's frame height at the focus
-    *fovDeg = 2.0f * atanf((RIG_FRAMEH / 16.0f) / 2.0f / dist) * 180.0f / 3.14159265f;
+    *fovDeg = 2.0f * atanf((r->frameH / 16.0f) / 2.0f / dist) * 180.0f / 3.14159265f;
 }
 
 #endif

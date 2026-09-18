@@ -25,6 +25,7 @@ typedef struct {
     float allyX, allyZ;        // your Pokemon's feet
     float groundY;             // the floor both stand on
     float midX, midZ;
+    int rig;                   // 0: the tele rig on Emerald's own feet; 1: the close wide rig
 } VoxelArena;
 
 // Find the arena for a battle starting now (the player on the current map).

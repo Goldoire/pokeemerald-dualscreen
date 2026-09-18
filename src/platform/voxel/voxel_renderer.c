@@ -523,6 +523,14 @@ static void RenderUiOverlay(int winW, int winH)
 // (connected maps drawn from ROM art, the sky).
 static float FadeAmount(void)
 {
+    // A fade of a few palettes is the game fading one thing (a Pokemon
+    // coming out of its ball): the world is only tinted when the fade takes
+    // most of the background palettes with it.
+    uint32_t bg = gPaletteFade.mode == 2 ? 0xFFFF : (gPaletteFade_selectedPalettes & 0xFFFF);
+    int n = 0;
+    while (bg) { n += bg & 1; bg >>= 1; }
+    if (n < 8)
+        return 0.0f;
     return (float)gPaletteFade.y / 16.0f;
 }
 
@@ -1022,13 +1030,34 @@ static void UpdateBattlerTexture(int b, const struct Sprite *sprite)
     sSpriteUploads++;
 }
 
-// A card standing upright at (x, y, z), turned to face the eye.
-static void DrawCard(int b, float x, float y, float z, const float *eye)
+// A card standing upright at (x, y, z), turned to face the eye. The
+// sprite's own affine scale (a Pokemon growing out of its ball) and its
+// small screen offsets (a lunge, a faint's slide) ride on the card, about
+// its feet; the intro's long slides do not.
+static void DrawCard(int b, const struct Sprite *sp, float x, float y, float z, const float *eye)
 {
     float k = 1.0f / CARD_TEXELS_PER_CELL, w = (float)sBattlerW[b], h = (float)sBattlerH[b];
     float yaw = atan2f(eye[0] - x, eye[2] - z), rx = cosf(yaw), rz = -sinf(yaw);
-    float left = -w * 0.5f * k, right = w * 0.5f * k;
-    float bottom = -sBattlerPad[b] * k, top = (h - sBattlerPad[b]) * k;
+    float sx = 1.0f, sy = 1.0f, ox = 0.0f, oy = 0.0f;
+    float left, right, bottom, top;
+    if (sp->oam.affineMode & 1)
+    {
+        const struct OamMatrix *mtx = &gOamMatrices[sp->oam.matrixNum & 31];
+        if (mtx->a != 0) sx = 256.0f / (float)mtx->a;
+        if (mtx->d != 0) sy = 256.0f / (float)mtx->d;
+        if (sx < 0) sx = -sx;
+        if (sy < 0) sy = -sy;
+        if (sx > 4.0f) sx = 4.0f;
+        if (sy > 4.0f) sy = 4.0f;
+    }
+    if (sp->x2 > -48 && sp->x2 < 48)
+        ox = sp->x2 * k;
+    if (sp->y2 > -64 && sp->y2 < 64)
+        oy = -sp->y2 * k;
+    left = -w * 0.5f * k * sx + ox;
+    right = w * 0.5f * k * sx + ox;
+    bottom = (-sBattlerPad[b] * k) * sy + oy;
+    top = ((h - sBattlerPad[b]) * k) * sy + oy;
     glBindTexture(GL_TEXTURE_2D, sBattlerTex[b]);
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 1.0f); glVertex3f(x + rx * left, y + bottom, z + rz * left);
@@ -1231,7 +1260,7 @@ static void RenderBattle3D(int winW, int winH)
         glDisable(GL_BLEND);
         glEnable(GL_ALPHA_TEST);
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        DrawCard(b, x, sArena.groundY, z, eye);
+        DrawCard(b, s, x, sArena.groundY, z, eye);
     }
     glDisable(GL_ALPHA_TEST);
 
