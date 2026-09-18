@@ -1246,6 +1246,33 @@ static bool LampAt(VoxelInstance *inst, int x, int y)
     return headMax >= LAMP_HEAD_MIN && headMax >= 2 * shaftMax && headMaxY >= 0 && headMaxY <= 9 && headRows >= 8;
 }
 
+// THE POST'S FOOT IS ON THE FLOOR IT IS APPROACHED FROM (Structures.lua
+// stampGround -> standHeight): the walkable cell south of it, else the
+// lowest walkable one north, east or west, else its own reading.
+static float PalingZ(VoxelInstance *inst, int x, int y)
+{
+    static const int dx[3] = {0, 1, -1};
+    static const int dy[3] = {-1, 0, 0};
+    VoxelCell *s = CellPtr(inst, x, y + 1), *c = CellPtr(inst, x, y);
+    float best = 0.0f;
+    bool have = false;
+    int d;
+    if (s && !(s->flags & VCF_BLOCKED) && s->cls != VC_VOID && s->cls != VC_WATER)
+        return s->groundH;
+    for (d = 0; d < 3; d++)
+    {
+        VoxelCell *n = CellPtr(inst, x + dx[d], y + dy[d]);
+        if (n == NULL || (n->flags & VCF_BLOCKED) || n->cls == VC_VOID || n->cls == VC_WATER)
+            continue;
+        if (!have || n->groundH < best)
+            best = n->groundH;
+        have = true;
+    }
+    if (have)
+        return best;
+    return c ? c->groundH : 0.0f;
+}
+
 static void ApplyScenery(VoxelInstance *inst)
 {
     int x, y, i;
@@ -1360,6 +1387,12 @@ static void ApplyScenery(VoxelInstance *inst)
                     }
                 }
             }
+            else if (sc == SC_PALING && c && (c->flags & VCF_BLOCKED))
+            {
+                c->flags |= VCF_SCENE | VCF_PALING;
+                c->shape = SH_PALING;
+                c->groundH = c->topH = PalingZ(inst, x, y);
+            }
             else if (sc == SC_SIGNPOST && c && (c->flags & VCF_BLOCKED))
             {
                 bool grounded;
@@ -1449,6 +1482,8 @@ static void RebuildInstance(VoxelInstance *inst)
             VoxelCell *c = &inst->cells[i];
             if (c->hull != VH_NONE)
                 c->shape = SH_HULL;
+            else if (c->flags & VCF_PALING)
+                c->shape = SH_PALING;
             else if (c->flags & VCF_SCENE)
                 c->shape = SH_SIGN;
         }

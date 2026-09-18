@@ -8,6 +8,7 @@
 #include "global.h"
 #include "fieldmap.h"
 #include "voxel_world.h"
+#include "voxel_paling.h"
 #include "voxel_roles.h"
 #include "voxel_atlas.h"
 
@@ -377,6 +378,20 @@ void VoxelScene_Classify(VoxelInstance *inst)
         return;
     }
 
+    // ---- palings: an authored fence claims its cells first, before a
+    // cylinder can lathe its end pieces or a carve stand its arms (a piece on
+    // a passable cell is decoration, and is left alone) ----
+    for (cy = 0; cy < inst->height; cy++)
+        for (cx = 0; cx < inst->width; cx++)
+        {
+            int m = VoxelScene_MetatileAt(inst, cx, cy);
+            if (m >= 0 && Blocked(inst, cx, cy) && VoxelPaling_Find(inst->header->mapLayout, m, NULL))
+            {
+                c.claimed[Idx(&c, cx, cy)] = 1;
+                scene[Idx(&c, cx, cy)] = SC_PALING;
+            }
+        }
+
     // ---- trees: row-major greedy from the top-left of every mass ----
     for (cy = c.y0; cy <= c.y1; cy++)
         for (cx = c.x0; cx <= c.x1; cx++)
@@ -537,7 +552,7 @@ void VoxelScene_Classify(VoxelInstance *inst)
     {
         for (cy = 0; cy < inst->height; cy++)
             for (cx = 0; cx < inst->width; cx++)
-                if (Lone(&c, cx, cy))
+                if (!scene[Idx(&c, cx, cy)] && Lone(&c, cx, cy))
                     scene[Idx(&c, cx, cy)] = SC_SIGNPOST;
         for (cy = 0; cy < inst->height; cy++)
             for (cx = 0; cx < inst->width; cx++)
@@ -563,7 +578,7 @@ void VoxelScene_Classify(VoxelInstance *inst)
         {
             int i = Idx(&c, cx, cy);
             uint8_t b = inst->cells[cy * inst->width + cx].behavior;
-            if (scene[i] && ((b >= 0x38 && b <= 0x3F) || b == MB_BERRY_TREE_SOIL))
+            if (scene[i] && scene[i] != SC_PALING && ((b >= 0x38 && b <= 0x3F) || b == MB_BERRY_TREE_SOIL))
                 scene[i] = SC_NONE;
         }
     free(c.claimed);

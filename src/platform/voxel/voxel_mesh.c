@@ -17,6 +17,7 @@
 #include "voxel_atlas.h"
 #include "voxel_hull.h"
 #include "voxel_scene.h"
+#include "voxel_paling.h"
 
 // ---------------------------------------------------------------------------
 // Geometry helpers
@@ -753,7 +754,7 @@ static void BuildSurface(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int
     // A cell scenery stood up (a hull, a sign) or whose art moved onto a
     // hull paints the ground the drawing stands on: the matched floor
     // metatile, else its own picture with the object filled in ground.
-    if (c->shape == SH_HULL || c->shape == SH_SIGN || (c->flags & VCF_VACATED))
+    if (c->shape == SH_HULL || c->shape == SH_SIGN || c->shape == SH_PALING || (c->flags & VCF_VACATED))
     {
         uint16_t g = sGroundFor ? sGroundFor[ly * inst->width + lx] : 0xFFFF;
         if (g != 0xFFFF) { art = g; variant = VOXEL_VAR_COMPOSED; }
@@ -2075,6 +2076,105 @@ static void BuildSign(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly
 }
 
 // ---------------------------------------------------------------------------
+// Palings (Structures.lua buildGen3Palings emitPost/emitRail): every face
+// maps one drawn pixel onto one world pixel. A post's four sides wear the
+// elevation's drawn rows (row y1 its foot), its lid the plan's drawn head; a
+// rail is centred in the post's depth -- the drawing shows the posts
+// occluding it -- and wears the elevation's own columns along its span.
+// ---------------------------------------------------------------------------
+#define PAL_TOP   255
+#define PAL_SOUTH 255
+#define PAL_NORTH 173
+#define PAL_SIDE  199
+
+// The padded texel rect of columns c0..c1, rows r0..r1 of metatile m.
+static void PalUv(int m, int c0, int c1, int r0, int r1, float *uL, float *uR, float *vT, float *vB)
+{
+    float u0, v0, u1, v1, d = 0.45f * ATLAS_TEXEL;
+    UvPixel(m, VOXEL_VAR_COMPOSED, c0, r0, &u0, &v0);
+    UvPixel(m, VOXEL_VAR_COMPOSED, c1, r1, &u1, &v1);
+    *uL = u0 - d; *uR = u1 + d; *vT = v0 - d; *vB = v1 + d;
+}
+
+// A quad from four corners and their (u, v), foot-shaded like any object.
+static void PalQuad(VoxelMesh *mesh, float x0, float y0, float z0, float x1, float y1, float z1,
+                    float x2, float y2, float z2, float x3, float y3, float z3,
+                    float ua, float va, float ub, float vb, float uc, float vc, float ud, float vd,
+                    int shade, float foot)
+{
+    float q[12] = { x0, y0, z0, x1, y1, z1, x2, y2, z2, x3, y3, z3 };
+    float uv[8] = { ua, va, ub, vb, uc, vc, ud, vd };
+    ObjQuad(mesh, q, uv, shade, foot);
+}
+
+static void PalPost(VoxelMesh *mesh, const VoxelPalingFigure *f, float X0, float Z0, float by)
+{
+    float X1 = X0 + f->postW / 16.0f, Z1 = Z0 + f->postD / 16.0f, yT = by + f->postH / 16.0f;
+    float uL, uR, vT, vB, uD, dummy;
+    // the lid: the plan's drawn post head
+    PalUv(f->topMeta, f->topX, f->topX + f->postW - 1, f->topZ, f->topZ + f->postD - 1, &uL, &uR, &vT, &vB);
+    PalQuad(mesh, X0, yT, Z0, X1, yT, Z0, X1, yT, Z1, X0, yT, Z1, uL, vT, uR, vT, uR, vB, uL, vB, PAL_TOP, by);
+    // the sides: the elevation's drawn rows, y1 at the foot
+    PalUv(f->faceMeta, f->faceX, f->faceX + f->postW - 1, f->faceY0, f->faceY1, &uL, &uR, &vT, &vB);
+    PalUv(f->faceMeta, f->faceX, f->faceX + f->postD - 1, f->faceY0, f->faceY1, &dummy, &uD, &dummy, &dummy);
+    PalQuad(mesh, X0, by, Z1, X1, by, Z1, X1, yT, Z1, X0, yT, Z1, uL, vB, uR, vB, uR, vT, uL, vT, PAL_SOUTH, by);
+    PalQuad(mesh, X1, by, Z0, X0, by, Z0, X0, yT, Z0, X1, yT, Z0, uL, vB, uR, vB, uR, vT, uL, vT, PAL_NORTH, by);
+    PalQuad(mesh, X0, by, Z0, X0, by, Z1, X0, yT, Z1, X0, yT, Z0, uL, vB, uD, vB, uD, vT, uL, vT, PAL_SIDE, by);
+    PalQuad(mesh, X1, by, Z1, X1, by, Z0, X1, yT, Z0, X1, yT, Z1, uL, vB, uD, vB, uD, vT, uL, vT, PAL_SIDE, by);
+}
+
+static void PalRail(VoxelMesh *mesh, const VoxelPalingFigure *f, const VoxelPalingSpan *sp, float ox, float oz, float by)
+{
+    int i;
+    if (sp->to <= sp->from)
+        return;
+    for (i = 0; i < f->nRails; i++)
+    {
+        const VoxelPalingRail *r = &f->rails[i];
+        int depth = r->top0 >= 0 ? r->top1 - r->top0 + 1 : r->depth;
+        int ta = r->top0 >= 0 ? r->top0 : r->face0, tb = r->top0 >= 0 ? r->top1 : r->face1;
+        int c0 = sp->lane + (f->postD - depth) / 2, c1 = c0 + depth;
+        float yLo = by + (f->faceY1 - r->face1) / 16.0f, yHi = by + (f->faceY1 - r->face0 + 1) / 16.0f;
+        float uL, uR, vT, vB, tT, tB, dummy;
+        PalUv(f->faceMeta, sp->from, sp->to - 1, r->face0, r->face1, &uL, &uR, &vT, &vB);
+        PalUv(f->faceMeta, sp->from, sp->to - 1, ta, tb, &dummy, &dummy, &tT, &tB);
+        if (sp->axis == 'x')
+        {
+            float X0 = ox + sp->from / 16.0f, X1 = ox + sp->to / 16.0f, Z0 = oz + c0 / 16.0f, Z1 = oz + c1 / 16.0f;
+            PalQuad(mesh, X0, yLo, Z1, X1, yLo, Z1, X1, yHi, Z1, X0, yHi, Z1, uL, vB, uR, vB, uR, vT, uL, vT, PAL_SOUTH, by);
+            PalQuad(mesh, X1, yLo, Z0, X0, yLo, Z0, X0, yHi, Z0, X1, yHi, Z0, uL, vB, uR, vB, uR, vT, uL, vT, PAL_NORTH, by);
+            PalQuad(mesh, X0, yHi, Z0, X1, yHi, Z0, X1, yHi, Z1, X0, yHi, Z1, uL, tT, uR, tT, uR, tB, uL, tB, PAL_TOP, by);
+        }
+        else
+        {
+            float Z0 = oz + sp->from / 16.0f, Z1 = oz + sp->to / 16.0f, X0 = ox + c0 / 16.0f, X1 = ox + c1 / 16.0f;
+            PalQuad(mesh, X1, yLo, Z1, X1, yLo, Z0, X1, yHi, Z0, X1, yHi, Z1, uL, vB, uR, vB, uR, vT, uL, vT, PAL_SIDE, by);
+            PalQuad(mesh, X0, yLo, Z0, X0, yLo, Z1, X0, yHi, Z1, X0, yHi, Z0, uL, vB, uR, vB, uR, vT, uL, vT, PAL_SIDE, by);
+            PalQuad(mesh, X0, yHi, Z0, X1, yHi, Z0, X1, yHi, Z1, X0, yHi, Z1, uL, tT, uL, tB, uR, tB, uR, tT, PAL_TOP, by);
+        }
+    }
+}
+
+static void BuildPaling(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
+{
+    const VoxelCell *c = &inst->cells[ly * inst->width + lx];
+    const VoxelPalingFigure *f = NULL;
+    const VoxelPalingPiece *p = VoxelPaling_Find(inst->header->mapLayout, c->metatile, &f);
+    float ox = (float)(lx + inst->originX), oz = (float)(ly + inst->originY), foot = c->groundH;
+    VoxelMeshRange r;
+    int i;
+    if (p == NULL || f == NULL)
+        return;
+    mesh->stats.signs++;
+    BeginRange(mesh, &r, (int)ox, (int)oz, -1, foot, foot + 1.0f);
+    for (i = 0; i < p->nPosts; i++)
+        PalPost(mesh, f, ox + p->posts[i].x / 16.0f, oz + p->posts[i].z / 16.0f, foot);
+    for (i = 0; i < p->nSpans; i++)
+        PalRail(mesh, f, &p->spans[i], ox, oz, foot);
+    EndRange(mesh, &r);
+}
+
+// ---------------------------------------------------------------------------
 // Instance build
 // ---------------------------------------------------------------------------
 // Two tree anchors side by side whose four metatiles are the consecutive
@@ -2128,7 +2228,7 @@ void VoxelMesh_BuildInstance(VoxelMesh *mesh, const VoxelInstance *inst)
         for (x = 0; x < inst->width; x++)
         {
             const VoxelCell *c = &inst->cells[y * inst->width + x];
-            if (c->shape == SH_SIGN)
+            if (c->shape == SH_SIGN || c->shape == SH_PALING)
                 sGroundFor[y * inst->width + x] = (uint16_t)VoteGround(inst, x, y);
         }
 
@@ -2141,7 +2241,7 @@ void VoxelMesh_BuildInstance(VoxelMesh *mesh, const VoxelInstance *inst)
             if (c->building >= 0 && ((c->flags & VCF_BLOCKED) || c->cls == VC_DOOR))
                 continue;   // the building draws it; a walkable cell under its eave keeps its ground
             if ((c->cls == VC_WALL || c->cls == VC_CLIFF) && c->shape != SH_NONE && c->shape != SH_SUPPORT
-                && c->shape != SH_HULL && c->shape != SH_SIGN)
+                && c->shape != SH_HULL && c->shape != SH_SIGN && c->shape != SH_PALING)
                 continue;   // columns below
             if ((c->cls == VC_WALL || c->cls == VC_CLIFF) && (c->flags & VCF_CONSUMED))
                 continue;
@@ -2184,6 +2284,8 @@ void VoxelMesh_BuildInstance(VoxelMesh *mesh, const VoxelInstance *inst)
         for (x = 0; x < inst->width; x++)
             if (inst->cells[y * inst->width + x].shape == SH_SIGN)
                 BuildSign(mesh, inst, x, y);
+            else if (inst->cells[y * inst->width + x].shape == SH_PALING)
+                BuildPaling(mesh, inst, x, y);
     free(done);
     free(sGroundFor);
     sGroundFor = NULL;

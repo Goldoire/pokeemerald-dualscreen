@@ -38,6 +38,7 @@ enum {
     SC_FENCE,
     SC_PROP,
     SC_TABLETOP,
+    SC_PALING,      // an authored fence piece (voxel_paling.h): posts and rails
 };
 
 struct VoxelInstanceTag;

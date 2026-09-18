@@ -8,6 +8,7 @@
 #include "global.h"
 #include "fieldmap.h"
 #include "decompress.h"
+#include "voxel_paling.h"
 
 extern unsigned char PLTT[];
 extern unsigned char VRAM_[];
@@ -151,6 +152,7 @@ static void FindUsedMetatiles(const struct MapLayout *layout, const uint16_t *li
             used[layout->border[i] & 0x3FF] = true;
     for (i = 0; liveMap && i < liveCount; i++)
         used[liveMap[i] & 0x3FF] = true;
+    VoxelPaling_MarkUsed(layout, used);
 }
 
 static void BlitTile(uint32_t *rgba, int stride, int m, int quadX, int quadY, const uint32_t *px)
