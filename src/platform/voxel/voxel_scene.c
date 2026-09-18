@@ -354,6 +354,53 @@ static bool RailStands(const VoxelInstance *inst, int m)
     return role->cap >= 1 && role->face <= 1;
 }
 
+// The ROM names a behaviour sea (gen3_shapes.lua `behaviour`).
+static bool SeaBehavior(uint8_t b)
+{
+    return (b >= 0x10 && b <= 0x1A && b != 0x13) || b == 0x22 || b == 0x28 || b == 0x2A || b == 0x2B
+        || (b >= 0x50 && b <= 0x53);
+}
+
+// ...or names it something in particular: a ledge, a slope, a bridge, a
+// wall, a counter. A rock is plain ground, grass, or nothing named.
+static bool NamedOther(uint8_t b)
+{
+    if (SeaBehavior(b) || b == 0x13)
+        return true;
+    if ((b >= 0x38 && b <= 0x3F) || b == 0xD0 || b == 0xD1)
+        return true;
+    if ((b >= 0x70 && b <= 0x7F && b != 0x79 && b != 0x7E) || (b >= 0xD3 && b <= 0xD6))
+        return true;
+    return b == 0x60 || b == 0x61 || b == 0x69 || b == 0x6C || b == 0x85 || (b >= 0x8B && b <= 0x8D)
+        || b == 0xBE || b == 0xEA || b == 0x80 || b == 0x83 || b == 0x84;
+}
+
+// Off the map is sea: outside the body there is no answer, so take none.
+static bool SeaCell(const Ctx *c, int cx, int cy)
+{
+    const VoxelInstance *inst = c->inst;
+    int m;
+    if (cx < 0 || cy < 0 || cx >= inst->width || cy >= inst->height)
+        return true;
+    m = VoxelScene_MetatileAt(inst, cx, cy);
+    return m >= 0 && SeaBehavior(BehaviorOf(inst, m));
+}
+
+static bool RockCell(const Ctx *c, int cx, int cy)
+{
+    const VoxelInstance *inst = c->inst;
+    const VoxelArtInfo *st;
+    int m;
+    if (cx < 0 || cy < 0 || cx >= inst->width || cy >= inst->height || !Blocked(inst, cx, cy))
+        return false;
+    m = VoxelScene_MetatileAt(inst, cx, cy);
+    if (m < 0 || Authored(inst, m) || NamedOther(BehaviorOf(inst, m)))
+        return false;
+    // drawn, and not foliage: a bush in a pond is still a bush
+    st = ArtOf(inst, m);
+    return st && st->solid > 0.4f && !st->leafy && !st->overhead;
+}
+
 void VoxelScene_Classify(VoxelInstance *inst)
 {
     Ctx c;
@@ -546,6 +593,50 @@ void VoxelScene_Classify(VoxelInstance *inst)
                 scene[i] = SC_CYLINDER;
             }
         }
+
+    // ---- A ROCK STANDING IN THE SEA (Gen3.lua buildScenery waterRocks):
+    // Emerald draws one as a 2x2 block -- a boulder with the water disturbed
+    // round it -- and blocks all four cells. Read as collision it is a
+    // two-cell wall with the ripple painted on its face; what is there is
+    // flat sea with a rock in it. The test is the surroundings: most of the
+    // ring is sea, and anything else in it is more rock. ----
+    if (!inst->indoor)
+        for (cy = 0; cy + 1 < inst->height; cy++)
+            for (cx = 0; cx + 1 < inst->width; cx++)
+            {
+                static const int8_t ring[12][2] = {
+                    {-1, -1}, {0, -1}, {1, -1}, {2, -1}, {-1, 0}, {2, 0},
+                    {-1, 1}, {2, 1}, {-1, 2}, {0, 2}, {1, 2}, {2, 2},
+                };
+                int k, sea = 0, dx, dy;
+                bool ringed = true;
+                for (dy = 0; dy < 2 && ringed; dy++)
+                    for (dx = 0; dx < 2 && ringed; dx++)
+                        if (!RockCell(&c, cx + dx, cy + dy) || c.claimed[Idx(&c, cx + dx, cy + dy)])
+                            ringed = false;
+                if (!ringed)
+                    continue;
+                for (k = 0; k < 12; k++)
+                {
+                    int nx = cx + ring[k][0], ny = cy + ring[k][1];
+                    if (SeaCell(&c, nx, ny))
+                        sea++;
+                    else if (!RockCell(&c, nx, ny))
+                    {
+                        ringed = false;
+                        break;
+                    }
+                }
+                if (!ringed || sea < 7)
+                    continue;
+                for (dy = 0; dy < 2; dy++)
+                    for (dx = 0; dx < 2; dx++)
+                    {
+                        c.claimed[Idx(&c, cx + dx, cy + dy)] = 1;
+                        scene[Idx(&c, cx + dx, cy + dy)] = SC_SEAROCK;
+                    }
+                span[Idx(&c, cx, cy)] = 2;
+            }
 
     // ---- signs and rails: outdoors only ----
     if (!inst->indoor)

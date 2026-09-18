@@ -1273,6 +1273,23 @@ static float PalingZ(VoxelInstance *inst, int x, int y)
     return c ? c->groundH : 0.0f;
 }
 
+// The surface of the sea a rock stands in: the nearest water that is not
+// itself rock, else a water course below its own reading.
+static float SeaLevel(VoxelInstance *inst, int x, int y)
+{
+    int r, dx, dy;
+    VoxelCell *c = CellPtr(inst, x, y);
+    for (r = 1; r <= 3; r++)
+        for (dy = -r; dy <= r; dy++)
+            for (dx = -r; dx <= r; dx++)
+            {
+                VoxelCell *n = CellPtr(inst, x + dx, y + dy);
+                if (n && n->cls == VC_WATER && VoxelScene_At(inst, x + dx, y + dy) != SC_SEAROCK)
+                    return n->groundH;
+            }
+    return c ? c->groundH - 0.125f : 0.0f;
+}
+
 static void ApplyScenery(VoxelInstance *inst)
 {
     int x, y, i;
@@ -1385,6 +1402,19 @@ static void ApplyScenery(VoxelInstance *inst)
                         ClaimForHull(inst, x, y - 1, x, y);
                         north->hull = VH_PARTNER;
                     }
+                }
+            }
+            else if (sc == SC_SEAROCK)
+            {
+                // the cells stay sea; the rock stands over them at its datum
+                if (VoxelScene_SpanAt(inst, x, y) >= 2)
+                    inst->hullGrid[gi] = VH_SEAROCK;
+                else if (inst->hullGrid[gi] == VH_NONE)
+                    inst->hullGrid[gi] = VH_PARTNER;
+                if (c)
+                {
+                    c->cls = VC_WATER;
+                    c->groundH = c->topH = SeaLevel(inst, x, y);
                 }
             }
             else if (sc == SC_PALING && c && (c->flags & VCF_BLOCKED))

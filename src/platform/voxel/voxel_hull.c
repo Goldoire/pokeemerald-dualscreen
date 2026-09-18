@@ -107,8 +107,20 @@ static void PushFlat(Sink *s, const float *xyz, float u, float v, int shade)
     Push(s, xyz, uv, shade);
 }
 
+// WATER IS BACKGROUND FOR A ROCK STANDING IN IT. The sea is blue well past
+// its red and green; Emerald's rock is a blue-grey only a little past them,
+// and the wave highlights, which fall in the rock's range, are the palest
+// thing in the drawing.
+static bool BlueOff(uint32_t c)
+{
+    float r = (c & 0xFF) / 255.0f, g = ((c >> 8) & 0xFF) / 255.0f, b = ((c >> 16) & 0xFF) / 255.0f;
+    float d1 = b - (r > g ? r : g), lo = r < g ? r : g;
+    if (b < lo) lo = b;
+    return d1 > 0.15f || (lo > 0.62f && d1 > 0.04f);
+}
+
 bool VoxelHull_Build(VoxelHullTemplate *tpl, const VoxelInstance *inst, int nx, int ny,
-                     const int *metas, const int *ground, int groundCount)
+                     const int *metas, const int *ground, int groundCount, bool blueBg)
 {
     static uint8_t cls[MAXPX], mask[MAXPX];
     static int16_t z0[MAXPX], z1[MAXPX], src[MAXPX];
@@ -118,7 +130,7 @@ bool VoxelHull_Build(VoxelHullTemplate *tpl, const VoxelInstance *inst, int nx, 
     int NX = nx, NY = ny, N2 = nx / 2, i, ix, iy, yBot = -1, any = 0;
 
     memset(tpl, 0, sizeof(*tpl));
-    tpl->nx = nx; tpl->ny = ny; tpl->bgMeta = -1;
+    tpl->nx = nx; tpl->ny = ny; tpl->bgMeta = -1; tpl->blueBg = blueBg;
     tpl->nMetas = (nx / 16) * (ny / 16);
     for (i = 0; i < tpl->nMetas && i < 9; i++)
         tpl->metas[i] = metas[i];
@@ -134,7 +146,7 @@ bool VoxelHull_Build(VoxelHullTemplate *tpl, const VoxelInstance *inst, int nx, 
         for (ix = 0; ix < NX; ix++)
         {
             int p = iy * NX + ix;
-            if (Carved(&cv, ix, iy))
+            if (Carved(&cv, ix, iy) && !(blueBg && BlueOff(Composed(&cv, ix, iy))))
             {
                 cls[p] = (uint8_t)ShadeClass(Composed(&cv, ix, iy));
                 mask[p] = 1;

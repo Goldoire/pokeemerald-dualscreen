@@ -107,6 +107,7 @@ typedef enum {
 #define VH_SINGLE    2   // one cell of drawing: a 16px ball
 #define VH_STACKED   3   // a crown drawn in the cell above: 16 wide, 32 tall
 #define VH_PARTNER   4   // a cell of a canopy block: no hull of its own
+#define VH_SEAROCK   5   // a rock standing in the sea: a 2x2 hull over cells that stay sea
 
 // Lip edges of a ledge cell.
 #define LIP_N 1

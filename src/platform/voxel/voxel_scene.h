@@ -39,6 +39,7 @@ enum {
     SC_PROP,
     SC_TABLETOP,
     SC_PALING,      // an authored fence piece (voxel_paling.h): posts and rails
+    SC_SEAROCK,     // a rock standing in the sea: 2x2, anchored top-left (span 2)
 };
 
 struct VoxelInstanceTag;

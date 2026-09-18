@@ -1727,14 +1727,14 @@ static void BuildRing(VoxelMesh *mesh, const VoxelInstance *inst, int kind)
 // Hulls (voxel_hull.h): one template per distinct drawing, stamped wherever
 // it stands (Structures.lua buildCylinders).
 // ---------------------------------------------------------------------------
-static int HullTemplate(VoxelMesh *mesh, const VoxelInstance *inst, int nx, int ny, const int *metas)
+static int HullTemplate(VoxelMesh *mesh, const VoxelInstance *inst, int nx, int ny, const int *metas, bool blueBg)
 {
     int n = (nx / 16) * (ny / 16), i;
     VoxelHullTemplate *t;
     for (i = 0; i < mesh->hullTplCount; i++)
     {
         t = &mesh->hullTpls[i];
-        if (t->nx == nx && t->ny == ny && memcmp(t->metas, metas, n * sizeof(int)) == 0)
+        if (t->nx == nx && t->ny == ny && t->blueBg == blueBg && memcmp(t->metas, metas, n * sizeof(int)) == 0)
             return i;
     }
     if (mesh->hullTplCount + 1 > mesh->hullTplCap)
@@ -1745,7 +1745,7 @@ static int HullTemplate(VoxelMesh *mesh, const VoxelInstance *inst, int nx, int 
     t = &mesh->hullTpls[mesh->hullTplCount++];
     // a drawing that carves to nothing is remembered too, so it is not
     // carved again for every cell that lays it
-    VoxelHull_Build(t, inst, nx, ny, metas, inst->floorMetas, inst->floorCount);
+    VoxelHull_Build(t, inst, nx, ny, metas, inst->floorMetas, inst->floorCount, blueBg);
     mesh->stats.hullTemplates++;
     return mesh->hullTplCount - 1;
 }
@@ -1810,9 +1810,9 @@ static void BuildHulls(VoxelMesh *mesh, const VoxelInstance *inst)
             float foot;
             if (code == VH_NONE || code == VH_PARTNER)
                 continue;
-            if (code == VH_CANOPY)
+            if (code == VH_CANOPY || code == VH_SEAROCK)
             {
-                span = VoxelScene_SpanAt(inst, x, y);
+                span = code == VH_SEAROCK ? 2 : VoxelScene_SpanAt(inst, x, y);
                 if (span < 2) span = 2;
                 for (dy = 0; dy < span; dy++)
                     for (dx = 0; dx < span; dx++)
@@ -1846,12 +1846,14 @@ static void BuildHulls(VoxelMesh *mesh, const VoxelInstance *inst)
                 if (!reach)
                     continue;
             }
-            tpl = HullTemplate(mesh, inst, nx, ny, metas);
+            tpl = HullTemplate(mesh, inst, nx, ny, metas, code == VH_SEAROCK);
             if (mesh->hullTpls[tpl].count == 0)
                 continue;
             foot = HullFoot(inst, x, y, span);
             AddStamp(mesh, tpl, (float)(x + inst->originX) + span * 0.5f, foot,
                      (float)(y + inst->originY) + span * 0.5f, span * 0.5f, ny / 16.0f);
+            if (code == VH_SEAROCK)
+                continue;   // the sea under it paints itself
             for (dy = 0; dy < span; dy++)
                 for (dx = 0; dx < span; dx++)
                 {

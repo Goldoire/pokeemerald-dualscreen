@@ -40,14 +40,17 @@ typedef struct VoxelHullTemplateTag {
     VoxelHullVertex *verts;   // six per quad
     int count;
     int bgMeta;               // the ground metatile the drawing stands on, -1 when none matched
+    bool blueBg;              // carved with the drawn water as background
     unsigned vbo;             // GL buffer, 0 until drawn
 } VoxelHullTemplate;
 
 // Build a template for the drawing `metas` (cols x rows metatiles, top row
 // first) of instance `inst` on a canvas nx wide (and deep) by ny tall.
 // `ground` lists candidate floor metatiles for the matched background.
+// `blueBg`: the drawing stands in water, and its blue is background too
+// (a rock in the sea is drawn boulder and ripple together).
 bool VoxelHull_Build(VoxelHullTemplate *tpl, const struct VoxelInstanceTag *inst, int nx, int ny,
-                     const int *metas, const int *ground, int groundCount);
+                     const int *metas, const int *ground, int groundCount, bool blueBg);
 
 void VoxelHull_Free(VoxelHullTemplate *tpl);
 
