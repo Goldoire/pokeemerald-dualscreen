@@ -698,7 +698,8 @@ static int CollectEffects(EffectDraw *out)
             cellY = (int)pz + (int)floorf(dyp / 16.0f + 0.5f);
             d->upright = sp->callback == UpdateSurfBlobFieldEffect || sp->callback == UpdateAshFieldEffect
                       || sp->callback == UpdateBubblesFieldEffect || sp->callback == UpdateSparkleFieldEffect
-                      || sp->callback == WaitFieldEffectSpriteAnim || sp->callback == UpdateJumpImpactEffect;
+                      || sp->callback == WaitFieldEffectSpriteAnim || sp->callback == UpdateJumpImpactEffect
+                      || sp->callback == UpdateDisguiseFieldEffect;     // a ninja's tree, rock or sand cover
         }
         else
             continue;
@@ -786,6 +787,7 @@ static void WriteDumpJson(const EffectDraw *effects, int effectCount, const Obje
         else if (sp->callback == UpdateAshFieldEffect) kind = "ash";
         else if (sp->callback == UpdateSandPileFieldEffect) kind = "sandPile";
         else if (sp->callback == WaitFieldEffectSpriteAnim) kind = "burst";
+        else if (sp->callback == UpdateDisguiseFieldEffect) kind = "disguise";
         fprintf(f, "%s{\"sprite\":%d,\"kind\":\"%s\",\"cell\":[%d,%d],\"w\":%d,\"h\":%d,\"upright\":%s,\"tile\":%d}",
                 i ? "," : "", d->sprite, kind, d->cellX, d->cellY, d->w, d->h, d->upright ? "true" : "false", sp->oam.tileNum);
     }
