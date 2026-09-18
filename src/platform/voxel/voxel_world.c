@@ -920,7 +920,7 @@ static void BuildShapes(VoxelInstance *inst)
             // (Slateport's market), an eave, a ladder's head. The drawn top
             // hangs as a plate two courses up. A tree's lower fringe over the
             // cell south of it is leafy and stays where the crown already is.
-            if (!inst->indoor && c->building < 0 && !(c->flags & VCF_BLOCKED)
+            if (!inst->indoor && c->building < 0 && !(c->flags & (VCF_BLOCKED | VCF_VACATED))
                 && IsWalkableClass((VoxelClass)c->cls) && c->cls != VC_GRASS && c->cls != VC_DOOR
                 && c->cls != VC_LEDGE && !IsBridgeLike((VoxelClass)c->cls)
                 && mi->topOpaque >= 96 && inst->art[c->metatile].green < 48)
@@ -1160,6 +1160,92 @@ static void ClaimForHull(VoxelInstance *inst, int x, int y, int ax, int ay)
     c->topH = z;
 }
 
+// ---------------------------------------------------------------------------
+// A LAMP IS A HEAD ON A POST (Structures.lua buildGen3Lamps): a thin shaft
+// drawn in a blocked cell under a compact head drawn in the walkable cell
+// above it -- you pass behind the head -- stood up as one 16x32 hull.
+// ---------------------------------------------------------------------------
+#define LAMP_SHAFT_MAX 5
+#define LAMP_HEAD_MIN  8
+#define LAMP_EDGE_SLOP 2
+
+static bool CarvedPx(const VoxelInstance *inst, int m, int x, int y)
+{
+    int ax = (m % VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE + x;
+    int ay = (m / VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE + VOXEL_ATLAS_QUAD + y;
+    return (inst->pixels[ay * VOXEL_ATLAS_SIZE + ax] >> 24) != 0;
+}
+
+static int RowInk(const VoxelInstance *inst, int m, int y, int *lo, int *hi)
+{
+    int x, n = 0;
+    *lo = 99; *hi = -1;
+    for (x = 0; x < 16; x++)
+        if (CarvedPx(inst, m, x, y))
+        {
+            n++;
+            if (x < *lo) *lo = x;
+            if (x > *hi) *hi = x;
+        }
+    return n;
+}
+
+static bool Inset(const VoxelInstance *inst, int m)
+{
+    static const int cols[4] = {0, 1, 14, 15};
+    int y, k, n = 0;
+    for (y = 0; y < 16; y++)
+        for (k = 0; k < 4; k++)
+            if (CarvedPx(inst, m, cols[k], y))
+                n++;
+    return n <= LAMP_EDGE_SLOP;
+}
+
+static bool OpenGround(const VoxelCell *c)
+{
+    return c && !(c->flags & VCF_BLOCKED) && (c->cls == VC_GROUND || c->cls == VC_GRASS);
+}
+
+static bool LampAt(VoxelInstance *inst, int x, int y)
+{
+    VoxelCell *post = CellPtr(inst, x, y), *head = CellPtr(inst, x, y - 1);
+    int rows = 0, shaftMax = 0, shaftLo = -1, shaftHi = -1, k, lo, hi;
+    int headMax = 0, headMaxY = -1, headRows = 0, bn, blo, bhi;
+    int sc;
+    if (inst->indoor || post == NULL || head == NULL || !(post->flags & VCF_BLOCKED) || post->building >= 0
+        || head->building >= 0 || !OpenGround(head))
+        return false;
+    sc = VoxelScene_At(inst, x, y);
+    if (sc != SC_NONE && sc != SC_FENCE)
+        return false;
+    for (k = 0; k < 16; k++)
+    {
+        int n = RowInk(inst, post->metatile, k, &lo, &hi);
+        if (n > 0) rows++;
+        if (k < 8)
+        {
+            if (n > shaftMax) shaftMax = n;
+            if (shaftLo < 0 && n > 0) { shaftLo = lo; shaftHi = hi; }
+        }
+    }
+    if (!(rows >= 12 && shaftMax <= LAMP_SHAFT_MAX && shaftLo >= 0))
+        return false;
+    for (k = 0; k < 16; k++)
+    {
+        int n = RowInk(inst, head->metatile, k, &lo, &hi);
+        if (n > 0) headRows++;
+        if (n > headMax) { headMax = n; headMaxY = k; }
+    }
+    bn = RowInk(inst, head->metatile, 15, &blo, &bhi);
+    if (!(bn > 0 && blo <= shaftHi + 2 && bhi >= shaftLo - 2))
+        return false;
+    // the head stands alone in its cell; the shaft may lean on open ground
+    if (!((Inset(inst, post->metatile) || (OpenGround(CellPtr(inst, x - 1, y)) && OpenGround(CellPtr(inst, x + 1, y))))
+          && Inset(inst, head->metatile)))
+        return false;
+    return headMax >= LAMP_HEAD_MIN && headMax >= 2 * shaftMax && headMaxY >= 0 && headMaxY <= 9 && headRows >= 8;
+}
+
 static void ApplyScenery(VoxelInstance *inst)
 {
     int x, y, i;
@@ -1180,6 +1266,18 @@ static void ApplyScenery(VoxelInstance *inst)
         {
             int gi = SceneGridIdx(inst, x, y), sc = VoxelScene_At(inst, x, y);
             VoxelCell *c = CellPtr(inst, x, y);
+            if (c && LampAt(inst, x, y))
+            {
+                VoxelCell *head = CellPtr(inst, x, y - 1);
+                inst->hullGrid[gi] = VH_STACKED;
+                inst->hullGrid[SceneGridIdx(inst, x, y - 1)] = VH_PARTNER;
+                inst->scene[gi] = SC_CYLINDER;
+                ClaimForHull(inst, x, y, x, y);
+                c->hull = VH_STACKED;
+                ClaimForHull(inst, x, y - 1, x, y);
+                head->hull = VH_PARTNER;
+                continue;
+            }
             if (sc == SC_NONE || (c && (c->building >= 0 || c->cls == VC_VOID)))
                 continue;
             if (grouped[gi] && !(sc == SC_CANOPY && VoxelScene_SharedAt(inst, x, y)))
@@ -1501,10 +1599,10 @@ void VoxelWorld_WriteCellsJson(FILE *f, const VoxelInstance *inst)
         {
             const VoxelCell *c = &inst->cells[y * inst->width + x];
             fprintf(f, "%s\n{\"x\":%d,\"y\":%d,\"m\":%d,\"beh\":%d,\"col\":%d,\"e\":%d,\"cls\":%d,\"fl\":%d,\"sh\":%d,\"st\":%d,"
-                       "\"lip\":%d,\"ov\":%d,\"g\":%.3f,\"t\":%.3f,\"u\":%.3f,\"land\":%.3f,\"lift\":%.2f,\"um\":%d,\"fm\":%d,\"bd\":%d,\"sd\":%d}",
+                       "\"lip\":%d,\"ov\":%d,\"g\":%.3f,\"t\":%.3f,\"u\":%.3f,\"land\":%.3f,\"lift\":%.2f,\"um\":%d,\"fm\":%d,\"bd\":%d,\"sd\":%d,\"sc\":%d,\"hull\":%d}",
                     first ? "" : ",", x, y, c->metatile, c->behavior, c->collision, c->elevation, c->cls, c->flags, c->shape, c->stack,
                     c->lipDirs, c->overhead, c->groundH, c->topH, c->underH, c->landH, c->lift, c->underMeta,
-                    c->fasciaMeta == 0xFFFF ? -1 : c->fasciaMeta, c->building, c->depthPx);
+                    c->fasciaMeta == 0xFFFF ? -1 : c->fasciaMeta, c->building, c->depthPx, VoxelScene_At(inst, x, y), c->hull);
             first = 0;
         }
     fprintf(f, "]}\n");

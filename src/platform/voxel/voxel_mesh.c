@@ -615,7 +615,12 @@ static void BuildMat(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
     float z = (float)(ly + inst->originY);
     float top = c->topH, base = c->groundH;
     int m = c->metatile;
-    UvRect skirt = UvRegion(m, VOXEL_VAR_COMPOSED, 0.0f, 16.0f, 7.0f, 9.0f);   // a plain band, not the tuft bottoms
+    // Structures.lua buildGen3Grass: each skirt holds the art's own edge line
+    // constant up its height, turned from the sun (0.78)
+    UvRect skirtS = UvRegion(m, VOXEL_VAR_COMPOSED, 0.0f, 16.0f, 15.4f, 15.6f);
+    UvRect skirtN = UvRegion(m, VOXEL_VAR_COMPOSED, 0.0f, 16.0f, 0.4f, 0.6f);
+    UvRect skirtE = UvRegion(m, VOXEL_VAR_COMPOSED, 15.4f, 15.6f, 0.0f, 16.0f);
+    UvRect skirtW = UvRegion(m, VOXEL_VAR_COMPOSED, 0.4f, 0.6f, 0.0f, 16.0f);
     static const int dx[4] = {0, 0, 1, -1};
     static const int dy[4] = {1, -1, 0, 0};
     int d;
@@ -633,10 +638,14 @@ static void BuildMat(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
         if (nh >= top - 0.01f)
             continue;
         mesh->stats.matSkirts++;
-        if (d == 0) SouthFace(mesh, x, z, nh, top, skirt, SHADE_SOUTH - 30);
-        else if (d == 1) NorthFace(mesh, x, z, nh, top, skirt, SHADE_NORTH);
-        else if (d == 2) EastFace(mesh, x, z, nh, top, skirt, SHADE_EAST);
-        else WestFace(mesh, x, z, nh, top, skirt, SHADE_WEST);
+        if (d == 0) SouthFace(mesh, x, z, nh, top, skirtS, 199);
+        else if (d == 1) NorthFace(mesh, x, z, nh, top, skirtN, 199);
+        else if (d == 2)
+            Quad(mesh, x + 1.0f, nh, z + 1.0f, skirtE.u0, skirtE.v1,  x + 1.0f, nh, z, skirtE.u0, skirtE.v0,
+                 x + 1.0f, top, z, skirtE.u1, skirtE.v0,  x + 1.0f, top, z + 1.0f, skirtE.u1, skirtE.v1, 199);
+        else
+            Quad(mesh, x, nh, z, skirtW.u0, skirtW.v0,  x, nh, z + 1.0f, skirtW.u0, skirtW.v1,
+                 x, top, z + 1.0f, skirtW.u1, skirtW.v1,  x, top, z, skirtW.u1, skirtW.v0, 199);
     }
     ShellFaces(mesh, inst, c, x, z, base);
 }
