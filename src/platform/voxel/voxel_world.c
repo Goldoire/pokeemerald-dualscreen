@@ -1087,7 +1087,9 @@ static void BuildColumns(VoxelInstance *inst)
                     VoxelCell *n = CellPtr(inst, x + dx[d], y - k + dy[d]);
                     if (n == NULL || n->cls == VC_VOID)
                         continue;
-                    if (PassableGround(n) && n->cls != VC_WATER)
+                    // the rock stands in the water beside it too: a shore
+                    // face runs down to the surface, never floats over it
+                    if (PassableGround(n))
                     {
                         if (!haveBase || n->groundH < base)
                             base = n->groundH;

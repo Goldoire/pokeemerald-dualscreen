@@ -892,6 +892,31 @@ static void BuildSurface(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int
 // Columns: stacked blocked rows drawn as one solid mass (rocks, cliffs,
 // hedges, interior walls)
 // ---------------------------------------------------------------------------
+// THE SKIRT: a column whose foot stands higher than the ground beside it (a
+// rock hemmed in by rock, over a flat cell or a lower terrace) never floats
+// over that ground: its bottom course repeats down to the neighbour's surface.
+static void Skirt(VoxelMesh *mesh, int face, float x, float z, float lo, float base, int m)
+{
+    float y1 = base;
+    if (lo < -999.0f || lo > base - 0.01f)
+        return;
+    if (base - lo > 8.0f)
+        lo = base - 8.0f;
+    while (y1 > lo + 0.01f)
+    {
+        float y0 = y1 - 1.0f < lo ? lo : y1 - 1.0f;
+        UvRect uv = UvSlice(m, VOXEL_VAR_COMPOSED, 0.0f, y1 - y0);
+        switch (face)
+        {
+        case 0: SouthFace(mesh, x, z, y0, y1, uv, SHADE_SOUTH); break;
+        case 1: NorthFace(mesh, x, z, y0, y1, uv, SHADE_NORTH); break;
+        case 2: EastFace(mesh, x, z, y0, y1, uv, SHADE_EAST); break;
+        default: WestFace(mesh, x, z, y0, y1, uv, SHADE_WEST); break;
+        }
+        y1 = y0;
+    }
+}
+
 static void BuildColumn(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
 {
     const VoxelCell *c = &inst->cells[ly * inst->width + lx];
@@ -967,7 +992,11 @@ static void BuildColumn(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int 
             if (lo < y1 - 0.01f)
                 WestFace(mesh, x, z - j, lo, y1, UvSlice(rowMeta[k], VOXEL_VAR_COMPOSED, (lo - y0) / courseH, 1.0f), SHADE_WEST);
         }
+        Skirt(mesh, 2, x, z - j, hE, base, rowMeta[0]);
+        Skirt(mesh, 3, x, z - j, hW, base, rowMeta[0]);
     }
+    Skirt(mesh, 0, x, z, hS, base, rowMeta[0]);
+    Skirt(mesh, 1, x, z - (rows - 1), hN, base, rowMeta[0]);
     EndRange(mesh, &r);
 }
 
