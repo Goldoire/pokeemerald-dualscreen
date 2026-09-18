@@ -21,6 +21,7 @@
 #include "voxel_atlas.h"
 #include "voxel_art.h"
 #include "voxel_scene.h"
+#include "voxel_building.h"
 #include "voxel_roles.h"
 
 VoxelInstance gVoxelInstances[MAX_VOXEL_MAP_INSTANCES];
@@ -378,329 +379,6 @@ static void BuildElevationRanks(VoxelInstance *inst)
 }
 
 // ---------------------------------------------------------------------------
-// Buildings are the runs above the doors (lib/Gen3.lua). A warp names a door,
-// the blocked run north of it is the building, and neighbouring columns join
-// while their run top stays within a row of the last one's.
-// ---------------------------------------------------------------------------
-#define BUILDING_MAX_ROWS 8
-#define BUILDING_MAX_COLS 48
-
-// Outdoors, Emerald keeps every building in a town's SECONDARY tileset
-// (ids 512+) and the landscape -- trees, cliffs, rocks -- in the shared
-// primary one, so a run that crosses into primary art has left the house
-// for the tree line or the hill it backs onto.
-static bool IsMassCell(VoxelInstance *inst, int lx, int ly)
-{
-    VoxelCell *c = CellPtr(inst, lx, ly);
-    if (c == NULL || !(c->flags & VCF_BLOCKED))
-        return false;
-    if (c->building >= 0)
-        return false;
-    if (!inst->indoor && c->metatile < 512)
-        return false;
-    return c->cls == VC_WALL || c->cls == VC_CLIFF || IsFurnitureClass((VoxelClass)c->cls);
-}
-
-static bool IsDoorCell(VoxelInstance *inst, int lx, int ly)
-{
-    VoxelCell *c = CellPtr(inst, lx, ly);
-    return c != NULL && (c->cls == VC_DOOR || (c->flags & VCF_WARP));
-}
-
-// A walkable cell behind a building that the roof is drawn over (its art
-// is the building's, above the player): the run continues through it, the
-// cell stays walkable under the eave.
-static bool IsOverheadCell(VoxelInstance *inst, int lx, int ly)
-{
-    VoxelCell *c = CellPtr(inst, lx, ly);
-    if (c == NULL || (c->flags & VCF_BLOCKED) || c->building >= 0 || c->cls == VC_VOID)
-        return false;
-    if (inst->indoor || c->metatile < 512)
-        return false;
-    return inst->meta[c->metatile].topOpaque >= 96 && (c->cls == VC_GROUND || c->cls == VC_GRASS);
-}
-
-// Top row of the blocked run that includes (lx, fromY), walking north, capped;
-// at most two walkable overhead rows may finish it.
-static int RunTop(VoxelInstance *inst, int lx, int fromY, int facadeRow)
-{
-    int top = fromY, overhead = 0;
-    while (top - 1 >= 0 && (facadeRow - (top - 1)) < BUILDING_MAX_ROWS)
-    {
-        if (IsMassCell(inst, lx, top - 1))
-        {
-            if (overhead > 0)
-                break;          // mass above an overhang is the next thing north
-            top--;
-        }
-        else if (overhead < 2 && IsOverheadCell(inst, lx, top - 1))
-        {
-            overhead++;
-            top--;
-        }
-        else
-            break;
-    }
-    return top;
-}
-
-// The run a candidate column contributes: its facade-row cell must be mass or
-// a door, and at least one mass row must stand above it.
-static bool ColumnRun(VoxelInstance *inst, int lx, int facadeRow, int *outTop)
-{
-    int start;
-    if (IsMassCell(inst, lx, facadeRow))
-        start = facadeRow;
-    else if (IsDoorCell(inst, lx, facadeRow) && IsMassCell(inst, lx, facadeRow - 1))
-        start = facadeRow - 1;
-    else
-        return false;
-    *outTop = RunTop(inst, lx, start, facadeRow);
-    if (facadeRow - *outTop + 1 < 2)
-        return false;
-    return true;
-}
-
-// The wall/roof split and the top of the run come from the DRAWING: the
-// rows painted like the door row are wall, the rows painted like the drawn
-// roof (the first row drawn above the player, the eave you walk behind) are
-// roof, and a row painted like neither -- the crater behind Sootopolis' gym,
-// the cycling road over a gate house -- ends the building. Layers alone
-// cannot tell: Emerald draws a house's lower roof row at the player's level
-// because nobody ever walks behind it.
-static int ColourDist(int r0, int g0, int b0, int r1, int g1, int b1)
-{
-    return abs(r0 - r1) + abs(g0 - g1) + abs(b0 - b1);
-}
-
-static void ClaimBuilding(VoxelInstance *inst, int b)
-{
-    VoxelBuilding *bd = &inst->buildings[b];
-    int x, y, r;
-    int maxRows = 0;
-    int rowN[BUILDING_MAX_ROWS + 2], rowAbove[BUILDING_MAX_ROWS + 2];
-    long rowR[BUILDING_MAX_ROWS + 2], rowG[BUILDING_MAX_ROWS + 2], rowB[BUILDING_MAX_ROWS + 2];
-    bool rowRoof[BUILDING_MAX_ROWS + 2], rowTiled[BUILDING_MAX_ROWS + 2];
-    int roofR, roofG, roofB, anchor = -1, loose = -1, roofFrom, trimTop;
-
-    for (x = bd->minX; x <= bd->maxX; x++)
-    {
-        int rows = bd->facadeRow - bd->colTop[x - bd->minX] + 1;
-        if (rows > maxRows) maxRows = rows;
-    }
-    if (maxRows > BUILDING_MAX_ROWS + 1) maxRows = BUILDING_MAX_ROWS + 1;
-
-    // 1. what each row is painted in, over its inner cells (the two end
-    //    columns carry corner pieces drawn at the player's level)
-    for (r = 0; r < maxRows; r++)
-    {
-        int row = bd->facadeRow - r;
-        int hist[8][2], nh = 0, most = 0, k;
-        rowN[r] = 0; rowAbove[r] = 0; rowR[r] = rowG[r] = rowB[r] = 0; rowRoof[r] = false; rowTiled[r] = false;
-        for (x = bd->minX; x <= bd->maxX; x++)
-        {
-            const VoxelCell *c;
-            const VoxelMetaInfo *mi;
-            if (bd->maxX - bd->minX >= 2 && (x == bd->minX || x == bd->maxX))
-                continue;
-            if (row < bd->colTop[x - bd->minX])
-                continue;
-            c = CellPtr(inst, x, row);
-            if (c == NULL || c->cls == VC_VOID)
-                continue;
-            mi = &inst->meta[c->metatile];
-            rowN[r]++;
-            rowAbove[r] += mi->topOpaque;
-            rowR[r] += mi->avgR; rowG[r] += mi->avgG; rowB[r] += mi->avgB;
-            for (k = 0; k < nh; k++)
-                if (hist[k][0] == c->metatile) { hist[k][1]++; break; }
-            if (k == nh && nh < 8) { hist[nh][0] = c->metatile; hist[nh][1] = 1; nh++; }
-        }
-        // a roof is tiled from one repeated piece; a wall row varies with
-        // its windows and door
-        for (k = 0; k < nh; k++)
-            if (hist[k][1] > most) most = hist[k][1];
-        rowTiled[r] = rowN[r] >= 2 && most * 10 >= rowN[r] * 6;
-        if (rowN[r] == 0)
-        {
-            // a one- or two-column building has no inner cells: take every cell
-            for (x = bd->minX; x <= bd->maxX; x++)
-            {
-                const VoxelCell *c = (row >= bd->colTop[x - bd->minX]) ? CellPtr(inst, x, row) : NULL;
-                const VoxelMetaInfo *mi;
-                if (c == NULL || c->cls == VC_VOID) continue;
-                mi = &inst->meta[c->metatile];
-                rowN[r]++;
-                rowAbove[r] += mi->topOpaque;
-                rowR[r] += mi->avgR; rowG[r] += mi->avgG; rowB[r] += mi->avgB;
-            }
-        }
-        if (rowN[r] > 0)
-        {
-            rowAbove[r] /= rowN[r];
-            rowR[r] /= rowN[r]; rowG[r] /= rowN[r]; rowB[r] /= rowN[r];
-        }
-    }
-    // 2. the drawn roof: the first row above the door drawn wholly above
-    //    the player (the eave you walk behind, a roof plan)
-    for (r = 1; r < maxRows; r++)
-        if (rowN[r] > 0 && rowAbove[r] >= 200) { anchor = r; break; }
-    // ...and, for the colour the run must keep to, the first row drawn
-    // above the player at all (a gate house's lintel, a gym's roof edge)
-    for (r = 1; r < maxRows; r++)
-        if (rowN[r] > 0 && rowAbove[r] >= 96) { loose = r; break; }
-    if (anchor < 0)
-        anchor = loose >= 0 ? loose : maxRows - 1;
-    if (loose < 0)
-        loose = anchor;
-    roofR = (int)rowR[loose]; roofG = (int)rowG[loose]; roofB = (int)rowB[loose];
-
-    // 3. a row is roof when it is drawn above the player or tiled from one
-    //    repeated piece (Emerald's lower roof rows sit at the player's level)
-    for (r = 1; r < maxRows; r++)
-        rowRoof[r] = (r == anchor) || (rowN[r] > 0 && (rowAbove[r] >= 200 || rowTiled[r]));
-    // 4. the roof runs down from the anchor while the rows stay roof-like
-    roofFrom = anchor;
-    while (roofFrom - 1 >= 1 && rowRoof[roofFrom - 1])
-        roofFrom--;
-    if (roofFrom < 1) roofFrom = 1;
-    if (roofFrom > 3) roofFrom = 3;           // GEN3_OUTDOOR_FACADE_CAP: three courses of wall at most
-    // 5. above the anchor the run ends where the art stops being the roof
-    trimTop = maxRows;
-    for (r = loose + 1; r < maxRows; r++)
-    {
-        int dRoof = ColourDist((int)rowR[r], (int)rowG[r], (int)rowB[r], roofR, roofG, roofB);
-        if (rowN[r] == 0 || (dRoof > 90 && rowAbove[r] < 96))
-        {
-            trimTop = r;
-            break;
-        }
-    }
-    if (anchor >= trimTop)
-        anchor = trimTop - 1;
-    if (trimTop < maxRows)
-    {
-        for (x = bd->minX; x <= bd->maxX; x++)
-        {
-            int limit = bd->facadeRow - (trimTop - 1);
-            if (bd->colTop[x - bd->minX] < limit)
-                bd->colTop[x - bd->minX] = limit;
-        }
-        maxRows = trimTop;
-    }
-
-    for (x = bd->minX; x <= bd->maxX; x++)
-    {
-        int top = bd->colTop[x - bd->minX];
-        for (y = top; y <= bd->facadeRow; y++)
-        {
-            VoxelCell *c = CellPtr(inst, x, y);
-            if (c == NULL)
-                continue;
-            c->building = b;
-            if (c->cls != VC_DOOR && (c->flags & VCF_BLOCKED))
-                c->cls = VC_BUILDING;
-        }
-    }
-    if (roofFrom > maxRows) roofFrom = maxRows;
-    bd->wallRows = roofFrom;
-    bd->roofRows = maxRows - roofFrom;
-    bd->minTop = bd->facadeRow;
-    for (x = bd->minX; x <= bd->maxX; x++)
-        if (bd->colTop[x - bd->minX] < bd->minTop)
-            bd->minTop = bd->colTop[x - bd->minX];
-}
-
-static void FindBuildings(VoxelInstance *inst)
-{
-    const struct MapEvents *events = inst->header->events;
-    int i;
-
-    inst->buildingCount = 0;
-    if (inst->indoor || events == NULL || events->warps == NULL)
-        return;
-
-    for (i = 0; i < events->warpCount && inst->buildingCount < MAX_VOXEL_BUILDINGS; i++)
-    {
-        const struct WarpEvent *w = &events->warps[i];
-        int wx = w->x, wy = w->y;
-        int massY, top, c, prevTop;
-        VoxelBuilding *bd;
-        VoxelCell *cell = CellPtr(inst, wx, wy);
-
-        if (cell == NULL || cell->cls == VC_VOID)
-            continue;
-        // A door is drawn in the building's own art; a warp on primary art is
-        // a cave mouth, a hole or a stairway in the landscape.
-        if (!inst->indoor && cell->metatile < 512)
-            continue;
-        massY = wy - 1;
-        if (massY < 0)
-            continue;
-        if (!IsMassCell(inst, wx, massY))
-        {
-            // A walk-behind lintel: a hole in a wall over the door (gate
-            // houses, the shipyard porch). At most two rows, mass either side.
-            int n = 0;
-            while (n < 2 && massY - n >= 0 && !IsMassCell(inst, wx, massY - n)
-                   && IsMassCell(inst, wx - 1, massY - n) && IsMassCell(inst, wx + 1, massY - n))
-                n++;
-            if (n == 0)
-                continue;
-            massY -= n;
-            if (massY < 0 || !IsMassCell(inst, wx, massY))
-                continue;
-        }
-        if (CellPtr(inst, wx, massY)->building >= 0)
-            continue;   // a second door of a building already claimed
-        top = RunTop(inst, wx, massY, wy);
-
-        bd = &inst->buildings[inst->buildingCount];
-        memset(bd, 0, sizeof(*bd));
-        bd->facadeRow = wy;
-        bd->minX = bd->maxX = wx;
-        bd->colTop[0] = top;
-
-        prevTop = top;
-        for (c = wx - 1; c >= 0 && bd->maxX - c < BUILDING_MAX_COLS; c--)
-        {
-            int ct;
-            if (!ColumnRun(inst, c, wy, &ct))
-                break;
-            if (ct > prevTop + 1 || ct < prevTop - 1)
-                break;
-            bd->minX = c;
-            prevTop = ct;
-        }
-        // colTop is indexed from minX, so fill the west side now
-        for (c = bd->minX; c < wx; c++)
-        {
-            int ct;
-            ColumnRun(inst, c, wy, &ct);
-            bd->colTop[c - bd->minX] = ct;
-        }
-        bd->colTop[wx - bd->minX] = top;
-        prevTop = top;
-        for (c = wx + 1; c < inst->width && c - bd->minX < BUILDING_MAX_COLS; c++)
-        {
-            int ct;
-            if (!ColumnRun(inst, c, wy, &ct))
-                break;
-            if (ct > prevTop + 1 || ct < prevTop - 1)
-                break;
-            bd->maxX = c;
-            bd->colTop[c - bd->minX] = ct;
-            prevTop = ct;
-        }
-        ClaimBuilding(inst, inst->buildingCount);
-        printf("[Voxel] building %d on %d:%d: x %d..%d, rows %d..%d, wall %d roof %d (door at %d,%d)" "\n",
-               inst->buildingCount, inst->mapGroup, inst->mapNum, bd->minX, bd->maxX, bd->minTop, bd->facadeRow,
-               bd->wallRows, bd->roofRows, wx, wy);
-        inst->buildingCount++;
-    }
-}
-
-// ---------------------------------------------------------------------------
 // Cell model
 // ---------------------------------------------------------------------------
 static bool PassableGround(const VoxelCell *c)
@@ -971,44 +649,6 @@ static void BuildCells(VoxelInstance *inst)
         }
         if (c->underH >= c->topH - 0.01f)
             c->underH = c->topH - (IsRail(c->behavior) ? 0.125f : 0.25f);
-    }
-
-    // ---- C. buildings ----
-    FindBuildings(inst);
-    for (i = 0; i < inst->buildingCount; i++)
-    {
-        VoxelBuilding *bd = &inst->buildings[i];
-        float base = 0.0f;
-        bool found = false;
-        for (x = bd->minX; x <= bd->maxX; x++)
-        {
-            int top = bd->colTop[x - bd->minX];
-            for (y = top; y <= bd->facadeRow; y++)
-            {
-                int d;
-                for (d = 0; d < 4; d++)
-                {
-                    VoxelCell *n = CellPtr(inst, x + dx[d], y + dy[d]);
-                    if (n && n->building < 0 && PassableGround(n) && n->cls != VC_WATER)
-                    {
-                        if (!found || n->groundH < base)
-                            base = n->groundH;
-                        found = true;
-                    }
-                }
-            }
-        }
-        bd->baseH = base;
-        for (x = bd->minX; x <= bd->maxX; x++)
-            for (y = bd->colTop[x - bd->minX]; y <= bd->facadeRow; y++)
-            {
-                VoxelCell *c = CellPtr(inst, x, y);
-                if (c == NULL) continue;
-                if (!(c->flags & VCF_BLOCKED) && c->cls != VC_DOOR)
-                    continue;       // walkable under the eave: keeps its ground
-                c->groundH = base;
-                c->topH = base + bd->wallRows + (bd->roofRows > 0 ? 1.0f : 0.0f);
-            }
     }
 
     inst->layoutHash = HashLiveMap(inst);
@@ -1524,7 +1164,6 @@ static void ApplyScenery(VoxelInstance *inst)
 {
     int x, y, i;
     uint8_t *grouped;
-    VoxelScene_Classify(inst);
     free(inst->hullGrid);
     inst->hullGrid = calloc(inst->sceneW * inst->sceneH, 1);
     grouped = calloc(inst->sceneW * inst->sceneH, 1);
@@ -1693,6 +1332,10 @@ static void RebuildInstance(VoxelInstance *inst)
         for (i = 0; i < n && inst->floorCount < 12; i++)
             if (floorSet[order[i]])
                 inst->floorMetas[inst->floorCount++] = order[i];
+        // Scenery first (a roof is never scenery), then the buildings (a
+        // building's cell is never scenery), then the scenery that is left.
+        VoxelScene_Classify(inst);
+        VoxelBuildings_Find(inst);
         ApplyScenery(inst);     // hulls and signs leave the column machinery
     }
     else
@@ -1820,20 +1463,28 @@ void VoxelWorld_WriteCellsJson(FILE *f, const VoxelInstance *inst)
     for (m = 0; m < inst->buildingCount; m++)
     {
         const VoxelBuilding *b = &inst->buildings[m];
-        fprintf(f, "%s{\"minX\":%d,\"maxX\":%d,\"facadeRow\":%d,\"minTop\":%d,\"wallRows\":%d,\"roofRows\":%d,\"baseH\":%.2f}",
-                m ? "," : "", b->minX, b->maxX, b->facadeRow, b->minTop, b->wallRows, b->roofRows, b->baseH);
+        fprintf(f, "%s{\"minX\":%d,\"maxX\":%d,\"minY\":%d,\"maxY\":%d,\"door\":[%d,%d],\"rows\":%d,\"roofRows\":%d,"
+                   "\"overhead\":%d,\"roofed\":%d,\"flat\":%d,\"base\":%.3f,\"eave\":%.3f,\"peak\":%.3f}",
+                m ? "," : "", b->minX, b->maxX, b->minY, b->maxY, b->doorX, b->doorY, b->bldRows, b->roofRows,
+                b->overheadRows, b->roofed, b->flatRoof, b->base, b->eave, b->peak);
     }
     fprintf(f, "],\n\"art\":[");
     for (m = 0; m < 1024; m++)
     {
         const VoxelArtInfo *a = &inst->art[m];
         const VoxelMetaInfo *mi = &inst->meta[m];
+        const VoxelRole *role;
         if (!inst->used[m])
             continue;
+        role = VoxelRoles_Find(inst->header->mapLayout->primaryTileset, inst->header->mapLayout->secondaryTileset, m);
         fprintf(f, "%s\n{\"m\":%d,\"floor\":%s,\"beh\":%d,\"layer\":%d,\"topOpaque\":%d,\"botOpaque\":%d,\"solid\":%d,\"green\":%d,\"brown\":%d,\"boxy\":%d,"
-                   "\"x0\":%d,\"x1\":%d,\"y0\":%d,\"y1\":%d,\"topW\":%d,\"midW\":%d,\"botW\":%d,\"bgFill\":%d,\"rails\":%d,\"plate\":%d}",
+                   "\"x0\":%d,\"x1\":%d,\"y0\":%d,\"y1\":%d,\"topW\":%d,\"midW\":%d,\"botW\":%d,\"bgFill\":%d,\"rails\":%d,\"plate\":%d,"
+                   "\"n1\":%d,\"n2\":%d,\"solidF\":%.3f,\"leafFrac\":%.3f,\"leafFrac2\":%.3f,\"leafy\":%d,\"overhead\":%d,\"overhang\":%d,"
+                   "\"mapSolid\":%.3f,\"mrgb\":[%.2f,%.2f,%.2f],\"role\":[%d,%d,%d,%d]}",
                 first ? "" : ",", m, inst->usedByFloor[m] ? "true" : "false", mi->behavior, mi->layerType, mi->topOpaque, mi->botOpaque,
-                a->solid8, a->green, a->brown, a->boxy, a->x0, a->x1, a->y0, a->y1, a->topWidth, a->midWidth, a->botWidth, a->bgFill, a->rails, a->plate);
+                a->solid8, a->green, a->brown, a->boxy, a->x0, a->x1, a->y0, a->y1, a->topWidth, a->midWidth, a->botWidth, a->bgFill, a->rails, a->plate,
+                a->n1, a->n2, a->solid, a->leafFrac, a->leafFrac2, a->leafy, a->overhead, a->overhang, a->mapSolid, a->mr, a->mg, a->mb,
+                role ? role->art : -1, role ? role->material : -1, role ? role->cap : -1, role ? role->face : -1);
         first = 0;
     }
     fprintf(f, "],\n\"cells\":[");

@@ -137,17 +137,26 @@ typedef struct {
     uint8_t  hull;       // VH_*: what hull, if any, is anchored on this cell
 } VoxelCell;
 
-// A door-run building: every column it owns has rows [top..facadeRow].
+// A building (voxel_building.h): the blocked run north of a door, found the
+// way lib/Gen3.lua ctx.buildings finds it, and measured the way
+// lib/Structures.lua buildVolume / foundGen3Buildings stand it.
 #define MAX_VOXEL_BUILDINGS 96
+#define BLD_COLS 48
 typedef struct {
-    int16_t minX, maxX;      // world columns, inclusive
-    int16_t facadeRow;       // world row of the door / facade (south edge)
-    int16_t minTop;          // northmost row any column reaches
-    uint8_t wallRows;        // rows that stand vertical (K)
-    uint8_t roofRows;        // rows laid back over the footprint as roof
-    float   baseH;           // the street it is founded on
-    uint8_t colTop[48];      // per column (x - minX): top row, relative: rows = facadeRow - colTop + 1; 0 = column not owned
-    bool    fade;            // ghosted this frame
+    int16_t minX, maxX, minY, maxY;  // footprint bounds, cells (inclusive)
+    int16_t doorX, doorY;            // the door; for a doorless block, the middle of its bottom row
+    uint8_t overheadRows;            // walk-behind rows the footprint grew over its mass
+    uint8_t roofed;                  // the door column states a roof
+    uint8_t bldRows;                 // rows of footprint
+    uint8_t roofRows;                // rows of roof plan counted down from the top (cells)
+    uint8_t flatRoof;                // a rooftop drawn flat (a gym): no pitch
+    uint8_t roofArtAbove;            // the roof's drawing starts a row north of the footprint
+    int16_t colTop[BLD_COLS];        // per column (x - minX): northmost row, -1 when not the building's
+    int16_t colFront[BLD_COLS];      // per column: the southmost row of its facade
+    float   base;                    // the street it stands on (courses)
+    float   eave, peak;              // wall top and roof top (courses, absolute)
+    float   rise;                    // eave to peak
+    bool    fade;
 } VoxelBuilding;
 
 // What the atlas analysis learned about one metatile of a map's tileset pair.

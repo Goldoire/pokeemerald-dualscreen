@@ -1310,200 +1310,260 @@ static void BuildFurniture(VoxelMesh *mesh, const VoxelInstance *inst, int lx, i
 }
 
 // ---------------------------------------------------------------------------
-// Buildings: a vertical facade of the wall rows, a hipped roof -- a front
-// slope from an eave past the facade up to a ridge at mid-depth wearing the
-// drawn roof rows, a back slope down to the back wall -- gables closing the
-// open flanks, textured flanks and back.
+// Buildings (voxel_building.h), meshed the way ChunkMesher meshes a volume
+// run, one 8px tile column at a time:
+//
+//   * the facade folds the drawing up its south face one tile row per 8px
+//     course from the base, clamped at the building's top row -- never
+//     repeated, never stretched;
+//   * the flanks wear the same column's facade stack, turned from the sun;
+//   * the roof is a shed: 16px of rise over the two tile rows behind the
+//     south eave, then flat, wearing the roof plan's rows stretched over the
+//     whole footprint -- the drawing states a shallow roof over a deep box;
+//   * the outer tile columns hip down to the eave, and every step between
+//     roof surfaces is closed.
 // ---------------------------------------------------------------------------
-#define ROOF_EAVE 0.25f
+static int FloorDiv2(int v)
+{
+    return v >= 0 ? v / 2 : -((-v + 1) / 2);
+}
+
+// Rows [v0, v1] (0..8, top down) of the tile at instance tile (tx, ty).
+static UvRect TileUv(const VoxelInstance *inst, int tx, int ty, float v0, float v1)
+{
+    int m = VoxelScene_MetatileAt(inst, FloorDiv2(tx), FloorDiv2(ty));
+    float qx = (float)((tx & 1) * 8), qy = (float)((ty & 1) * 8);
+    if (m < 0) m = 0;
+    return UvRegion(m, VOXEL_VAR_COMPOSED, qx, qx + 8.0f, qy + v0, qy + v1);
+}
+
+// The tile rows [north, front] building `b` stands on in tile column tx, or
+// false where the column is not the building's.
+static bool BldColumn(const VoxelInstance *inst, int b, int tx, int *north, int *front)
+{
+    const VoxelBuilding *bd = &inst->buildings[b];
+    int cx = FloorDiv2(tx), c = cx - bd->minX;
+    if (cx < bd->minX || cx > bd->maxX || c >= BLD_COLS || bd->colTop[c] < 0)
+        return false;
+    *north = bd->colTop[c] * 2;
+    *front = bd->colFront[c] * 2 + 1;
+    return true;
+}
+
+static bool BldHas(const VoxelInstance *inst, int b, int tx, int ty)
+{
+    int n, f;
+    return BldColumn(inst, b, tx, &n, &f) && ty >= n && ty <= f;
+}
+
+// What the cell beside a wall presents to it.
+static float BesideH(const VoxelInstance *inst, int b, int tx, int ty, float base)
+{
+    const VoxelCell *n = Nb(inst, FloorDiv2(tx), FloorDiv2(ty));
+    float h;
+    if (n == NULL || n->cls == VC_VOID)
+        return base < 0.0f ? base : 0.0f;
+    if (n->building >= 0 && n->building != b)
+        return inst->buildings[n->building].eave;
+    if (n->building == b)
+        return base;
+    h = n->topH;
+    if (IsColumn(n) || IsOpenColumn(n) || (n->flags & (VCF_SCENE | VCF_VACATED)))
+        h = n->groundH;
+    if (IsDeck(n) && n->underH < n->topH)
+        h = n->underH;
+    return h;
+}
+
+// One wall of tile (tx, ty) facing `dir` (0 S, 1 N, 2 E, 3 W), from `lo` up
+// to the eave, cut into 8px courses counted from the base. `rowOf(bb)` names
+// the tile row course bb wears.
+static void BldWall(VoxelMesh *mesh, const VoxelInstance *inst, int dir, int tx, int ty, float lo, float eave,
+                    float base, int north, int front, int artNorth)
+{
+    float x0 = (float)inst->originX + tx * 0.5f, x1 = x0 + 0.5f;
+    float z0 = (float)inst->originY + ty * 0.5f, z1 = z0 + 0.5f;
+    int k, kLo, kHi, shade;
+    if (lo >= eave - 0.001f)
+        return;
+    kLo = (int)floorf((lo - base) / 0.5f + 0.0001f);
+    kHi = (int)ceilf((eave - base) / 0.5f - 0.0001f) - 1;
+    shade = dir == 0 ? 255 : dir == 1 ? SHADE_NORTH : dir == 2 ? SHADE_EAST : SHADE_WEST;
+    for (k = kLo; k <= kHi; k++)
+    {
+        float y0 = base + k * 0.5f, y1 = y0 + 0.5f, vTop, vBot;
+        int bb = k < 0 ? 0 : k, row;
+        UvRect uv;
+        if (y0 < lo) y0 = lo;
+        if (y1 > eave) y1 = eave;
+        if (y1 <= y0 + 0.001f)
+            continue;
+        // partial courses show the tile's upper rows
+        vTop = (k + 1) * 8.0f - (y1 - base) * 16.0f;
+        vBot = (k + 1) * 8.0f - (y0 - base) * 16.0f;
+        if (vTop < 0) vTop = 0;
+        if (vBot > 8) vBot = 8;
+        if (dir == 1)
+            row = artNorth + bb > front ? front : artNorth + bb;
+        else
+            row = front - bb < artNorth ? artNorth : front - bb;
+        uv = TileUv(inst, tx, row, vTop, vBot);
+        if (dir == 0)
+            Quad(mesh, x0, y0, z1, uv.u0, uv.v1,  x1, y0, z1, uv.u1, uv.v1,  x1, y1, z1, uv.u1, uv.v0,  x0, y1, z1, uv.u0, uv.v0, shade);
+        else if (dir == 1)
+            Quad(mesh, x1, y0, z0, uv.u0, uv.v1,  x0, y0, z0, uv.u1, uv.v1,  x0, y1, z0, uv.u1, uv.v0,  x1, y1, z0, uv.u0, uv.v0, shade);
+        else if (dir == 2)
+            Quad(mesh, x1, y0, z1, uv.u0, uv.v1,  x1, y0, z0, uv.u1, uv.v1,  x1, y1, z0, uv.u1, uv.v0,  x1, y1, z1, uv.u0, uv.v0, shade);
+        else
+            Quad(mesh, x0, y0, z0, uv.u0, uv.v1,  x0, y0, z1, uv.u1, uv.v1,  x0, y1, z1, uv.u1, uv.v0,  x0, y1, z0, uv.u0, uv.v0, shade);
+    }
+    (void)north;
+}
+
+// the shed: rise over two tile rows from the south eave, then flat
+static float ShedH(const VoxelBuilding *bd, int d)
+{
+    float t = d / 2.0f;
+    if (t < 0) t = 0;
+    if (t > 1) t = 1;
+    return bd->eave + bd->rise * t;
+}
 
 static void BuildBuilding(VoxelMesh *mesh, const VoxelInstance *inst, int b)
 {
     const VoxelBuilding *bd = &inst->buildings[b];
-    int K = bd->wallRows;
-    float rise = bd->roofRows > 0 ? 1.0f : 0.0f;
-    float base = bd->baseH;
-    float wallTop = base + K;
-    int col, k;
+    int tx, ty;
     VoxelMeshRange r;
     VoxelRoofRecord rec;
-    float zFront = (float)(bd->facadeRow + inst->originY) + 1.0f;
+    int roofArtRows = bd->roofRows > 0 ? bd->roofRows * 2 : 2;
 
     mesh->stats.buildings++;
     memset(&rec, 0, sizeof(rec));
     rec.building = b;
-    rec.peak = wallTop + rise;
-    rec.eave = rise > 0.0f ? ROOF_EAVE : 0.0f;
-    BeginRange(mesh, &r, bd->minX + inst->originX, bd->facadeRow + inst->originY, b, base, wallTop + rise);
-    r.rows = bd->facadeRow - bd->minTop + 1;
+    rec.peak = bd->peak;
+    rec.eave = bd->eave;
+    rec.frontRows = roofArtRows;
+    BeginRange(mesh, &r, bd->minX + inst->originX, bd->doorY + inst->originY, b, bd->base, bd->peak);
+    r.rows = bd->doorY - bd->minY + 1;
     r.cols = bd->maxX - bd->minX + 1;
 
-    for (col = bd->minX; col <= bd->maxX; col++)
+    for (tx = bd->minX * 2; tx <= bd->maxX * 2 + 1; tx++)
     {
-        int top = bd->colTop[col - bd->minX];
-        int rows = bd->facadeRow - top + 1;
-        int wallRows = rows < K ? rows : K;
-        int roofRows = rows - wallRows;
-        float x = (float)(col + inst->originX);
-        float zBack = (float)(top + inst->originY);
-        float depth = zFront - zBack;
-        float colWallTop = base + wallRows;
-        float colRise = roofRows > 0 ? rise : 0.0f;
-        float colPeak = colWallTop + colRise;
-        float zEave = zFront + (colRise > 0.0f ? ROOF_EAVE : 0.0f);
-        float zRidge = zFront - (depth >= 2.0f ? depth * 0.5f : 0.5f);
-        int topRoofMeta = Nb(inst, col, top)->metatile;
-        int i;
-
-        // facade: rows facadeRow .. facadeRow-wallRows+1, bottom up
-        for (k = 0; k < wallRows; k++)
+        int north, front, extent, artTop, artRows, artNorth;
+        if (!BldColumn(inst, b, tx, &north, &front))
+            continue;
+        extent = front - north + 1;
+        artNorth = north;
+        artTop = north;
+        artRows = roofArtRows < extent ? roofArtRows : extent;
+        if (bd->roofArtAbove)
         {
-            const VoxelCell *cellK = Nb(inst, col, bd->facadeRow - k);
-            SouthFace(mesh, x, zFront - 1.0f, base + k, base + k + 1, UvFor(cellK->metatile, VOXEL_VAR_COMPOSED), SHADE_SOUTH);
+            artTop -= 2;
+            artRows += 2;
         }
 
-        if (colRise > 0.0f)
+        // walls: the south face at the front, the back at the north, flanks
+        // wherever the neighbouring tile column does not carry the building
+        BldWall(mesh, inst, 0, tx, front, BesideH(inst, b, tx, front + 1, bd->base), bd->eave, bd->base, north, front, artNorth);
+        if (!BldHas(inst, b, tx, north - 1))
+            BldWall(mesh, inst, 1, tx, north, BesideH(inst, b, tx, north - 1, bd->base), bd->eave, bd->base, north, front, artNorth);
+        for (ty = north; ty <= front; ty++)
         {
-            // front slope: the drawn roof rows from the eave (lowest roof
-            // row, its art's bottom at the eave) up to the ridge
-            float len = zEave - zRidge;
-            if (roofRows > rec.frontRows) rec.frontRows = roofRows;
-            for (i = 0; i < roofRows; i++)
+            if (!BldHas(inst, b, tx + 1, ty))
+                BldWall(mesh, inst, 2, tx, ty, BesideH(inst, b, tx + 1, ty, bd->base), bd->eave, bd->base, north, front, artNorth);
+            if (!BldHas(inst, b, tx - 1, ty))
+                BldWall(mesh, inst, 3, tx, ty, BesideH(inst, b, tx - 1, ty, bd->base), bd->eave, bd->base, north, front, artNorth);
+        }
+
+        // the roof, one tile at a time
+        for (ty = north; ty <= front; ty++)
+        {
+            float x0 = (float)inst->originX + tx * 0.5f, x1 = x0 + 0.5f;
+            float z0 = (float)inst->originY + ty * 0.5f, z1 = z0 + 0.5f;
+            int d0 = front - ty, ai, row;
+            float band = artRows * 8.0f, p0, p1, rv0, rv1, hS, hN, swY, seY, neY, nwY;
+            bool hipW = !BldHas(inst, b, tx - 1, ty), hipE = !BldHas(inst, b, tx + 1, ty);
+            UvRect uv;
+            if (bd->rise > 0.001f)
             {
-                int rowAt = bd->facadeRow - wallRows - i;      // eave row first
-                UvRect uv = UvFor(Nb(inst, col, rowAt)->metatile, VOXEL_VAR_COMPOSED);
-                float t0 = (float)i / roofRows, t1 = (float)(i + 1) / roofRows;
-                float z0 = zEave - len * t0, z1 = zEave - len * t1;
-                float y0 = colWallTop + colRise * t0, y1 = colWallTop + colRise * t1;
-                Quad(mesh,
-                     x,        y1, z1, uv.u0, uv.v0,
-                     x + 1.0f, y1, z1, uv.u1, uv.v0,
-                     x + 1.0f, y0, z0, uv.u1, uv.v1,
-                     x,        y0, z0, uv.u0, uv.v1,
-                     SHADE_TOP);
-                rec.frontSlopes++;
+                // STRETCHED, NOT TILED: the roof band maps continuously from
+                // the eave at the south edge to its top at the north edge
+                float a = (1.0f - (float)d0 / extent), c = (1.0f - (float)(d0 + 1) / extent);
+                if (a < 0) a = 0;
+                if (c < 0) c = 0;
+                a *= band; c *= band;
+                p0 = a < c ? a : c;
+                p1 = a < c ? c : a;
             }
-            // back slope: the ridge row's art laid down to the back wall
-            if (zRidge > zBack + 0.01f)
+            else
             {
-                UvRect uv = UvFor(topRoofMeta, VOXEL_VAR_COMPOSED);
-                Quad(mesh,
-                     x,        colWallTop, zBack,  uv.u0, uv.v0,
-                     x + 1.0f, colWallTop, zBack,  uv.u1, uv.v0,
-                     x + 1.0f, colPeak,    zRidge, uv.u1, uv.v1,
-                     x,        colPeak,    zRidge, uv.u0, uv.v1,
-                     SHADE_TOP - 40);
-                rec.backSlopes++;
+                int d = ty - north;
+                p0 = (float)d / extent * band;
+                p1 = (float)(d + 1) / extent * band;
             }
-            // the eave's underside, so the overhang is a slab and not a sheet
+            if (p1 - p0 < 0.5f)
+            {
+                if (p0 <= 0.001f) { p0 = 4.0f; p1 = 8.0f; }
+                else p1 = p0 + 0.5f;
+            }
+            ai = (int)floorf((p0 + p1) / 2.0f / 8.0f);
+            if (ai < 0) ai = 0;
+            if (ai > artRows - 1) ai = artRows - 1;
+            row = artTop + ai;
+            rv0 = p0 - ai * 8.0f;
+            if (rv0 < 0) rv0 = 0;
+            if (rv0 > 7.5f) rv0 = 7.5f;
+            rv1 = p1 - ai * 8.0f;
+            if (rv1 > 8.0f) rv1 = 8.0f;
+            if (rv1 < rv0 + 0.5f) rv1 = rv0 + 0.5f;
+            uv = TileUv(inst, tx, row, rv0, rv1);
+
+            hS = ShedH(bd, d0);
+            hN = ShedH(bd, d0 + 1);
+            swY = seY = hS;
+            nwY = neY = hN;
+            if (hipW) { swY = hS - 0.5f > bd->eave ? hS - 0.5f : bd->eave; nwY = hN - 0.5f > bd->eave ? hN - 0.5f : bd->eave; }
+            if (hipE) { seY = hS - 0.5f > bd->eave ? hS - 0.5f : bd->eave; neY = hN - 0.5f > bd->eave ? hN - 0.5f : bd->eave; }
             Quad(mesh,
-                 x,        colWallTop - 0.08f, zFront, 0.0f, 0.0f,
-                 x + 1.0f, colWallTop - 0.08f, zFront, 0.0f, 0.0f,
-                 x + 1.0f, colWallTop - 0.08f, zEave,  0.0f, 0.0f,
-                 x,        colWallTop - 0.08f, zEave,  0.0f, 0.0f,
-                 SHADE_NORTH);
-            {
-                VoxelVertex *v = &mesh->verts[mesh->count - 6];
-                UvRect uv = UvSlice(topRoofMeta, VOXEL_VAR_COMPOSED, 0.9f, 1.0f);
-                for (i = 0; i < 6; i++) { v[i].u = uv.u0; v[i].v = uv.v1; }
-            }
-            SouthFace(mesh, x, zEave - 1.0f, colWallTop - 0.08f, colWallTop + 0.02f, UvSlice(topRoofMeta, VOXEL_VAR_COMPOSED, 0.85f, 1.0f), SHADE_SOUTH - 30);
-            mesh->stats.eaves++;
-        }
-        else
-        {
-            // no roof rows drawn: a flat lid of the top row
-            TopQuad(mesh, x, zBack, colWallTop, UvFor(topRoofMeta, VOXEL_VAR_COMPOSED), SHADE_TOP);
-            for (i = 1; i < (int)depth; i++)
-                TopQuad(mesh, x, zBack + i, colWallTop, UvFor(topRoofMeta, VOXEL_VAR_COMPOSED), SHADE_TOP);
-        }
+                 x0, swY, z1, uv.u0, uv.v1,
+                 x1, seY, z1, uv.u1, uv.v1,
+                 x1, neY, z0, uv.u1, uv.v0,
+                 x0, nwY, z0, uv.u0, uv.v0,
+                 242);
+            if (bd->rise > 0.001f)
+                rec.frontSlopes++;
 
-        // back face (north): the wall up to the roof's back edge
-        {
-            const VoxelCell *n = Nb(inst, col, top - 1);
-            float nh = SideHeight(n);
-            const VoxelCell *edge = Nb(inst, col, bd->facadeRow - (wallRows - 1));
-            if (nh < colWallTop - 0.01f)
+            // CLOSE THE SIDE OF THE ROOF: the step to a neighbouring column
+            // whose roof stands lower here, and the back above the eave
             {
-                float lo = nh > base ? nh : base;
-                NorthFace(mesh, x, zBack, lo, colWallTop, UvFor(edge->metatile, VOXEL_VAR_COMPOSED), SHADE_NORTH);
-            }
-        }
-
-        // flanks: only where the neighbouring column is not this building
-        {
-            bool westOpen = (col == bd->minX);
-            bool eastOpen = (col == bd->maxX);
-            int nTop;
-            if (!westOpen)
-            {
-                nTop = bd->colTop[col - 1 - bd->minX];
-                if (nTop > top) westOpen = true;   // our column reaches further north
-            }
-            if (!eastOpen)
-            {
-                nTop = bd->colTop[col + 1 - bd->minX];
-                if (nTop > top) eastOpen = true;
-            }
-            if (westOpen || eastOpen)
-            {
-                const VoxelCell *side = Nb(inst, col, bd->facadeRow);
-                int wallRowMeta = side->metatile;
-                UvRect gableUv = UvSlice(topRoofMeta, VOXEL_VAR_COMPOSED, 0.3f, 0.7f);
-                float zz;
-                for (zz = zBack; zz < zFront - 0.01f; zz += 1.0f)
+                int nNorth, nFront, side;
+                for (side = 0; side < 2; side++)
                 {
-                    int rowHere = (int)(zz - inst->originY);
-                    const VoxelCell *nb;
-                    float nh, lo;
-                    if (westOpen)
+                    int ntx = side ? tx + 1 : tx - 1;
+                    float sY = side ? seY : swY, nY = side ? neY : nwY, bS = bd->eave, bN = bd->eave, fx = side ? x1 : x0;
+                    if (BldColumn(inst, b, ntx, &nNorth, &nFront) && ty >= nNorth && ty <= nFront)
                     {
-                        nb = Nb(inst, col - 1, rowHere);
-                        nh = SideHeight(nb);
-                        if (nb && nb->building == b) nh = 1000.0f;
-                        if (nb && IsOpenColumn(nb)) nh = nb->groundH;
-                        lo = nh > base ? nh : base;
-                        if (lo < colWallTop - 0.01f)
-                            WestFace(mesh, x, zz, lo, colWallTop, UvSlice(wallRowMeta, VOXEL_VAR_COMPOSED, 0.0f, 1.0f), SHADE_WEST);
+                        float es = ShedH(bd, nFront - ty), en = ShedH(bd, nFront - ty + 1);
+                        bS = es < sY ? es : sY;
+                        bN = en < nY ? en : nY;
+                        if (bS < bd->eave) bS = bd->eave;
+                        if (bN < bd->eave) bN = bd->eave;
                     }
-                    if (eastOpen)
-                    {
-                        nb = Nb(inst, col + 1, rowHere);
-                        nh = SideHeight(nb);
-                        if (nb && nb->building == b) nh = 1000.0f;
-                        if (nb && IsOpenColumn(nb)) nh = nb->groundH;
-                        lo = nh > base ? nh : base;
-                        if (lo < colWallTop - 0.01f)
-                            EastFace(mesh, x, zz, lo, colWallTop, UvSlice(wallRowMeta, VOXEL_VAR_COMPOSED, 0.0f, 1.0f), SHADE_EAST);
-                    }
+                    if (sY - bS < 0.01f && nY - bN < 0.01f)
+                        continue;
+                    if (side)
+                        Quad(mesh, fx, bS, z1, uv.u0, uv.v1,  fx, bN, z0, uv.u1, uv.v1,  fx, nY, z0, uv.u1, uv.v0,  fx, sY, z1, uv.u0, uv.v0, SHADE_EAST);
+                    else
+                        Quad(mesh, fx, bN, z0, uv.u0, uv.v1,  fx, bS, z1, uv.u1, uv.v1,  fx, sY, z1, uv.u1, uv.v0,  fx, nY, z0, uv.u0, uv.v0, SHADE_WEST);
                 }
-                // the gable: a triangle from the eave over the ridge to the back
-                if (colRise > 0.0f)
-                {
-                    if (westOpen)
-                    {
-                        Tri(mesh,
-                            x, colWallTop, zEave,  gableUv.u0, gableUv.v1,
-                            x, colPeak,    zRidge, gableUv.u1, gableUv.v0,
-                            x, colWallTop, zBack,  gableUv.u1, gableUv.v1,
-                            SHADE_WEST);
-                        rec.gables++; mesh->stats.gables++;
-                    }
-                    if (eastOpen)
-                    {
-                        Tri(mesh,
-                            x + 1.0f, colWallTop, zBack,  gableUv.u0, gableUv.v1,
-                            x + 1.0f, colPeak,    zRidge, gableUv.u1, gableUv.v0,
-                            x + 1.0f, colWallTop, zEave,  gableUv.u1, gableUv.v1,
-                            SHADE_EAST);
-                        rec.gables++; mesh->stats.gables++;
-                    }
-                }
+                if (ty == north && (nwY > bd->eave + 0.01f || neY > bd->eave + 0.01f))
+                    Quad(mesh, x1, bd->eave, z0, uv.u0, uv.v1,  x0, bd->eave, z0, uv.u1, uv.v1,
+                         x0, nwY, z0, uv.u1, uv.v0,  x1, neY, z0, uv.u0, uv.v0, SHADE_NORTH);
             }
         }
     }
     EndRange(mesh, &r);
-    if (rise > 0.0f && mesh->roofCount < VOXEL_ROOF_KEEP)
+    if (mesh->roofCount < VOXEL_ROOF_KEEP)
         mesh->roofs[mesh->roofCount++] = rec;
 }
 
