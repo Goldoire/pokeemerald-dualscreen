@@ -9,6 +9,31 @@
 extern const struct Tileset gTileset_General;
 extern const struct Tileset gTileset_Mauville;
 extern const struct Tileset gTileset_Rustboro;
+extern const struct Tileset gTileset_Slateport;
+
+// ---------------------------------------------------------------------------
+// SLATEPORT'S MOORED SAILING BOAT (General + Slateport). The map draws it
+// four times: three alone (the 3x3 `art`), and once as a 3x4 block that is
+// the same drawing placed twice, sixteen pixels apart in y -- the near boat
+// one cell south of the far one, to the texel. There is one oblique view of
+// the boat and nothing states where its deck ends and its flank begins, so
+// each boat gets exactly the treatment a drawn object gets: a per-pixel
+// figure five voxels deep, rows read as height, standing on the sea.
+// ---------------------------------------------------------------------------
+static const VoxelFigure sMooredBoat = {
+    "moored sailing boat",
+    3, 3, { 824, 825, 826, 832, 833, 834, 840, 841, 842 },
+    3, 4, { 838, 839, 872, 846, 847, 880, 854, 855, 888, 862, 863, 896 },
+    2, { 0, 0 }, { 8, 24 },
+    5,
+};
+
+const VoxelFigure *VoxelFigure_For(const struct MapLayout *layout)
+{
+    if (layout && layout->primaryTileset == &gTileset_General && layout->secondaryTileset == &gTileset_Slateport)
+        return &sMooredBoat;
+    return NULL;
+}
 
 // ---------------------------------------------------------------------------
 // RUSTBORO CITY'S FOUNTAIN (General + Rustboro, 824..842: laid once each, all

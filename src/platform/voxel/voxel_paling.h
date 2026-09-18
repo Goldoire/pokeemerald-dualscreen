@@ -82,6 +82,27 @@ typedef struct {
 // if none.
 const VoxelBasinFigure *VoxelBasin_ForAnchor(const struct MapLayout *layout, int m);
 
+// ---------------------------------------------------------------------------
+// Figures (data/gen3_palings.lua `hulls`, Structures.lua buildGen3Hulls): an
+// object drawn once, obliquely, and stood as the same per-pixel figure
+// wherever it appears. `art` is the drawing standing alone; `block` is where
+// the map draws it twice, overlapping, and `copies` says where each copy of
+// the drawing sits inside the block.
+// ---------------------------------------------------------------------------
+typedef struct {
+    const char *name;
+    uint8_t artW, artH;
+    uint16_t art[9];
+    uint8_t blockW, blockH;
+    uint16_t block[12];
+    uint8_t nCopies;
+    int8_t copyDx[2], copyDy[2];    // pixels, far copy first
+    uint8_t depth;                  // voxels through
+} VoxelFigure;
+
+// The figure authored for this layout's pair, NULL if none.
+const VoxelFigure *VoxelFigure_For(const struct MapLayout *layout);
+
 // The piece metatile `m` is on this layout's tileset pair, NULL if none;
 // `fig` receives the figure it belongs to.
 const VoxelPalingPiece *VoxelPaling_Find(const struct MapLayout *layout, int m, const VoxelPalingFigure **fig);

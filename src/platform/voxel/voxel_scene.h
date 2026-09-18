@@ -41,6 +41,7 @@ enum {
     SC_PALING,      // an authored fence piece (voxel_paling.h): posts and rails
     SC_SEAROCK,     // a rock standing in the sea: 2x2, anchored top-left (span 2)
     SC_BASIN,       // an authored fountain (voxel_paling.h): the block's cells, anchor top-left
+    SC_FIGURE,      // an authored figure's cells (voxel_paling.h); anchor span 1 = its block, 2 = the art alone, 3 = the art with its bottom row hidden
 };
 
 struct VoxelInstanceTag;

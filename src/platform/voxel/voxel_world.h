@@ -86,6 +86,7 @@ typedef enum {
     SH_SIGN,           // a board on a post: the drawing cut per pixel, two voxels thick
     SH_PALING,         // an authored fence piece (voxel_paling.h): posts and rails on matched ground
     SH_BASIN,          // a cell of an authored fountain (voxel_paling.h), built from its block's anchor
+    SH_FIGURE,         // a cell an authored figure stands on (voxel_paling.h): sea under a drawn object
     SH_COUNT
 } VoxelShape;
 
@@ -103,6 +104,7 @@ typedef enum {
 #define VCF_PALING      0x400 // an authored fence stands here (with VCF_SCENE)
 #define VCF_BASIN       0x800 // an authored fountain stands here (with VCF_SCENE)
 #define VCF_FLIGHT      0x1000 // a stair cell of a flight joining two terraces
+#define VCF_FIGURE      0x2000 // an authored figure stands here (with VCF_SCENE)
 
 // Hulls anchored on a cell (voxel_hull.h).
 #define VH_NONE      0

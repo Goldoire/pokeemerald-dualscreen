@@ -448,6 +448,39 @@ void VoxelScene_Classify(VoxelInstance *inst)
             span[Idx(&c, cx, cy)] = f->w;
         }
 
+    // ---- figures: an authored object claims the cells it is drawn on ----
+    {
+        const VoxelFigure *f = VoxelFigure_For(inst->header->mapLayout);
+        int pass;
+        // the block, then the drawing alone, then the drawing with its
+        // bottom row drawn over by the quay in front of it
+        for (pass = 0; f && pass < 3; pass++)
+        {
+            int bw = pass == 0 ? f->blockW : f->artW, bh = pass == 0 ? f->blockH : f->artH - (pass == 2);
+            const uint16_t *metas = pass == 0 ? f->block : f->art;
+            for (cy = 0; cy + bh <= inst->height; cy++)
+                for (cx = 0; cx + bw <= inst->width; cx++)
+                {
+                    int dx, dy;
+                    bool whole = true;
+                    for (dy = 0; whole && dy < bh; dy++)
+                        for (dx = 0; whole && dx < bw; dx++)
+                            if (VoxelScene_MetatileAt(inst, cx + dx, cy + dy) != metas[dy * bw + dx]
+                                || !Blocked(inst, cx + dx, cy + dy) || c.claimed[Idx(&c, cx + dx, cy + dy)])
+                                whole = false;
+                    if (!whole)
+                        continue;
+                    for (dy = 0; dy < bh; dy++)
+                        for (dx = 0; dx < bw; dx++)
+                        {
+                            c.claimed[Idx(&c, cx + dx, cy + dy)] = 1;
+                            scene[Idx(&c, cx + dx, cy + dy)] = SC_FIGURE;
+                        }
+                    span[Idx(&c, cx, cy)] = (uint8_t)(pass + 1);
+                }
+        }
+    }
+
     // ---- palings: an authored fence claims its cells first, before a
     // cylinder can lathe its end pieces or a carve stand its arms (a piece on
     // a passable cell is decoration, and is left alone) ----
@@ -692,7 +725,7 @@ void VoxelScene_Classify(VoxelInstance *inst)
         {
             int i = Idx(&c, cx, cy);
             uint8_t b = inst->cells[cy * inst->width + cx].behavior;
-            if (scene[i] && scene[i] != SC_PALING && scene[i] != SC_BASIN && ((b >= 0x38 && b <= 0x3F) || b == MB_BERRY_TREE_SOIL))
+            if (scene[i] && scene[i] != SC_PALING && scene[i] != SC_BASIN && scene[i] != SC_FIGURE && ((b >= 0x38 && b <= 0x3F) || b == MB_BERRY_TREE_SOIL))
                 scene[i] = SC_NONE;
         }
     free(c.claimed);

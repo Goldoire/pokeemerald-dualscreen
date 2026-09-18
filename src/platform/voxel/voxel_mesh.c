@@ -830,7 +830,7 @@ static void BuildSurface(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int
     // A cell scenery stood up (a hull, a sign) or whose art moved onto a
     // hull paints the ground the drawing stands on: the matched floor
     // metatile, else its own picture with the object filled in ground.
-    if (c->shape == SH_HULL || c->shape == SH_SIGN || c->shape == SH_PALING || c->shape == SH_BASIN
+    if (c->shape == SH_HULL || c->shape == SH_SIGN || c->shape == SH_PALING || c->shape == SH_BASIN || c->shape == SH_FIGURE
         || (c->flags & VCF_VACATED))
     {
         uint16_t g = sGroundFor ? sGroundFor[ly * inst->width + lx] : 0xFFFF;
@@ -2425,6 +2425,178 @@ static void BuildBasin(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int l
 }
 
 // ---------------------------------------------------------------------------
+// Figures (Structures.lua buildGen3Hulls emitBoat): the drawing's texels --
+// every colour the drawing's own outer frame does not wear -- stood up as
+// one slab `depth` voxels deep, drawn row read as height, in the depth band
+// of the row its waterline is drawn in; one slab per copy.
+// ---------------------------------------------------------------------------
+#define FIG_MAX 48
+
+// The sea the figure's cells wear: the commonest water metatile round them.
+static int VoteSea(const VoxelInstance *inst, int x, int y)
+{
+    int r, best = -1;
+    for (r = 1; r <= 3 && best < 0; r++)
+    {
+        int metas[64], counts[64], n = 0, i, dx, dy, bestN = 0;
+        for (dy = -r; dy <= r; dy++)
+            for (dx = -r; dx <= r; dx++)
+            {
+                const VoxelCell *nb = Nb(inst, x + dx, y + dy);
+                if (nb == NULL || nb->cls != VC_WATER || nb->shape == SH_FIGURE)
+                    continue;
+                for (i = 0; i < n; i++)
+                    if (metas[i] == nb->metatile) { counts[i]++; break; }
+                if (i == n && n < 64) { metas[n] = nb->metatile; counts[n] = 1; n++; }
+            }
+        for (i = 0; i < n; i++)
+            if (counts[i] > bestN) { bestN = counts[i]; best = metas[i]; }
+    }
+    return best;
+}
+
+typedef struct {
+    int w, h, topY, lowY;
+    uint8_t drawn[FIG_MAX * FIG_MAX];
+    const uint16_t *metas;
+    int cols;
+} FigureArt;
+
+static uint32_t FigTexel(const VoxelInstance *inst, const FigureArt *a, int px, int py)
+{
+    int m = a->metas[(py / 16) * a->cols + px / 16];
+    int ax = (m % VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE + px % 16;
+    int ay = (m / VOXEL_ATLAS_COLS) * VOXEL_ATLAS_TILE + py % 16;
+    return inst->pixels[ay * VOXEL_ATLAS_SIZE + ax] & 0xFFFFFF;
+}
+
+// The drawing's silhouette: whatever its outer frame (open water all round)
+// does not wear. `rows` of it are drawn where it stands; the frame is still
+// the whole drawing's.
+static bool FigureArtOf(const VoxelInstance *inst, const VoxelFigure *f, int rows, FigureArt *a)
+{
+    uint32_t bg[64];
+    int nbg = 0, x, y, i, drawnH = rows * 16;
+    a->w = f->artW * 16;
+    a->h = f->artH * 16;
+    a->metas = f->art;
+    a->cols = f->artW;
+    a->topY = -1;
+    a->lowY = -1;
+    for (i = 0; i < f->artW * f->artH; i++)
+        if (!inst->used[f->art[i]])
+            return false;
+    for (y = 0; y < a->h; y++)
+        for (x = 0; x < a->w; x++)
+            if (x == 0 || y == 0 || x == a->w - 1 || y == a->h - 1)
+            {
+                uint32_t c = FigTexel(inst, a, x, y);
+                for (i = 0; i < nbg && bg[i] != c; i++)
+                    ;
+                if (i == nbg && nbg < 64)
+                    bg[nbg++] = c;
+            }
+    for (y = 0; y < a->h; y++)
+        for (x = 0; x < a->w; x++)
+        {
+            uint32_t c = FigTexel(inst, a, x, y);
+            for (i = 0; i < nbg && bg[i] != c; i++)
+                ;
+            a->drawn[y * a->w + x] = i == nbg && y < drawnH;
+            if (a->drawn[y * a->w + x])
+            {
+                if (a->topY < 0) a->topY = y;
+                a->lowY = y;
+            }
+        }
+    return a->lowY >= 0;
+}
+
+static void EmitFigure(VoxelMesh *mesh, const VoxelInstance *inst, const FigureArt *a, float ox, float oz,
+                       int dyRow, float base, int depth)
+{
+    const float p = 1.0f / 16.0f, d = 0.45f * ATLAS_TEXEL;
+    float z0 = oz + (dyRow + (a->lowY / 8) * 8 + (8 - depth) / 2.0f) * p, z1 = z0 + depth * p;
+    int ly, lx;
+#define FD(x, y) ((x) >= 0 && (y) >= 0 && (x) < a->w && (y) < a->h && a->drawn[(y) * a->w + (x)])
+    for (ly = 0; ly < a->h; ly++)
+    {
+        float y0 = base + (a->lowY - ly) * p, y1 = y0 + p;
+        lx = 0;
+        while (lx < a->w)
+        {
+            int e = lx, i, m;
+            float u0, v0, u1, v1;
+            if (!FD(lx, ly)) { lx++; continue; }
+            while (e + 1 < a->w && FD(e + 1, ly) && (e + 1) % 16 != 0)
+                e++;
+            m = a->metas[(ly / 16) * a->cols + lx / 16];
+            UvPixel(m, VOXEL_VAR_COMPOSED, lx % 16, ly % 16, &u0, &v0);
+            UvPixel(m, VOXEL_VAR_COMPOSED, e % 16, ly % 16, &u1, &v1);
+            {
+                float x0 = ox + lx * p, x1 = ox + (e + 1) * p;
+                float q[12] = { x0, y0, z1,  x1, y0, z1,  x1, y1, z1,  x0, y1, z1 };
+                float uv[8] = { u0 - d, v0 + d,  u1 + d, v0 + d,  u1 + d, v0 - d,  u0 - d, v0 - d };
+                float qb[12] = { x1, y0, z0,  x0, y0, z0,  x0, y1, z0,  x1, y1, z0 };
+                float uvb[8] = { u1 + d, v0 + d,  u0 - d, v0 + d,  u0 - d, v0 - d,  u1 + d, v0 - d };
+                ObjQuad(mesh, q, uv, OBJ_FRONT, base);
+                ObjQuad(mesh, qb, uvb, OBJ_BACK, base);
+            }
+            for (i = lx; i <= e; i++)
+            {
+                float xa = ox + i * p, xb = xa + p, ua, va;
+                float fl[8];
+                int k;
+                UvPixel(m, VOXEL_VAR_COMPOSED, i % 16, ly % 16, &ua, &va);
+                for (k = 0; k < 4; k++) { fl[k * 2] = ua; fl[k * 2 + 1] = va; }
+                if (!FD(i, ly - 1))
+                {
+                    float q[12] = { xa, y1, z0,  xb, y1, z0,  xb, y1, z1,  xa, y1, z1 };
+                    ObjQuad(mesh, q, fl, OBJ_TOP, base);
+                }
+                if (ly < a->lowY && !FD(i, ly + 1))
+                {
+                    float q[12] = { xa, y0, z1,  xb, y0, z1,  xb, y0, z0,  xa, y0, z0 };
+                    ObjQuad(mesh, q, fl, OBJ_BOTTOM, base);
+                }
+                if (!FD(i - 1, ly))
+                {
+                    float q[12] = { xa, y0, z0,  xa, y0, z1,  xa, y1, z1,  xa, y1, z0 };
+                    ObjQuad(mesh, q, fl, OBJ_SIDE, base);
+                }
+                if (!FD(i + 1, ly))
+                {
+                    float q[12] = { xb, y0, z1,  xb, y0, z0,  xb, y1, z0,  xb, y1, z1 };
+                    ObjQuad(mesh, q, fl, OBJ_SIDE, base);
+                }
+            }
+            lx = e + 1;
+        }
+    }
+#undef FD
+}
+
+static void BuildFigure(VoxelMesh *mesh, const VoxelInstance *inst, int lx, int ly)
+{
+    const VoxelFigure *f = VoxelFigure_For(inst->header->mapLayout);
+    int kind = VoxelScene_SpanAt(inst, lx, ly), k;
+    static FigureArt art;
+    const VoxelCell *c = &inst->cells[ly * inst->width + lx];
+    float ox = (float)(lx + inst->originX), oz = (float)(ly + inst->originY);
+    VoxelMeshRange r;
+    if (f == NULL || kind < 1 || !FigureArtOf(inst, f, kind == 3 ? f->artH - 1 : f->artH, &art))
+        return;     // not an anchor, or the drawing is not decoded
+    mesh->stats.signs++;
+    BeginRange(mesh, &r, (int)ox, (int)oz, -1, c->groundH, c->groundH + art.h / 16.0f);
+    if (kind == 1)
+        for (k = 0; k < f->nCopies; k++)
+            EmitFigure(mesh, inst, &art, ox + f->copyDx[k] / 16.0f, oz, f->copyDy[k], c->groundH, f->depth);
+    else
+        EmitFigure(mesh, inst, &art, ox, oz, 0, c->groundH, f->depth);
+    EndRange(mesh, &r);
+}
+
+// ---------------------------------------------------------------------------
 // Instance build
 // ---------------------------------------------------------------------------
 // Two tree anchors side by side whose four metatiles are the consecutive
@@ -2480,6 +2652,8 @@ void VoxelMesh_BuildInstance(VoxelMesh *mesh, const VoxelInstance *inst)
             const VoxelCell *c = &inst->cells[y * inst->width + x];
             if (c->shape == SH_SIGN || c->shape == SH_PALING || c->shape == SH_BASIN)
                 sGroundFor[y * inst->width + x] = (uint16_t)VoteGround(inst, x, y);
+            else if (c->shape == SH_FIGURE)
+                sGroundFor[y * inst->width + x] = (uint16_t)VoteSea(inst, x, y);
         }
 
     for (y = 0; y < inst->height; y++)
@@ -2538,6 +2712,8 @@ void VoxelMesh_BuildInstance(VoxelMesh *mesh, const VoxelInstance *inst)
                 BuildPaling(mesh, inst, x, y);
             else if (inst->cells[y * inst->width + x].shape == SH_BASIN)
                 BuildBasin(mesh, inst, x, y);
+            else if (inst->cells[y * inst->width + x].shape == SH_FIGURE)
+                BuildFigure(mesh, inst, x, y);
     free(done);
     free(sGroundFor);
     sGroundFor = NULL;

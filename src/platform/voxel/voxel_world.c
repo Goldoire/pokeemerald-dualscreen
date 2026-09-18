@@ -1773,6 +1773,14 @@ static void ApplyScenery(VoxelInstance *inst)
                     c->groundH = c->topH = SeaLevel(inst, x, y);
                 }
             }
+            else if (sc == SC_FIGURE && c)
+            {
+                // the cells are the sea the object stands in
+                c->flags |= VCF_SCENE | VCF_FIGURE;
+                c->shape = SH_FIGURE;
+                c->cls = VC_WATER;
+                c->groundH = c->topH = SeaLevel(inst, x, y);
+            }
             else if (sc == SC_BASIN && c)
             {
                 c->flags |= VCF_SCENE | VCF_BASIN;
@@ -1879,6 +1887,8 @@ static void RebuildInstance(VoxelInstance *inst)
                 c->shape = SH_PALING;
             else if (c->flags & VCF_BASIN)
                 c->shape = SH_BASIN;
+            else if (c->flags & VCF_FIGURE)
+                c->shape = SH_FIGURE;
             else if (c->flags & VCF_SCENE)
                 c->shape = SH_SIGN;
         }
