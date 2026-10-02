@@ -114,6 +114,14 @@ size_t VoxelLightTree_Bytes(const VoxelLightTree *tree)
     return tree->triangleCount * sizeof(Triangle) + tree->nodeCapacity * sizeof(Node);
 }
 
+bool VoxelLightTree_Bounds(const VoxelLightTree *tree, float lo[3], float hi[3])
+{
+    if (!tree->nodeCount) return false;
+    memcpy(lo, tree->nodes[0].lo, 3 * sizeof(float));
+    memcpy(hi, tree->nodes[0].hi, 3 * sizeof(float));
+    return true;
+}
+
 static bool RayBox(const Node *n, const float o[3], const float d[3], float reach)
 {
     float near = 0.025f, far = reach;

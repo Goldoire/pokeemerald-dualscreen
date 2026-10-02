@@ -26,6 +26,7 @@ bool VoxelLightTree_Build(VoxelLightTree *tree, const void *vertices, unsigned v
 void VoxelLightTree_Free(VoxelLightTree *tree);
 bool VoxelLightTree_Occluded(const VoxelLightTree *tree, const float origin[3], const float direction[3], float reach);
 size_t VoxelLightTree_Bytes(const VoxelLightTree *tree);
+bool VoxelLightTree_Bounds(const VoxelLightTree *tree, float lo[3], float hi[3]);
 float VoxelLight_Face(float nx, float ny, float nz);
 void VoxelLight_Normal(const float *a, const float *b, const float *c, float normal[3]);
 

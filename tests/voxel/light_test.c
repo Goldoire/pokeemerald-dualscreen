@@ -25,6 +25,10 @@ int main(void)
     assert(!VoxelLightTree_Occluded(&tree, o, sun, 8));
     roof(vertices, 0, 2, 0);
     assert(VoxelLightTree_Build(&tree, vertices, 6, 12));
+    float lo[3], hi[3];
+    assert(VoxelLightTree_Bounds(&tree, lo, hi));
+    near(lo[0], 0); near(lo[1], 2); near(lo[2], 0);
+    near(hi[0], 2); near(hi[1], 2); near(hi[2], 2);
     assert(VoxelLightTree_Occluded(&tree, o, sun, 8));
     assert(!VoxelLightTree_Occluded(&tree, o, sun, 1));
     float northwest[] = {-2, 0, -2}, self[] = {1, 2, 1}, below[] = {1, 0, 1}, vertical[] = {0,1,0};
@@ -68,6 +72,7 @@ int main(void)
     free(same);
     assert(!VoxelLightTree_Build(&tree, vertices, 5, 12));
     assert(tree.nodeCount == 0);
+    assert(!VoxelLightTree_Bounds(&tree, lo, hi));
     vertices[0] = NAN;
     assert(!VoxelLightTree_Build(&tree, vertices, 6, 12));
     assert(!VoxelLightTree_Build(&tree, NULL, 6, 12));

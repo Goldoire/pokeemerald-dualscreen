@@ -23,8 +23,11 @@ Lighting trees and exact-position sample caches reset on connected-map or
 live-map rebuilds, lighting changes, GL resource rebuilds and shutdown.
 Turning SUN off rebuilds the original mesh colors, preventing cumulative
 darkening. Scene admission is capped at 400,000 caster triangles, bounding
-resident triangle/tree storage to approximately 22 MiB plus small metadata
-and caches. Temporary caster preparation needs additional memory. An
+resident triangle/tree storage to approximately 22 MiB. An eight-cell
+spatial index selects nearby hull casters, with a separate cap of 262,144
+index nodes and 65,536 hull instances. Including its nodes, references,
+metadata and sample cache, resident lighting storage is bounded to roughly
+26 MiB. Temporary caster preparation needs additional memory. An
 allocation failure or oversized scene retains ART, with a diagnostic log.
 
 ## Validation
@@ -32,8 +35,10 @@ allocation failure or oversized scene retains ART, with a diagnostic log.
 Android ARMv7 debug and native Linux builds compile. Portable tests, also
 run with AddressSanitizer/UndefinedBehaviorSanitizer, cover camera defaults
 and stability, lighting direction/reach, double-sided winding, self-shadow,
-BVH capacity and gaps, stair/raised-plane shadow clipping and exact caster
-merging. Merging checks compare original and compact geometry with rays in
+BVH capacity and gaps, stair/raised-plane shadow clipping, exact caster
+merging and spatial-index coverage. Index tests cover negative bucket
+coordinates, inclusive edges, hash collisions, duplicates and size limits.
+Merging checks compare original and compact geometry with rays in
 both directions across all three axes, including negative coordinates and
 an interior hole.
 
@@ -52,17 +57,18 @@ python3 tools/research/probe_voxel_runtime.py \
   --output /absolute/path/to/local-test-output
 ```
 
-Before spatial indexing, measured scene preparation on this test host was:
+Measured scene preparation on this test host was:
 
-| Scene | Source triangles | Caster triangles | Resident trees | Preparation |
-| --- | ---: | ---: | ---: | ---: |
-| Littleroot and connected route | 84,160 | 58,092 | 2.7 MiB | about 70 ms |
-| Rustboro and three connected routes | 627,496 | 363,380 | 17.4 MiB | 1,030 ms |
+| Scene | Source triangles | Caster triangles | Trees/index nodes | Before index | With index |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Littleroot and connected route | 84,160 | 58,092 | 2.7 MiB | 68–71 ms | 69–74 ms |
+| Rustboro and three connected routes | 627,496 | 363,380 | 17.5 MiB | 1,030 ms | 504 ms |
 
 These are single host samples of lighting preparation, not frame-time
-benchmarks or predictions for the Thor. The Rustboro result makes spatial
-caster lookup and device measurements necessary before considering SUN a
-release default.
+benchmarks or predictions for the Thor; the memory column excludes caches
+and metadata. The Rustboro result still adds a visible map-entry stall.
+Device measurements and further scheduling work are necessary before
+considering SUN a release default.
 
 ## Remaining limits
 

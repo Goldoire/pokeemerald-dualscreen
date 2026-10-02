@@ -15,6 +15,7 @@ tests = {
     'light': ['tests/voxel/light_test.c', 'src/platform/voxel/voxel_light.c'],
     'shadow': ['tests/voxel/shadow_test.c', 'src/platform/voxel/voxel_shadow.c'],
     'caster': ['tests/voxel/caster_test.c', 'src/platform/voxel/voxel_caster.c', 'src/platform/voxel/voxel_light.c'],
+    'light_grid': ['tests/voxel/light_grid_test.c', 'src/platform/voxel/voxel_light_grid.c'],
 }
 with tempfile.TemporaryDirectory(prefix='emerald-voxel-tests-') as temp:
     for name, sources in tests.items():

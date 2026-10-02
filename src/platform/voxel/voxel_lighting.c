@@ -2,6 +2,7 @@
 #if defined(PLATFORM_SDL2) && (defined(NATIVE_LINUX) || defined(__ANDROID__))
 #include "voxel_light.h"
 #include "voxel_caster.h"
+#include "voxel_light_grid.h"
 #include "voxel_hull.h"
 #include <SDL.h>
 #include <math.h>
@@ -13,6 +14,9 @@ typedef struct { VoxelLightTree tree; float *positions; unsigned count; } HullCa
 static HullCaster *sHulls[MAX_VOXEL_MAP_INSTANCES];
 static int sHullCounts[MAX_VOXEL_MAP_INSTANCES];
 static VoxelMesh *sMeshes;
+typedef struct { int instance, stamp; } StampRef;
+static StampRef *sStampRefs;
+static VoxelLightGrid sStampGrid;
 static int sCount;
 static unsigned sRays;
 static bool sActive;
@@ -22,6 +26,9 @@ static Sample sSamples[LIGHT_SAMPLES];
 
 void VoxelLighting_Reset(void)
 {
+    VoxelLightGrid_Free(&sStampGrid);
+    free(sStampRefs);
+    sStampRefs = NULL;
     for (int i = 0; i < MAX_VOXEL_MAP_INSTANCES; ++i) {
         VoxelLightTree_Free(&sTerrain[i]);
         for (int k = 0; k < sHullCounts[i]; ++k) {
@@ -56,15 +63,47 @@ float VoxelLighting_SunAt(float x, float y, float z)
     for (int i = 0; i < sCount && light == 1.0f; ++i) {
         if (gVoxelInstances[i].indoor) continue;
         if (VoxelLightTree_Occluded(&sTerrain[i], point, sun, VOXEL_SUN_REACH)) light = VOXEL_SUN_AMBIENT;
-        for (int k = 0; k < sMeshes[i].stampCount && light == 1.0f; ++k) {
-            const VoxelHullStamp *stamp = &sMeshes[i].stamps[k];
-            if ((unsigned)stamp->tpl >= (unsigned)sHullCounts[i]) continue;
-            float local[] = {point[0] - stamp->x, point[1] - stamp->y, point[2] - stamp->z};
-            if (VoxelLightTree_Occluded(&sHulls[i][stamp->tpl].tree, local, sun, VOXEL_SUN_REACH)) light = VOXEL_SUN_AMBIENT;
-        }
+    }
+    for (int node = VoxelLightGrid_First(&sStampGrid, x, z); node >= 0 && light == 1.0f;
+         node = VoxelLightGrid_Next(&sStampGrid, node)) {
+        const StampRef *ref = &sStampRefs[sStampGrid.nodes[node].item];
+        const VoxelHullStamp *stamp = &sMeshes[ref->instance].stamps[ref->stamp];
+        float local[] = {point[0] - stamp->x, point[1] - stamp->y, point[2] - stamp->z};
+        if (VoxelLightTree_Occluded(&sHulls[ref->instance][stamp->tpl].tree, local, sun, VOXEL_SUN_REACH))
+            light = VOXEL_SUN_AMBIENT;
     }
     *sample = (Sample){x, y, z, light, true};
     return light;
+}
+
+static bool IndexStamps(VoxelMesh *meshes, int count)
+{
+    unsigned capacity = 0, items = 0;
+    for (int i = 0; i < count; ++i) {
+        if (gVoxelInstances[i].indoor) continue;
+        if ((unsigned)meshes[i].stampCount > VOXEL_LIGHT_GRID_ITEMS - capacity) return false;
+        capacity += meshes[i].stampCount;
+    }
+    if (!capacity) return true;
+    sStampRefs = malloc(capacity * sizeof(*sStampRefs));
+    VoxelLightBounds *bounds = malloc(capacity * sizeof(*bounds));
+    if (!sStampRefs || !bounds) { free(bounds); return false; }
+    for (int i = 0; i < count; ++i) {
+        if (gVoxelInstances[i].indoor) continue;
+        for (int k = 0; k < meshes[i].stampCount; ++k) {
+            const VoxelHullStamp *stamp = &meshes[i].stamps[k];
+            float lo[3], hi[3];
+            if ((unsigned)stamp->tpl >= (unsigned)sHullCounts[i] ||
+                !VoxelLightTree_Bounds(&sHulls[i][stamp->tpl].tree, lo, hi)) continue;
+            bounds[items] = (VoxelLightBounds){lo[0]+stamp->x, lo[2]+stamp->z,
+                hi[0]+stamp->x+VOXEL_SUN_DX*VOXEL_SUN_REACH,
+                hi[2]+stamp->z+VOXEL_SUN_DZ*VOXEL_SUN_REACH};
+            sStampRefs[items++] = (StampRef){i, k};
+        }
+    }
+    bool built = VoxelLightGrid_Build(&sStampGrid, bounds, items);
+    free(bounds);
+    return built;
 }
 
 static float OldFace(const float n[3], bool hull)
@@ -149,6 +188,8 @@ bool VoxelLighting_Build(VoxelMesh *meshes, int count)
             caster->positions = NULL;
         }
     }
+    if (!IndexStamps(meshes, count)) goto fail;
+    bytes += sStampGrid.count * sizeof(VoxelLightGridNode);
     sMeshes = meshes;
     sCount = count;
     sActive = true;
