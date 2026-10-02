@@ -73,11 +73,26 @@ static bool sHasBorderBackgroundConfig;
 static u8 sBackgroundOrderVersion;
 // Dual-screen defaults: black background, touch controls hidden, battle
 // menus on the bottom screen, fast-forward leaves the music at normal tempo.
-static u8 sPlatformSettings[PLATFORM_SETTING_COUNT] = {0, 4, 0, 1, 1, 10, 1, 0, 0, 0, 0, 0, 0, 0};
+// Render-thread changes are published atomically to the game and Java UI.
+#include <stdatomic.h>
+static _Atomic u8 sPlatformSettings[PLATFORM_SETTING_COUNT] = {
+    [PLATFORM_SETTING_WINDOW_SCALE] = 4,
+    [PLATFORM_SETTING_VSYNC] = 1,
+    [PLATFORM_SETTING_BORDER] = 1,
+    [PLATFORM_SETTING_VOLUME] = 10,
+    [PLATFORM_SETTING_BACKGROUND_MODE] = 1,
+    [PLATFORM_SETTING_VOXEL_ZOOM] = 1,
+    [PLATFORM_SETTING_VOXEL_BATTLES] = 1,
+};
 // The fast-forward speed as chosen in the SET tab, which is what belongs in the
 // config file. The R2 hotkey overrides the live setting without touching this,
 // so that StoreConfigFile - which writes every setting whenever any one of them
 // changes - cannot quietly persist a momentary toggle as a deliberate choice.
+#ifdef __ANDROID__
+static _Atomic unsigned sPendingSettingsMask;
+static _Atomic u8 sPendingSettings[PLATFORM_SETTING_COUNT];
+static void ApplyPendingPlatformSettings(void);
+#endif
 static u8 sFastForwardSetting = 0;
 #define FF_HOTKEY_DEFAULT_SPEED 1 // 2x, when the toggle is used before any speed is chosen
 // What the R2 toggle turns fast-forward back on at.
@@ -445,6 +460,9 @@ int main(int argc, char **argv)
     while (isRunning)
     {
         ProcessEvents();
+#ifdef __ANDROID__
+        ApplyPendingPlatformSettings();
+#endif
 
         if (!paused)
         {
@@ -853,6 +871,12 @@ static void ReadConfigFile(void)
             sPlatformSettings[PLATFORM_SETTING_BATTLE_HINTS] = value != 0;
         else if (sscanf(line, "voxelCamera=%u", &value) == 1 && value <= 1)
             sPlatformSettings[PLATFORM_SETTING_VOXEL_CAMERA] = value;
+        else if (sscanf(line, "voxelAngle=%u", &value) == 1 && value <= 5)
+            sPlatformSettings[PLATFORM_SETTING_VOXEL_ANGLE] = value;
+        else if (sscanf(line, "voxelZoom=%u", &value) == 1 && value <= 3)
+            sPlatformSettings[PLATFORM_SETTING_VOXEL_ZOOM] = value;
+        else if (sscanf(line, "voxelBattles=%u", &value) == 1)
+            sPlatformSettings[PLATFORM_SETTING_VOXEL_BATTLES] = value != 0;
     }
     fclose(configFile);
 }
@@ -880,6 +904,9 @@ static void StoreConfigFile(void)
     fprintf(configFile, "fastForwardAudio=%u\n", sPlatformSettings[PLATFORM_SETTING_FF_AUDIO]);
     fprintf(configFile, "battleHints=%u\n", sPlatformSettings[PLATFORM_SETTING_BATTLE_HINTS]);
     fprintf(configFile, "voxelCamera=%u\n", sPlatformSettings[PLATFORM_SETTING_VOXEL_CAMERA]);
+    fprintf(configFile, "voxelAngle=%u\n", sPlatformSettings[PLATFORM_SETTING_VOXEL_ANGLE]);
+    fprintf(configFile, "voxelZoom=%u\n", sPlatformSettings[PLATFORM_SETTING_VOXEL_ZOOM]);
+    fprintf(configFile, "voxelBattles=%u\n", sPlatformSettings[PLATFORM_SETTING_VOXEL_BATTLES]);
     fclose(configFile);
 }
 
@@ -1047,11 +1074,28 @@ void Platform_SetBorderBackground(u8 selection)
 
 u8 Platform_GetSetting(enum PlatformSetting setting)
 {
+    if ((unsigned)setting >= PLATFORM_SETTING_COUNT) return 0;
     return sPlatformSettings[setting];
+}
+
+static bool SettingValueValid(enum PlatformSetting setting, unsigned value)
+{
+    if ((unsigned)setting >= PLATFORM_SETTING_COUNT) return false;
+    switch (setting)
+    {
+    case PLATFORM_SETTING_VOLUME: return value <= 10;
+    case PLATFORM_SETTING_WINDOW_SCALE: return value >= 2 && value <= 5;
+    case PLATFORM_SETTING_BACKGROUND_MODE: return value <= 2;
+    case PLATFORM_SETTING_FAST_FORWARD: case PLATFORM_SETTING_VOXEL_ZOOM: return value <= 3;
+    case PLATFORM_SETTING_VOXEL_ANGLE: return value <= 5;
+    default: return value <= 1;
+    }
 }
 
 void Platform_SetSetting(enum PlatformSetting setting, u8 value)
 {
+    if (!SettingValueValid(setting, value)) return;
+    if (sPlatformSettings[setting] == value) return;
     sPlatformSettings[setting] = value;
     // A speed chosen in the SET tab is the deliberate one, so it also becomes
     // what the R2 toggle restores and what gets written to the config.
@@ -1086,6 +1130,23 @@ void Platform_SetSetting(enum PlatformSetting setting, u8 value)
 }
 
 #ifdef __ANDROID__
+// Java enqueues intent only. SDL display operations and file writes belong
+// to the render thread; coalesce repeated choices before its next iteration.
+static void ApplyPendingPlatformSettings(void)
+{
+    unsigned mask = atomic_exchange(&sPendingSettingsMask, 0);
+    for (unsigned i = 0; i < PLATFORM_SETTING_COUNT; ++i)
+        if (mask & (1u << i)) Platform_SetSetting(i, atomic_load(&sPendingSettings[i]));
+}
+
+static u8 AndroidPlatformSetting(enum PlatformSetting setting)
+{
+    if ((unsigned)setting >= PLATFORM_SETTING_COUNT) return 0;
+    if (atomic_load(&sPendingSettingsMask) & (1u << setting))
+        return atomic_load(&sPendingSettings[setting]);
+    return Platform_GetSetting(setting);
+}
+
 JNIEXPORT jint JNICALL Java_com_pokeemerald_experimental_GbaControlsView_getBorderBackground(JNIEnv *env, jclass clazz)
 {
     return Platform_GetBorderBackground();
@@ -1095,21 +1156,23 @@ JNIEXPORT jint JNICALL Java_com_pokeemerald_experimental_GbaControlsView_getPlat
 {
     if (setting < 0 || setting >= PLATFORM_SETTING_COUNT)
         return 0;
-    return Platform_GetSetting(setting);
+    return AndroidPlatformSetting(setting);
 }
 
 JNIEXPORT jint JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_nativeGetPlatformSetting(JNIEnv *env, jclass clazz, jint setting)
 {
     if (setting < 0 || setting >= PLATFORM_SETTING_COUNT)
         return 0;
-    return Platform_GetSetting(setting);
+    return AndroidPlatformSetting(setting);
 }
 
 JNIEXPORT void JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_nativeSetPlatformSetting(JNIEnv *env, jclass clazz, jint setting, jint value)
 {
     if (setting < 0 || setting >= PLATFORM_SETTING_COUNT)
         return;
-    Platform_SetSetting(setting, (u8)value);
+    if (value < 0 || !SettingValueValid(setting, (unsigned)value)) return;
+    atomic_store(&sPendingSettings[setting], (u8)value);
+    atomic_fetch_or(&sPendingSettingsMask, 1u << setting);
 }
 #endif
 

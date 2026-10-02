@@ -11,6 +11,7 @@
 #include <GL/gl.h>
 #endif
 #include "voxel_world.h"
+#include "voxel_camera_options.h"
 
 #define DEG2RAD (3.14159265f / 180.0f)
 
@@ -86,6 +87,14 @@ void VoxelCamera_ApplyPreset(VoxelCamera *cam, int preset)
         cam->distance = 10.0f;
         cam->fov = 53.13f;
     }
+}
+
+void VoxelCamera_ApplyOptions(VoxelCamera *cam, int preset, int angle, int zoom)
+{
+    // Recompute from the preset: repeated frames must not accumulate zoom.
+    VoxelCamera_ApplyPreset(cam, preset);
+    cam->pitch = VoxelCamera_OptionPitch(preset, angle);
+    cam->distance /= VoxelCamera_OptionZoom(zoom);
 }
 
 void VoxelCamera_Update(VoxelCamera *cam, float playerWorldX, float playerWorldY, float playerWorldZ)

@@ -18,6 +18,7 @@ void VoxelCamera_Init(VoxelCamera *cam);
 // The two framings: the play camera (steep, close) and the diorama (low,
 // wide, the whole route in view under a warm sky).
 void VoxelCamera_ApplyPreset(VoxelCamera *cam, int preset);
+void VoxelCamera_ApplyOptions(VoxelCamera *cam, int preset, int angle, int zoom);
 void VoxelCamera_Update(VoxelCamera *cam, float playerWorldX, float playerWorldY, float playerWorldZ);
 float VoxelCamera_TanPitch(const VoxelCamera *cam);
 void VoxelCamera_FPSMouseMotion(VoxelCamera *cam, int dx, int dy);

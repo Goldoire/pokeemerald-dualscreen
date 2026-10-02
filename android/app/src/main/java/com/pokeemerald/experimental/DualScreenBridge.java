@@ -77,6 +77,9 @@ public final class DualScreenBridge {
     public static final int SETTING_FF_AUDIO = 12;
     public static final int SETTING_BATTLE_HINTS = 13;
     public static final int SETTING_VOXEL_CAMERA = 14;
+    public static final int SETTING_VOXEL_ANGLE = 15;
+    public static final int SETTING_VOXEL_ZOOM = 16;
+    public static final int SETTING_VOXEL_BATTLES = 17;
     public static final int SETTING_VOLUME = 5;
 
     /**
@@ -134,7 +137,7 @@ public final class DualScreenBridge {
 
     public static native int nativeGetPlatformSetting(int setting);
 
-    /** Persists to the port's config file. */
+    /** Queues a validated change; the SDL render thread applies and persists it. */
     public static native void nativeSetPlatformSetting(int setting, int value);
 
     /**

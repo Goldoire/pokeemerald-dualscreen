@@ -1199,7 +1199,8 @@ static void RenderBattleOverlay(int winW, int winH)
 // Is a battle being fought on the map this frame?
 static bool BattleOnMap(void)
 {
-    if (!gMain.inBattle || gVoxelInstanceCount <= 0 || gBattleSpritesDataPtr == NULL)
+    if (!Platform_GetSetting(PLATFORM_SETTING_VOXEL_BATTLES)
+        || !gMain.inBattle || gVoxelInstanceCount <= 0 || gBattleSpritesDataPtr == NULL)
     {
         sArenaLive = false;
         return false;
@@ -1425,8 +1426,10 @@ void VoxelRenderer_RenderFrame(void)
     // ---- player + camera ----
     {
         int preset = Platform_GetSetting(PLATFORM_SETTING_VOXEL_CAMERA) ? 1 : 0;
-        if (preset != sCamera.preset && !gVoxelFirstPersonMode)
-            VoxelCamera_ApplyPreset(&sCamera, preset);
+        if (!gVoxelFirstPersonMode)
+            VoxelCamera_ApplyOptions(&sCamera, preset,
+                    Platform_GetSetting(PLATFORM_SETTING_VOXEL_ANGLE),
+                    Platform_GetSetting(PLATFORM_SETTING_VOXEL_ZOOM));
     }
     if (gPlayerAvatar.objectEventId < OBJECT_EVENTS_COUNT)
         GetObjectWorldPos(&gObjectEvents[gPlayerAvatar.objectEventId], &playerX, &playerY, &playerZ);
