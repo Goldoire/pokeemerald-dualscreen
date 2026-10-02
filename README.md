@@ -90,9 +90,9 @@ It loads on the next launch. Copy that file out to back it up or transfer it to 
 
 A separate development branch explores a 3D overworld with shaped terrain, trees, buildings, and battles staged on the map. It is **not part of the current 0.5.0 release**.
 
-Development builds currently have **VOXEL 3D (RESTART)** and **VOXEL CAMERA** settings. These features still need regression testing on the handheld before being included in a release.
+Local development builds have grouped settings with live camera angle/zoom, an independent voxel-battle option, and opt-in **SUN** lighting with terrain and character shadows. See [settings](docs/SETTINGS.md) and [lighting validation](docs/VOXEL_LIGHTING.md). These features still need regression testing on the handheld before being included in a release.
 
-The [3DS fork comparison](docs/ZALLAX_COMPARISON.md) reviews candidate improvements from ZallaxDev's implementation, including authored buildings and interiors, fixed-sun shadows, and terrain relief. These are proposals, not features shipped by this APK.
+The [3DS fork comparison](docs/ZALLAX_COMPARISON.md) and [feasibility report](docs/IMPLEMENTATION_FEASIBILITY.md) cover ZallaxDev's implementation. Fixed-sun lighting has been adapted to our renderer locally; authored buildings/interiors, reflections, terrain relief and chunk scheduling remain future work. None of these changes are in the published APK.
 
 ## Development
 
@@ -106,7 +106,7 @@ The source tree also contains experimental [mod tooling](docs/MODDING.md) and a 
 - [gradenGnostic/pokeemerald-multiplatform](https://github.com/gradenGnostic/pokeemerald-multiplatform): native SDL2 port.
 - [samyost1/tmc-android](https://github.com/samyost1/tmc-android) and [samyost1/zelda3-android](https://github.com/samyost1/zelda3-android): dual-screen architecture references.
 - DramaticShape and UNDERdecodedHD: the DramaticShapes algorithms informing the experimental voxel work.
-- [ZallaxDev/pokeemerald-3Ds-dualscreen](https://github.com/ZallaxDev/pokeemerald-3Ds-dualscreen): inspiration for this README layout and a reference for proposed voxel improvements.
+- [ZallaxDev/pokeemerald-3Ds-dualscreen](https://github.com/ZallaxDev/pokeemerald-3Ds-dualscreen): README inspiration and fixed-sun face-light calculation/constants adapted for the experimental renderer. See the [voxel notice](src/platform/voxel/NOTICE.md).
 
 The project was developed with assistance from Claude Code and other AI coding tools. The header logo was created with image generation using Emerald's title-screen lettering as reference.
 
