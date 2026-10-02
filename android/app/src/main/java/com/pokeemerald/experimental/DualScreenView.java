@@ -2748,6 +2748,7 @@ public final class DualScreenView extends View {
         new SettingRow(3, "CAMERA", "Play is close; Diorama frames more of the map.", DualScreenBridge.SETTING_VOXEL_CAMERA, 1, "PLAY", "DIORAMA"),
         new SettingRow(3, "CAMERA ANGLE", "PRESET uses the angle of your chosen camera.", DualScreenBridge.SETTING_VOXEL_ANGLE, 1, "PRESET", "35", "40", "45", "55", "62"),
         new SettingRow(3, "CAMERA ZOOM", "Change overworld framing without a restart.", DualScreenBridge.SETTING_VOXEL_ZOOM, 1, "90%", "100%", "110%", "120%"),
+        new SettingRow(3, "LIGHTING", "Fixed sun outdoors; ART keeps original shading.", DualScreenBridge.SETTING_VOXEL_LIGHTING, 1, "ART", "SUN"),
         new SettingRow(3, "VOXEL BATTLES", "Stage supported battles on the 3D map.", DualScreenBridge.SETTING_VOXEL_BATTLES, 1, "OFF", "ON"),
     };
     private final RectF[] settingsSections = {new RectF(), new RectF(), new RectF(), new RectF()};

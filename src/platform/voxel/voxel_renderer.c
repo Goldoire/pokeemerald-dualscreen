@@ -26,6 +26,9 @@
 #include "voxel_atlas.h"
 #include "voxel_camera.h"
 #include "voxel_mesh.h"
+#include "voxel_lighting.h"
+#include "voxel_light.h"
+#include "voxel_shadow.h"
 #include "voxel_battle.h"
 #include "battle.h"
 #include "battle_anim.h"
@@ -614,7 +617,7 @@ static void DrawBillboard(float wx, float wy, float wz, GLuint tex, int w, int h
 static void DrawShadow(float wx, float wy, float wz, float radius)
 {
     glBindTexture(GL_TEXTURE_2D, sShadowTex);
-    glColor4f(1.0f, 1.0f, 1.0f, 0.42f);
+    glColor4f(1.0f, 1.0f, 1.0f, VoxelLighting_Active() ? 0.18f : 0.42f);
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f); glVertex3f(wx - radius, wy + 0.02f, wz + 0.5f - radius * 0.7f);
     glTexCoord2f(1.0f, 0.0f); glVertex3f(wx + radius, wy + 0.02f, wz + 0.5f - radius * 0.7f);
@@ -629,6 +632,50 @@ typedef struct {
     int w, h;
     bool valid;
 } ObjectDraw;
+
+
+static void DrawSunShadow(const ObjectDraw *obj)
+{
+    float width = obj->w / 16.0f, height = obj->h / 16.0f;
+    float light = VoxelLighting_SunAt(obj->x, obj->y + height * 0.5f, obj->z + 0.5f);
+    if (light < 1.0f) return; // A shaded actor has no direct sun to cast.
+    int minX = (int)floorf(obj->x - width*0.5f), minZ = (int)floorf(obj->z + 0.5f);
+    int maxX = (int)ceilf(obj->x + width*0.5f + VOXEL_SUN_DX*VOXEL_SUN_REACH);
+    int maxZ = (int)ceilf(obj->z + 0.5f + VOXEL_SUN_DZ*VOXEL_SUN_REACH);
+    glBindTexture(GL_TEXTURE_2D, obj->tex);
+    glColor4f(0, 0, 0, 0.30f);
+    glBegin(GL_TRIANGLES);
+    for (int z = minZ; z <= maxZ; ++z) for (int x = minX; x <= maxX; ++x)
+    {
+        const VoxelCell *cell = VoxelWorld_CellAt(x, z);
+        VoxelShadowVertex quad[4], clipped[12];
+        if (!cell || cell->cls == VC_VOID || (cell->flags & VCF_BLOCKED)) continue;
+        for (int part = 0; part < (cell->stepAxis ? 2 : 1); ++part)
+        {
+            // Match the actual rendered surface, including water (the Surf
+            // rider's feet are higher) and each separate stair tread.
+            float receiver = cell->stepAxis ? cell->stepH[part] : cell->topH;
+            float drop = obj->y - receiver;
+            if (drop + height <= 0 || drop + height > VOXEL_SUN_REACH) continue;
+            float x0 = x, x1 = x+1, z0 = z, z1 = z+1;
+            if (cell->stepAxis == 1) { z0 += part*0.5f; z1 = z0+0.5f; }
+            if (cell->stepAxis == 2) { x0 += part*0.5f; x1 = x0+0.5f; }
+            VoxelShadow_Project(quad, obj->x, obj->z + 0.5f, obj->y, width, height, receiver);
+            int n = VoxelShadow_ClipRect(quad, x0, z0, x1, z1, clipped);
+            for (int k = 1; k + 1 < n; ++k)
+            {
+                int indices[3] = {0, k, k+1};
+                for (int v = 0; v < 3; ++v)
+                {
+                    const VoxelShadowVertex *p = &clipped[indices[v]];
+                    glTexCoord2f(p->u, p->v);
+                    glVertex3f(p->x, receiver + 0.025f, p->z);
+                }
+            }
+        }
+    }
+    glEnd();
+}
 
 static void CollectObjects(ObjectDraw *draws)
 {
@@ -870,7 +917,9 @@ static void WriteDumpJson(const EffectDraw *effects, int effectCount, const Obje
             n++;
         }
     }
-    fprintf(f, "],\n\"gl\":{\"error\":%u},\"camera\":{\"x\":%.2f,\"y\":%.2f,\"z\":%.2f,\"preset\":%d,\"pitch\":%.2f,\"distance\":%.2f,\"fov\":%.2f,\"sky\":\"%s\"}}\n",
+    fprintf(f, "],\n\"lighting\":{\"requested\":%d,\"active\":%s},\n",
+            Platform_GetSetting(PLATFORM_SETTING_VOXEL_LIGHTING), VoxelLighting_Active() ? "true" : "false");
+    fprintf(f, "\"gl\":{\"error\":%u},\"camera\":{\"x\":%.2f,\"y\":%.2f,\"z\":%.2f,\"preset\":%d,\"pitch\":%.2f,\"distance\":%.2f,\"fov\":%.2f,\"sky\":\"%s\"}}\n",
             (unsigned)glGetError(), sCamera.x, sCamera.y, sCamera.z, sCamera.preset, sCamera.pitch, sCamera.distance, sCamera.fov,
             sCamera.preset == 1 ? "warm" : "day");
     fclose(f);
@@ -1365,7 +1414,9 @@ void VoxelRenderer_RenderFrame(void)
 
     // ---- world model + meshes ----
     HandleMapChange();
-    if (VoxelWorld_Update() || sGlInvalid)
+    static int lastLighting = -1;
+    int lighting = Platform_GetSetting(PLATFORM_SETTING_VOXEL_LIGHTING);
+    if (VoxelWorld_Update() || sGlInvalid || lighting != lastLighting)
     {
         if (sGlInvalid)
             DropGlResources();
@@ -1382,6 +1433,9 @@ void VoxelRenderer_RenderFrame(void)
                 VoxelMesh_Clear(&sMeshes[i]);
             }
         }
+        VoxelLighting_Reset();
+        if (lighting) VoxelLighting_Build(sMeshes, gVoxelInstanceCount);
+        lastLighting = lighting;
         sVramChecksum = 0;   // force a live decode of the current map
         sGlInvalid = false;
     }
@@ -1517,7 +1571,10 @@ void VoxelRenderer_RenderFrame(void)
     glDepthMask(GL_FALSE);
     for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
         if (draws[i].valid && !(gVoxelDebugFlags & DBG_NO_SHADOW))
+        {
             DrawShadow(draws[i].x, draws[i].y, draws[i].z, 0.45f);
+            if (VoxelLighting_Active()) DrawSunShadow(&draws[i]);
+        }
     // decals lie on the ground under everything that stands
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.5f);
@@ -1530,7 +1587,11 @@ void VoxelRenderer_RenderFrame(void)
             DrawBillboard(effects[i].x, effects[i].y, effects[i].z, effects[i].tex, effects[i].w, effects[i].h, 1.0f);
     for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
         if (draws[i].valid)
-            DrawBillboard(draws[i].x, draws[i].y, draws[i].z, draws[i].tex, draws[i].w, draws[i].h, 1.0f);
+        {
+            float light = VoxelLighting_SunAt(draws[i].x, draws[i].y + 0.8f, draws[i].z + 0.5f);
+            glColor4f(light, light, light, 1.0f);
+            DrawBillboard(draws[i].x, draws[i].y, draws[i].z, draws[i].tex, draws[i].w, draws[i].h, -1.0f);
+        }
     for (i = 0; i < effectCount; i++)
         if (effects[i].valid && effects[i].upright && effects[i].z >= (float)effects[i].cellY + 0.5f)
             DrawBillboard(effects[i].x, effects[i].y, effects[i].z, effects[i].tex, effects[i].w, effects[i].h, 1.0f);
@@ -1593,6 +1654,7 @@ void VoxelRenderer_RenderFrame(void)
 
 void VoxelRenderer_Shutdown(void)
 {
+    VoxelLighting_Reset();
     int i;
     DropGlResources();
     for (i = 0; i < MAX_VOXEL_MAP_INSTANCES; i++)

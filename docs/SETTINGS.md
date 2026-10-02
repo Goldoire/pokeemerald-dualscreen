@@ -24,18 +24,25 @@ The experimental 3D section provides:
   the fitted battle cameras.
 - **Voxel battles:** permits battles staged on the map. Off retains the
   original battle scenery while keeping the voxel overworld.
+- **Lighting:** ART retains original shading. SUN uses a fixed northwest
+  light outdoors, geometry-cast terrain shadows and terrain-clipped character
+  silhouette shadows. This remains opt-in while device performance is checked.
 
 Existing configs default to Preset, 100% zoom and voxel battles enabled,
 matching previous behavior. New settings are appended after the existing
 IDs, and malformed/out-of-range JNI values are rejected.
 
-Run the portable camera checks with:
+Run the portable camera, lighting, shadow clipping and caster checks with:
 
 ```sh
 python3 tools/research/run_voxel_tests.py
+python3 tools/research/run_voxel_tests.py --sanitize
 ```
 
 The settings Java and native changes have been compiled in an Android debug
-APK. Camera tests cover original presets, invalid choices, zoom direction
-and repeated-frame stability. Touch layout, camera occlusion and battle
-entry/return still need handheld verification before a release.
+APK. Portable tests cover original camera presets, invalid choices, zoom
+direction and repeated-frame stability. Linux runtime checks exercise live
+angle/zoom, lighting changes, indoor/outdoor transitions, rejected invalid
+settings and unchanged world geometry. See [lighting validation](VOXEL_LIGHTING.md).
+Touch layout, camera occlusion, lifecycle restoration and battle entry/return
+still need handheld verification before a release.

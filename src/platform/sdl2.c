@@ -88,11 +88,9 @@ static _Atomic u8 sPlatformSettings[PLATFORM_SETTING_COUNT] = {
 // config file. The R2 hotkey overrides the live setting without touching this,
 // so that StoreConfigFile - which writes every setting whenever any one of them
 // changes - cannot quietly persist a momentary toggle as a deliberate choice.
-#ifdef __ANDROID__
 static _Atomic unsigned sPendingSettingsMask;
 static _Atomic u8 sPendingSettings[PLATFORM_SETTING_COUNT];
 static void ApplyPendingPlatformSettings(void);
-#endif
 static u8 sFastForwardSetting = 0;
 #define FF_HOTKEY_DEFAULT_SPEED 1 // 2x, when the toggle is used before any speed is chosen
 // What the R2 toggle turns fast-forward back on at.
@@ -460,9 +458,7 @@ int main(int argc, char **argv)
     while (isRunning)
     {
         ProcessEvents();
-#ifdef __ANDROID__
         ApplyPendingPlatformSettings();
-#endif
 
         if (!paused)
         {
@@ -877,6 +873,8 @@ static void ReadConfigFile(void)
             sPlatformSettings[PLATFORM_SETTING_VOXEL_ZOOM] = value;
         else if (sscanf(line, "voxelBattles=%u", &value) == 1)
             sPlatformSettings[PLATFORM_SETTING_VOXEL_BATTLES] = value != 0;
+        else if (sscanf(line, "voxelLighting=%u", &value) == 1)
+            sPlatformSettings[PLATFORM_SETTING_VOXEL_LIGHTING] = value != 0;
     }
     fclose(configFile);
 }
@@ -907,6 +905,7 @@ static void StoreConfigFile(void)
     fprintf(configFile, "voxelAngle=%u\n", sPlatformSettings[PLATFORM_SETTING_VOXEL_ANGLE]);
     fprintf(configFile, "voxelZoom=%u\n", sPlatformSettings[PLATFORM_SETTING_VOXEL_ZOOM]);
     fprintf(configFile, "voxelBattles=%u\n", sPlatformSettings[PLATFORM_SETTING_VOXEL_BATTLES]);
+    fprintf(configFile, "voxelLighting=%u\n", sPlatformSettings[PLATFORM_SETTING_VOXEL_LIGHTING]);
     fclose(configFile);
 }
 
@@ -1129,8 +1128,7 @@ void Platform_SetSetting(enum PlatformSetting setting, u8 value)
     StoreConfigFile();
 }
 
-#ifdef __ANDROID__
-// Java enqueues intent only. SDL display operations and file writes belong
+// UI and debug callers enqueue intent only. SDL display operations and file writes belong
 // to the render thread; coalesce repeated choices before its next iteration.
 static void ApplyPendingPlatformSettings(void)
 {
@@ -1139,6 +1137,14 @@ static void ApplyPendingPlatformSettings(void)
         if (mask & (1u << i)) Platform_SetSetting(i, atomic_load(&sPendingSettings[i]));
 }
 
+void Platform_QueueSetting(enum PlatformSetting setting, unsigned value)
+{
+    if (!SettingValueValid(setting, value)) return;
+    atomic_store(&sPendingSettings[setting], (u8)value);
+    atomic_fetch_or(&sPendingSettingsMask, 1u << setting);
+}
+
+#ifdef __ANDROID__
 static u8 AndroidPlatformSetting(enum PlatformSetting setting)
 {
     if ((unsigned)setting >= PLATFORM_SETTING_COUNT) return 0;
@@ -1170,9 +1176,8 @@ JNIEXPORT void JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_native
 {
     if (setting < 0 || setting >= PLATFORM_SETTING_COUNT)
         return;
-    if (value < 0 || !SettingValueValid(setting, (unsigned)value)) return;
-    atomic_store(&sPendingSettings[setting], (u8)value);
-    atomic_fetch_or(&sPendingSettingsMask, 1u << setting);
+    if (value < 0) return;
+    Platform_QueueSetting(setting, (unsigned)value);
 }
 #endif
 

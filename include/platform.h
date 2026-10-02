@@ -57,11 +57,14 @@ enum PlatformSetting
     PLATFORM_SETTING_VOXEL_ANGLE,     // 0 preset, 1..5 = 35/40/45/55/62 degrees (live)
     PLATFORM_SETTING_VOXEL_ZOOM,      // 0..3 = 90/100/110/120 percent (live)
     PLATFORM_SETTING_VOXEL_BATTLES,   // 0 classic battle scenery, 1 battle on the map
+    PLATFORM_SETTING_VOXEL_LIGHTING,  // 0 original art lighting, 1 fixed sun and cast shadows
     PLATFORM_SETTING_COUNT,
 };
 
 u8 Platform_GetSetting(enum PlatformSetting setting);
 void Platform_SetSetting(enum PlatformSetting setting, u8 value);
+// Any thread: validated, coalesced changes are applied by the SDL render loop.
+void Platform_QueueSetting(enum PlatformSetting setting, unsigned value);
 void Platform_GetStatus(struct SiiRtcInfo *rtc);
 void Platform_SetStatus(struct SiiRtcInfo *rtc);
 static void UpdateInternalClock(void);
