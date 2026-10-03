@@ -18,6 +18,10 @@ android {
     compileSdk 36
     ndkVersion '26.3.11579264'
 
+    buildFeatures {
+        buildConfig true
+    }
+
     defaultConfig {
         // Distinct from upstream pokeemerald-multiplatform's
         // com.pokeemerald.experimental: sharing an applicationId with a

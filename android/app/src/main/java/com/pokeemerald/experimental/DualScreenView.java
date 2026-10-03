@@ -2756,8 +2756,6 @@ public final class DualScreenView extends View {
     private float settingsScroll, settingsTouchDownX, settingsTouchDownY, settingsScrollStart;
     private boolean settingsDragging, settingsScrollGesture;
     private String settingsNotice = "Settings save automatically.";
-    private int settingsInitialRenderer = -1;
-    private boolean settingsRestartPending;
 
     private float settingsScale() { return getWidth() / 440f; }
     private float settingsRowHeight() { return GbaFont.LINE_HEIGHT * settingsScale() * 4.7f + getWidth() * 0.03f; }
@@ -2787,8 +2785,6 @@ public final class DualScreenView extends View {
                 int next = i * row.valueScale;
                 if (DualScreenBridge.nativeGetPlatformSetting(row.setting) == next) return;
                 DualScreenBridge.nativeSetPlatformSetting(row.setting, next);
-                if (row.setting == DualScreenBridge.SETTING_VOXEL_RENDERER)
-                    settingsRestartPending = next != settingsInitialRenderer;
                 settingsNotice = "Saved. Changes apply immediately.";
                 if (settingsListener != null) settingsListener.run();
                 invalidate();
@@ -2815,8 +2811,9 @@ public final class DualScreenView extends View {
     private void drawSettings(Canvas canvas) {
         GbaFont f = font();
         if (f == null) return;
-        if (settingsInitialRenderer < 0)
-            settingsInitialRenderer = DualScreenBridge.nativeGetPlatformSetting(DualScreenBridge.SETTING_VOXEL_RENDERER);
+        int activeRenderer = DualScreenBridge.nativeGetActiveVoxelRenderer();
+        boolean settingsRestartPending = activeRenderer >= 0
+                && DualScreenBridge.nativeGetPlatformSetting(DualScreenBridge.SETTING_VOXEL_RENDERER) != activeRenderer;
         float scale = settingsScale(), pad = getWidth() * 0.03f;
         float lineH = GbaFont.LINE_HEIGHT * scale;
         drawHeader(canvas, "SETTINGS", scale);

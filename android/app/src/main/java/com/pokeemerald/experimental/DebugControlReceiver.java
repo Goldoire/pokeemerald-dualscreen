@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.util.Log;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Lets a development PC drive the game over adb, feeding the same virtual
@@ -27,6 +30,7 @@ public final class DebugControlReceiver extends BroadcastReceiver {
     public static final String ACTION_KEYS = "com.pokeemerald.dualscreen.DEBUG_KEYS";
     public static final String ACTION_WARP = "com.pokeemerald.dualscreen.DEBUG_WARP";
     public static final String ACTION_SETTING = "com.pokeemerald.dualscreen.DEBUG_SETTING";
+    public static final String ACTION_SNAPSHOT = "com.pokeemerald.dualscreen.DEBUG_SNAPSHOT";
 
     public static DebugControlReceiver register(Context context) {
         DebugControlReceiver receiver = new DebugControlReceiver();
@@ -34,6 +38,7 @@ public final class DebugControlReceiver extends BroadcastReceiver {
         filter.addAction(ACTION_KEYS);
         filter.addAction(ACTION_WARP);
         filter.addAction(ACTION_SETTING);
+        if (BuildConfig.DEBUG) filter.addAction(ACTION_SNAPSHOT);
         if (Build.VERSION.SDK_INT >= 33) {
             context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED);
         } else {
@@ -49,7 +54,22 @@ public final class DebugControlReceiver extends BroadcastReceiver {
         if (action == null) {
             return;
         }
-        if (ACTION_KEYS.equals(action)) {
+        if (BuildConfig.DEBUG && ACTION_SNAPSHOT.equals(action)) {
+            // Read the same published snapshot as the real presentation UI.
+            // Ordered adb broadcasts return it without writing save or game state.
+            try {
+                JSONObject snapshot = new JSONObject(DualScreenBridge.nativeGetSnapshotJson());
+                JSONArray settings = new JSONArray();
+                for (int id = 0; id <= DualScreenBridge.SETTING_VOXEL_LIGHTING; id++) {
+                    settings.put(DualScreenBridge.nativeGetAppliedPlatformSetting(id));
+                }
+                snapshot.put("platformSettings", settings);
+                snapshot.put("activeVoxelRenderer", DualScreenBridge.nativeGetActiveVoxelRenderer());
+                setResultData(snapshot.toString());
+            } catch (JSONException error) {
+                Log.e(TAG, "Cannot read debug snapshot", error);
+            }
+        } else if (ACTION_KEYS.equals(action)) {
             int mask = intent.getIntExtra("mask", 0);
             int frames = Math.max(1, Math.min(60, intent.getIntExtra("frames", 4)));
             int release = Math.max(0, Math.min(60, intent.getIntExtra("release", 2)));

@@ -138,6 +138,12 @@ public final class DualScreenBridge {
 
     public static native int nativeGetPlatformSetting(int setting);
 
+    /** Applied render-thread value, excluding queued UI requests. */
+    public static native int nativeGetAppliedPlatformSetting(int setting);
+
+    /** -1 during startup, then the active renderer (0 classic, 1 voxel). */
+    public static native int nativeGetActiveVoxelRenderer();
+
     /** Queues a validated change; the SDL render thread applies and persists it. */
     public static native void nativeSetPlatformSetting(int setting, int value);
 

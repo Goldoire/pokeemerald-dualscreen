@@ -105,6 +105,8 @@ static bool sSkipAudioFrame = false;
 static Uint32 sAudioFrameBytes = 0;
 #ifdef __ANDROID__
 static SDL_GameController *androidController;
+// Published once renderer initialization (including fallback) has finished.
+static SDL_atomic_t sActiveVoxelRenderer = {-1};
 #endif
 
 extern void AgbMain(void);
@@ -301,6 +303,14 @@ int main(int argc, char **argv)
     }
 #ifdef VOXEL_CAPABLE
     } // end if (!gVoxelModeEnabled)
+#endif
+
+#ifdef __ANDROID__
+#ifdef VOXEL_CAPABLE
+    SDL_AtomicSet(&sActiveVoxelRenderer, gVoxelModeEnabled ? 1 : 0);
+#else
+    SDL_AtomicSet(&sActiveVoxelRenderer, 0);
+#endif
 #endif
 
     if (sdlRenderer != NULL) {
@@ -1170,6 +1180,18 @@ JNIEXPORT jint JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_native
     if (setting < 0 || setting >= PLATFORM_SETTING_COUNT)
         return 0;
     return AndroidPlatformSetting(setting);
+}
+
+JNIEXPORT jint JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_nativeGetAppliedPlatformSetting(JNIEnv *env, jclass clazz, jint setting)
+{
+    if (setting < 0 || setting >= PLATFORM_SETTING_COUNT)
+        return 0;
+    return Platform_GetSetting(setting);
+}
+
+JNIEXPORT jint JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_nativeGetActiveVoxelRenderer(JNIEnv *env, jclass clazz)
+{
+    return SDL_AtomicGet(&sActiveVoxelRenderer);
 }
 
 JNIEXPORT void JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_nativeSetPlatformSetting(JNIEnv *env, jclass clazz, jint setting, jint value)
