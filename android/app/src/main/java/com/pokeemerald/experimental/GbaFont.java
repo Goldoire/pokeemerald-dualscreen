@@ -62,6 +62,7 @@ public final class GbaFont {
         case '!': return 0xAB;
         case '?': return 0xAC;
         case '\'': return 0xB4;
+        case '%': return 0x5B;
         case '(': return 0x5C;
         case ')': return 0x5D;
         case '~': return 0xB0; // ellipsis
