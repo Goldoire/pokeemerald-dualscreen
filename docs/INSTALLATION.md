@@ -64,7 +64,6 @@ application identity and signing key can update the installation while keeping
 its app data. Back up your save first; uninstalling or clearing app data can
 remove it.
 
-The README's development previews may show features that are absent from the
-published APK. See the [release notes](https://github.com/Goldoire/pokeemerald-dualscreen/releases)
-for the features included in each download. Building an APK yourself is covered
-in the [development guide](DEVELOPMENT.md).
+See the [release notes](https://github.com/Goldoire/pokeemerald-dualscreen/releases)
+for changes between versions. To build your own APK, follow the
+[build guide](DEVELOPMENT.md).
