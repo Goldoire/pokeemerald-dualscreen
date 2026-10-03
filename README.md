@@ -5,7 +5,7 @@
 <h1 align="center">Pokémon Emerald Dual Screen</h1>
 
 <p align="center">
-  Emerald on top. Your adventure at your fingertips below.<br>
+  <strong>Emerald on top. Your adventure at your fingertips below.</strong><br>
   A native Android port for the AYN Thor and other dual-screen devices.
 </p>
 
@@ -14,17 +14,17 @@
   <a href="#screenshots">Screenshots</a> ·
   <a href="#features">Features</a> ·
   <a href="#getting-started">Getting started</a> ·
-  <a href="#saves">Saves</a> ·
-  <a href="#experimental-voxel-renderer">Voxel development</a>
+  <a href="#in-development">In development</a> ·
+  <a href="#documentation">Documentation</a>
 </p>
 
-Play the original Emerald adventure with a widescreen top display and a touch interface on the bottom. Check your party, explore the Hoenn map, and choose your battle moves without covering the game. The decompiled game runs natively through SDL2.
+Play the original Emerald adventure with a native widescreen top display and a dedicated touch interface below. Check your party, explore Hoenn, and choose your battle moves without covering the game.
 
-The release APK reconstructs the required game data from your own supported Pokémon Emerald ROM on first launch. No playable ROM is bundled. The current Android release supports the original USA/Europe game; patched ROMs and ROM hacks are not supported by its ROM picker.
+**Bring your own Pokémon Emerald (USA/Europe) ROM.** The app prepares its game data on first launch; no playable ROM is bundled.
 
 ## Screenshots
 
-Actual captures from the Android app. Each pair shows the top screen above its matching bottom screen.
+Android captures of the classic renderer and release interface. Each pair shows the top screen above its matching bottom screen.
 
 <table>
   <tr>
@@ -51,7 +51,7 @@ Actual captures from the Android app. Each pair shows the top screen above its m
 
 ## Features
 
-| Feature | In the Android release |
+| Feature | What you can do |
 | --- | --- |
 | Native widescreen | Reveals more of the overworld on the top display, with square pixels. |
 | Touch battles | Gen 4-style battle commands, move selection, bag use, and party switching on the bottom display. |
@@ -64,43 +64,46 @@ Actual captures from the Android app. Each pair shows the top screen above its m
 
 ## Getting started
 
-1. Download and install the APK from the [latest release](https://github.com/Goldoire/pokeemerald-dualscreen/releases/latest). Allow installation from that source when Android asks.
+1. Download and install the APK from the [latest release](https://github.com/Goldoire/pokeemerald-dualscreen/releases/latest).
 2. Launch the app, tap **Select ROM**, and choose your own Pokémon Emerald (USA/Europe) ROM.
 3. Let the app reconstruct its game data. This happens once; future launches boot into the game.
 
-The supported ROM has SHA-1:
+Already have a save? Import an ordinary **128 KB GBA flash save** and continue your adventure. See the [install and save guide](docs/INSTALLATION.md) for the supported ROM checksum, file locations, updates, and backups. Patched ROMs and ROM hacks are not supported by the release's ROM picker.
 
-```text
-f3ae088181bf583e55daf962a92bb46f4f1d07b7
-```
+## In development
 
-Alternatively, put `baserom.gba` in `Android/data/com.pokeemerald.dualscreen/files/` before launching to skip the picker. Availability of direct access to this folder depends on your Android device and file manager.
+**These previews are from local development builds, not the published v0.5.0 APK.** Handheld validation is still underway.
 
-## Saves
+- **Pokémon-style navigation:** game sprites, pixel frames, and a clearer selected tab.
+- **Grouped settings:** Display, Play, Audio, and 3D sections.
+- **Experimental voxel world:** 3D terrain, trees, buildings, and battles staged on the map.
+- **Camera and lighting controls:** live angle/zoom, an independent voxel-battle option, and opt-in SUN lighting with terrain and character shadows.
 
-Bring an ordinary **128 KB GBA flash save** from an emulator or cartridge dumper. Put it at:
+<details>
+<summary><strong>Preview the voxel renderer and new bottom-screen UI</strong></summary>
 
-```text
-Android/data/com.pokeemerald.dualscreen/files/pokeemerald.sav
-```
+<p align="center">
+  <img src="docs/screenshots/dev_voxel_top.png" alt="Experimental voxel renderer showing the Mauville Pokémon Center interior" width="640"><br>
+  <img src="docs/screenshots/dev_settings_bottom.png" alt="Grouped Display settings with game-sprite navigation and the OPTION tab selected" width="410">
+</p>
 
-It loads on the next launch. Copy that file out to back it up or transfer it to another device. Emulator savestates are a different format and do not work here. Back up your existing save before replacing it or trying experimental builds.
+Actual paired captures from the Android app running in the PC dual-screen emulator. The voxel renderer is experimental; map coverage, camera framing, and handheld performance are still being checked.
 
-## Experimental voxel renderer
+</details>
 
-A separate development branch explores a 3D overworld with shaped terrain, trees, buildings, and battles staged on the map. It is **not part of the current 0.5.0 release**.
+See the [settings guide](docs/SETTINGS.md) for controls and the [lighting notes](docs/VOXEL_LIGHTING.md) for validation. The [3DS comparison](docs/ZALLAX_COMPARISON.md) and [feasibility report](docs/IMPLEMENTATION_FEASIBILITY.md) track the remaining renderer work.
 
-Local development builds have grouped settings with live camera angle/zoom, an independent voxel-battle option, and opt-in **SUN** lighting with terrain and character shadows. See [settings](docs/SETTINGS.md) and [lighting validation](docs/VOXEL_LIGHTING.md). These features still need regression testing on the handheld before being included in a release.
+## Documentation
 
-The [3DS fork comparison](docs/ZALLAX_COMPARISON.md) and [feasibility report](docs/IMPLEMENTATION_FEASIBILITY.md) cover ZallaxDev's implementation. Fixed-sun lighting has been adapted to our renderer locally; authored buildings/interiors, reflections, terrain relief and chunk scheduling remain future work. None of these changes are in the published APK.
+| Guide | What's inside |
+| --- | --- |
+| [Install and saves](docs/INSTALLATION.md) | ROM setup, updates, save imports, and backups. |
+| [Build from source](docs/DEVELOPMENT.md) | Android prerequisites, SDL2 setup, and APK packaging. |
+| [Android emulator on PC](docs/EMULATOR.md) | Run the actual app with two displays and test touch input. |
+| [Development settings](docs/SETTINGS.md) | Display, play, audio, camera, and lighting options. |
+| [Voxel lighting](docs/VOXEL_LIGHTING.md) | Renderer changes, checks, and device testing still needed. |
 
-## Development
-
-The Android build uses the 32-bit ARMv7 ABI. See [the build guide](docs/DEVELOPMENT.md) for prerequisites, generated files, SDL2 setup, and APK packaging. [INSTALL.md](INSTALL.md) retains the original GBA decompilation instructions.
-
-Test the actual Android app on PC with the [dual-screen emulator guide](docs/EMULATOR.md). The dedicated emulator runs the existing ARMv7 APK with a 1920×1080 top display and a touch-enabled 1240×1080 bottom display.
-
-The source tree also contains experimental [mod tooling](docs/MODDING.md) and a [decomp-project importer](docs/IMPORTER.md). These tools do not make arbitrary patched ROMs compatible with the Android release.
+Developer tools: [mod tooling](docs/MODDING.md) · [decomp-project importer](docs/IMPORTER.md) · [original GBA build instructions](INSTALL.md). These tools do not add arbitrary ROM-hack support to the Android release.
 
 ## Credits
 
@@ -108,7 +111,7 @@ The source tree also contains experimental [mod tooling](docs/MODDING.md) and a 
 - [gradenGnostic/pokeemerald-multiplatform](https://github.com/gradenGnostic/pokeemerald-multiplatform): native SDL2 port.
 - [samyost1/tmc-android](https://github.com/samyost1/tmc-android) and [samyost1/zelda3-android](https://github.com/samyost1/zelda3-android): dual-screen architecture references.
 - DramaticShape and UNDERdecodedHD: the DramaticShapes algorithms informing the experimental voxel work.
-- [ZallaxDev/pokeemerald-3Ds-dualscreen](https://github.com/ZallaxDev/pokeemerald-3Ds-dualscreen): README inspiration and fixed-sun face-light calculation/constants adapted for the experimental renderer. See the [voxel notice](src/platform/voxel/NOTICE.md).
+- [ZallaxDev/pokeemerald-3Ds-dualscreen](https://github.com/ZallaxDev/pokeemerald-3Ds-dualscreen): README and navigation-icon inspiration, plus fixed-sun face-light calculation/constants adapted for the experimental renderer. See the [voxel notice](src/platform/voxel/NOTICE.md).
 
 The project was developed with assistance from Claude Code and other AI coding tools. The header logo was created with image generation using Emerald's title-screen lettering as reference.
 
