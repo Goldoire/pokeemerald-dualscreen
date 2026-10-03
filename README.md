@@ -98,6 +98,8 @@ The [3DS fork comparison](docs/ZALLAX_COMPARISON.md) and [feasibility report](do
 
 The Android build uses the 32-bit ARMv7 ABI. See [the build guide](docs/DEVELOPMENT.md) for prerequisites, generated files, SDL2 setup, and APK packaging. [INSTALL.md](INSTALL.md) retains the original GBA decompilation instructions.
 
+Test the actual Android app on PC with the [dual-screen emulator guide](docs/EMULATOR.md). The dedicated emulator runs the existing ARMv7 APK with a 1920×1080 top display and a touch-enabled 1240×1080 bottom display.
+
 The source tree also contains experimental [mod tooling](docs/MODDING.md) and a [decomp-project importer](docs/IMPORTER.md). These tools do not make arbitrary patched ROMs compatible with the Android release.
 
 ## Credits

@@ -44,5 +44,9 @@ APK. Portable tests cover original camera presets, invalid choices, zoom
 direction and repeated-frame stability. Linux runtime checks exercise live
 angle/zoom, lighting changes, indoor/outdoor transitions, rejected invalid
 settings and unchanged world geometry. See [lighting validation](VOXEL_LIGHTING.md).
+The [PC Android emulator pass](EMULATOR.md) exercises real bottom-screen choices,
+scrolling, clipping, background/resume and display recreation. Renderer reminders
+compare the requested setting with the active native renderer, so recreating a
+Presentation retains a pending restart notice.
 Touch layout, camera occlusion, lifecycle restoration and battle entry/return
 still need handheld verification before a release.
