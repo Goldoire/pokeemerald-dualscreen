@@ -41,7 +41,7 @@ Each pair shows the game on the top display and its matching touch screen below.
     <td align="center"><strong>Party</strong><br><img src="docs/screenshots/shot_party_top.png" alt="Littleroot Town while checking the party" width="390"><br><img src="docs/screenshots/shot_party_bottom.png" alt="Six Pokémon with HP bars" width="300"></td>
   </tr>
   <tr>
-    <td align="center"><strong>Battle bag</strong><br><img src="docs/screenshots/shot_battlebag_top.png" alt="Wild battle with the bag open" width="390"><br><img src="docs/screenshots/shot_battlebag_bottom.png" alt="Battle items and their descriptions" width="300"></td>
+    <td align="center"><strong>Battle bag</strong><br><img src="docs/screenshots/shot_battlebag_top.png" alt="Wild battle with the bag open" width="390"><br><img src="docs/screenshots/shot_battlebag_bottom.png" alt="Battle items sorted into items, Poké Balls and berries" width="300"></td>
     <td align="center"><strong>Trainer card</strong><br><img src="docs/screenshots/shot_card_top.png" alt="Littleroot Town while viewing the trainer card" width="390"><br><img src="docs/screenshots/shot_card_bottom.png" alt="Trainer card with badges and play time" width="300"></td>
   </tr>
   <tr>
