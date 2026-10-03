@@ -90,6 +90,9 @@ public final class DualScreenBridge {
      */
     public static native int[] nativeGetItemIcon(int itemId);
 
+    /** Five 24x24 game sprites, tab-major: party, map, bag, card, options. */
+    public static native int[] nativeGetNavigationIcons();
+
     /**
      * The in-game description text for an item, decoded to a single line
      * (callers re-wrap to fit). Returns null for invalid ids.

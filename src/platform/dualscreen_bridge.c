@@ -1582,21 +1582,15 @@ JNIEXPORT jintArray JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_n
     return result;
 }
 
-// A 24x24 bag item icon as ARGB pixels, decoded from the game's own icon
-// data. Both the pic and its palette are LZ77-compressed (see AddItemIconSprite
-// in item_icon.c); the pic decompresses to 3x3 tiles of 8x8 at 4bpp.
-JNIEXPORT jintArray JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_nativeGetItemIcon(JNIEnv *env, jclass clazz, jint itemId)
+// Item/menu sprites are 3x3 tiles of 8x8 at 4bpp, with a compressed palette.
+static void DecodeItemIconArgb(const void *pic, const void *palette, jint *pixels)
 {
     u8 gfx[0x120];
     u16 pal[16];
-    jint pixels[24 * 24];
-    jintArray result;
     int tileX, tileY, y, x;
 
-    if (itemId <= ITEM_NONE || itemId >= ITEMS_COUNT)
-        return NULL;
-    LZ77UnCompWram(GetItemIconPicOrPalette(itemId, 0), gfx);
-    LZ77UnCompWram(GetItemIconPicOrPalette(itemId, 1), pal);
+    LZ77UnCompWram(pic, gfx);
+    LZ77UnCompWram(palette, pal);
 
     for (tileY = 0; tileY < 3; tileY++)
     for (tileX = 0; tileX < 3; tileX++)
@@ -1610,11 +1604,45 @@ JNIEXPORT jintArray JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_n
         int py = tileY * 8 + y;
         pixels[py * 24 + px] = colorIndex == 0 ? 0 : Bgr555ToArgb(pal[colorIndex]);
     }
+}
+
+// A 24x24 bag item icon as ARGB pixels, decoded from the game's own data.
+JNIEXPORT jintArray JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_nativeGetItemIcon(JNIEnv *env, jclass clazz, jint itemId)
+{
+    jint pixels[24 * 24];
+    jintArray result;
+
+    if (itemId <= ITEM_NONE || itemId >= ITEMS_COUNT)
+        return NULL;
+    DecodeItemIconArgb(GetItemIconPicOrPalette(itemId, 0), GetItemIconPicOrPalette(itemId, 1), pixels);
 
     result = (*env)->NewIntArray(env, 24 * 24);
     if (result == NULL)
         return NULL;
     (*env)->SetIntArrayRegion(env, result, 0, 24 * 24, pixels);
+    return result;
+}
+
+// Match the Android tabs, using the same original-game sprites as the 3DS
+// navigation column. Decode from ROM-restored data rather than bundling PNGs.
+JNIEXPORT jintArray JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_nativeGetNavigationIcons(JNIEnv *env, jclass clazz)
+{
+    static const struct { const u32 *pic; const u32 *pal; } icons[] = {
+        {gItemIcon_PokeBall, gItemIconPalette_PokeBall},
+        {gItemIcon_TownMap, gItemIconPalette_TownMap},
+        {gItemIcon_BerryPouch, gItemIconPalette_BerryPouch},
+        {gItemIcon_ContestPass, gItemIconPalette_ContestPass},
+        {gItemIcon_TeachyTV, gItemIconPalette_TeachyTV},
+    };
+    jint pixels[ARRAY_COUNT(icons) * 24 * 24];
+    jintArray result;
+    int i;
+
+    for (i = 0; i < ARRAY_COUNT(icons); i++)
+        DecodeItemIconArgb(icons[i].pic, icons[i].pal, pixels + i * 24 * 24);
+    result = (*env)->NewIntArray(env, ARRAY_COUNT(pixels));
+    if (result != NULL)
+        (*env)->SetIntArrayRegion(env, result, 0, ARRAY_COUNT(pixels), pixels);
     return result;
 }
 

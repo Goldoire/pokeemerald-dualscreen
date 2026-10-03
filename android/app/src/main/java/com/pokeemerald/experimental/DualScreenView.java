@@ -21,7 +21,7 @@ public final class DualScreenView extends View {
     public static final int TAB_BAG = 2;
     public static final int TAB_CARD = 3;
     public static final int TAB_SETTINGS = 4;
-    private static final String[] TAB_NAMES = {"PARTY", "MAP", "BAG", "CARD", null}; // null = cog icon
+    private static final String[] TAB_NAMES = {"PARTY", "MAP", "BAG", "CARD", "OPTION"};
 
     private static final String[] TYPE_NAMES = {
         "NORMAL", "FIGHT", "FLYING", "POISON", "GROUND", "ROCK", "BUG", "GHOST",
@@ -106,6 +106,7 @@ public final class DualScreenView extends View {
     private final Paint pixelPaint = new Paint();
     private final SparseArray<Bitmap> iconCache = new SparseArray<>();
     private final SparseArray<Bitmap> itemIconCache = new SparseArray<>();
+    private Bitmap[] navigationIcons;
     private final SparseArray<String> itemDescCache = new SparseArray<>();
     private final SparseArray<Bitmap> partySlotCache = new SparseArray<>();
     private Bitmap[] statusIcons;
@@ -1244,33 +1245,83 @@ public final class DualScreenView extends View {
         }
     }
 
-    private void drawTabBar(Canvas canvas) {
-        float scale = tabBarHeight() / (GbaFont.LINE_HEIGHT * 2.4f);
-        paint.setColor(HEADER_GREEN);
-        canvas.drawRect(new RectF(0, getHeight() - tabBarHeight(), getWidth(), getHeight()), paint);
-        for (int i = 0; i < TAB_NAMES.length; i++) {
-            RectF r = tabRect(i);
-            r.inset(6, 7);
-            drawBar(canvas, r, i == tab, TAB_NAMES[i], scale);
-            if (TAB_NAMES[i] == null) {
-                drawCog(canvas, r.centerX(), r.centerY(), r.height() * 0.28f, TEXT_DARK);
+    private Bitmap navigationIcon(int index) {
+        if (navigationIcons == null) {
+            int[] pixels = DualScreenBridge.nativeGetNavigationIcons();
+            int iconPixels = 24 * 24;
+            if (pixels == null || pixels.length != TAB_NAMES.length * iconPixels) return null;
+            navigationIcons = new Bitmap[TAB_NAMES.length];
+            for (int i = 0; i < navigationIcons.length; i++) {
+                navigationIcons[i] = Bitmap.createBitmap(pixels, i * iconPixels, 24,
+                        24, 24, Bitmap.Config.ARGB_8888);
             }
         }
+        return navigationIcons[index];
     }
 
-    private void drawCog(Canvas canvas, float cx, float cy, float radius, int color) {
-        paint.setColor(color);
-        for (int t = 0; t < 8; t++) {
-            double angle = Math.PI * 2 * t / 8;
-            int save = canvas.save();
-            canvas.rotate((float) Math.toDegrees(angle), cx, cy);
-            canvas.drawRect(cx - radius * 0.18f, cy - radius * 1.35f,
-                    cx + radius * 0.18f, cy - radius * 0.5f, paint);
-            canvas.restoreToCount(save);
+    // Stepped corners and inset highlights follow the game's pixel window
+    // frames. Keep the full tabRect as the touch target, including the gutters.
+    private void drawTabFrame(Canvas canvas, RectF r, float pixel, boolean selected) {
+        paint.setColor(PANEL_BORDER);
+        canvas.drawRect(r.left + pixel, r.top, r.right - pixel, r.bottom, paint);
+        canvas.drawRect(r.left, r.top + pixel, r.right, r.bottom - pixel, paint);
+        paint.setColor(selected ? 0xFFB8D8B0 : 0xFFC8D0C8);
+        canvas.drawRect(r.left + pixel, r.top + pixel,
+                r.right - pixel, r.bottom - pixel, paint);
+        paint.setColor(selected ? 0xFF387850 : 0xFFF8F8E8);
+        canvas.drawRect(r.left + 2 * pixel, r.top + 2 * pixel,
+                r.right - 2 * pixel, r.bottom - 2 * pixel, paint);
+        paint.setColor(selected ? 0xFFF8D878 : 0xFFFFFFFF);
+        canvas.drawRect(r.left + 2 * pixel, r.top + 2 * pixel,
+                r.right - 2 * pixel, r.top + 3 * pixel, paint);
+        paint.setColor(selected ? 0xFF285838 : 0xFFD8D8B8);
+        canvas.drawRect(r.left + 2 * pixel, r.bottom - 3 * pixel,
+                r.right - 2 * pixel, r.bottom - 2 * pixel, paint);
+    }
+
+    private void drawTabBar(Canvas canvas) {
+        float height = tabBarHeight();
+        float pixel = Math.max(1, (float) Math.floor(height / 36));
+        float top = getHeight() - height;
+        paint.setColor(HEADER_GREEN_DARK);
+        canvas.drawRect(0, top, getWidth(), getHeight(), paint);
+        paint.setColor(HEADER_GREEN);
+        canvas.drawRect(0, top + pixel, getWidth(), top + 2 * pixel, paint);
+        GbaFont f = font();
+        for (int i = 0; i < TAB_NAMES.length; i++) {
+            RectF r = tabRect(i);
+            r.inset(2 * pixel, 2 * pixel);
+            boolean selected = i == tab;
+            drawTabFrame(canvas, r, pixel, selected);
+            Bitmap icon = navigationIcon(i);
+            float availableIconScale = Math.min((r.height() - 6 * pixel) / 24,
+                    (r.width() - 8 * pixel) * 0.36f / 24);
+            // Use whole source pixels where there is room, without cropping on
+            // smaller displays. All five icons share the same 24x24 canvas.
+            float iconScale = availableIconScale >= 1
+                    ? (float) Math.floor(availableIconScale) : availableIconScale;
+            float iconSize = icon == null ? 0 : 24 * iconScale;
+            float gap = icon == null ? 0 : 3 * pixel;
+            float scale = height / (GbaFont.LINE_HEIGHT * 2.8f);
+            float textWidth = 0;
+            if (f != null) {
+                float available = r.width() - 8 * pixel - iconSize - gap;
+                scale = Math.min(scale, available / f.measure(TAB_NAMES[i], 1));
+                textWidth = f.measure(TAB_NAMES[i], scale);
+            }
+            float x = r.centerX() - (iconSize + gap + textWidth) / 2;
+            if (icon != null) {
+                float y = Math.round(r.centerY() - iconSize / 2);
+                canvas.drawBitmap(icon, null, new RectF(Math.round(x), y,
+                        Math.round(x) + iconSize, y + iconSize), pixelPaint);
+            }
+            if (f != null) {
+                f.draw(canvas, TAB_NAMES[i], x + iconSize + gap,
+                        r.centerY() - GbaFont.LINE_HEIGHT * scale / 2, scale,
+                        selected ? TEXT_WHITE : TEXT_DARK,
+                        selected ? 0xFF204830 : TEXT_SHADOW);
+            }
         }
-        canvas.drawCircle(cx, cy, radius, paint);
-        paint.setColor(BAR_CREAM);
-        canvas.drawCircle(cx, cy, radius * 0.45f, paint);
     }
 
     private void drawCenteredMessage(Canvas canvas, String message) {
