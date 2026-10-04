@@ -5,11 +5,6 @@
 <h1 align="center">Pokémon Emerald Dual Screen</h1>
 
 <p align="center">
-  Pokémon Emerald for dual-screen Android handhelds.<br>
-  Widescreen gameplay on top, touch menus below.
-</p>
-
-<p align="center">
   <a href="https://github.com/Goldoire/pokeemerald-dualscreen/releases/latest">Download</a> ·
   <a href="#screenshots">Screenshots</a> ·
   <a href="#features">Features</a> ·
@@ -17,13 +12,11 @@
   <a href="#documentation">Documentation</a>
 </p>
 
-A native Android port of Pokémon Emerald, built for dual-screen handhelds such as the AYN Thor. Play on the top display while checking your party, map and bag—or choosing your next move—on the bottom display.
+A dual-screen mod of the [Pokémon Emerald decompilation](https://github.com/pret/pokeemerald) for the AYN Thor and other dual-screen Android devices. The game runs natively, no emulator involved.
 
-You'll need your own Pokémon Emerald (USA/Europe) ROM. Select it when you first open the app.
+No ROM or copyrighted assets are included. Provide your own Pokémon Emerald (USA/Europe) ROM to get the game up and running. This is meant to be a vanilla dual-screen experience; ROM hacks aren't supported.
 
 ## Screenshots
-
-Each pair shows the game on the top display and its matching touch screen below.
 
 <table>
   <tr>
@@ -56,23 +49,25 @@ Each pair shows the game on the top display and its matching touch screen below.
 
 | Feature | Description |
 | --- | --- |
-| Widescreen | See more of the map without stretching the picture. |
-| Touch battles | Pick moves, use items and switch Pokémon from the bottom screen. |
-| Party | Check HP, status, stats and moves without opening the game's menu. |
-| Map, bag and trainer card | Browse Hoenn, check your items and view your trainer card. |
-| Fast-forward | Speed up the game to 2×, 3× or 4×. Music can stay at normal speed. |
-| 3D view | Try the voxel renderer with adjustable camera angle, zoom and lighting. |
-| Controls | Touch controls and physical buttons work throughout the battle menus. |
+| Native widescreen | 16:9 widescreen for the top screen, without stretching the image. |
+| Fast forward | 2×, 3× and 4×, without speeding up the music. |
+| Party | Icons, HP and status for all six. Tap a Pokémon for its stats, nature, ability, moves and EXP. |
+| Gen 4 style battles | Use touch or physical controls on the bottom screen to select actions and moves, use items and switch Pokémon. |
+| Battle hints | Move effectiveness and the foe's weaknesses. Off by default. |
+| Map | The Hoenn Pokénav map with your live position and the name of where you are. |
+| Bag | All five pockets with live quantities. |
+| Trainer card | Badges, money and playtime, based on the in-game card. |
+| 3D mode | A voxel renderer for the overworld, with camera and lighting options. |
 
 3D mode is experimental. Open **OPTION → 3D** to change the renderer and camera. The [settings guide](docs/SETTINGS.md) explains the options.
 
 ## Getting started
 
-1. Download and install the APK from the [latest release](https://github.com/Goldoire/pokeemerald-dualscreen/releases/latest).
-2. Launch the app, tap **Select ROM**, and choose your own Pokémon Emerald (USA/Europe) ROM.
-3. Let the app prepare its game data. Future launches open directly into the game.
+1. Install the APK from the [latest release](https://github.com/Goldoire/pokeemerald-dualscreen/releases/latest).
+2. Launch the app and tap **Select ROM** when asked, then pick your Pokémon Emerald (USA/Europe) ROM.
+3. That's it. The app restores the game data once and boots straight into the game. Future launches skip this step.
 
-Already have a save? You can import a **128 KB GBA save file**. See [install and saves](docs/INSTALLATION.md) for the steps. The app supports the original USA/Europe ROM; patched ROMs and ROM hacks won't work with the ROM picker.
+You can bring an existing save with you. Any ordinary **128 KB GBA flash save**, the same file an emulator or a cartridge dumper writes, can be imported. This doesn't include savestates or other formats. See [install and saves](docs/INSTALLATION.md) for the steps.
 
 ## Documentation
 
@@ -85,6 +80,6 @@ Already have a save? You can import a **128 KB GBA save file**. See [install and
 
 ## Credits
 
-Based on [pret/pokeemerald](https://github.com/pret/pokeemerald) and [gradenGnostic's native port](https://github.com/gradenGnostic/pokeemerald-multiplatform). More thanks and source credits are in [Credits](docs/CREDITS.md).
+Based on [pret/pokeemerald](https://github.com/pret/pokeemerald) and [gradenGnostic's native port](https://github.com/gradenGnostic/pokeemerald-multiplatform). See the full [credits](docs/CREDITS.md) for contributors and third-party code.
 
 Unofficial fan project. Pokémon belongs to its respective owners. [License](LICENSE).
