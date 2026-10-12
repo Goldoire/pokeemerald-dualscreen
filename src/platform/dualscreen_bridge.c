@@ -20,7 +20,10 @@
 #include "fonts.h"
 #include "graphics.h"
 #include "main.h"
+#include "menu.h"
 #include "platform.h"
+#include "text_window.h"
+#include "gba/m4a_internal.h"
 #include "pokemon.h"
 #include "pokemon_icon.h"
 #include "item_icon.h"
@@ -1078,6 +1081,68 @@ static void BuildSnapshot(char *buffer, int capacity)
 // Public entry points
 // ---------------------------------------------------------------------------
 
+// The game's own OPTION menu values, so the bottom screen can show and change
+// them. They live in the save block: the UI thread only queues a value, and
+// the frame hook writes it on the game thread. They persist when the player
+// saves, exactly as if they had been set from the START menu.
+static const u8 sGameOptionCount[DUALSCREEN_GAME_OPTION_COUNT] = {
+    [DUALSCREEN_GAME_OPTION_TEXT_SPEED] = OPTIONS_TEXT_SPEED_FAST + 1,
+    [DUALSCREEN_GAME_OPTION_BATTLE_SCENE] = 2,
+    [DUALSCREEN_GAME_OPTION_BATTLE_STYLE] = OPTIONS_BATTLE_STYLE_SET + 1,
+    [DUALSCREEN_GAME_OPTION_SOUND] = OPTIONS_SOUND_STEREO + 1,
+    [DUALSCREEN_GAME_OPTION_BUTTON_MODE] = OPTIONS_BUTTON_MODE_L_EQUALS_A + 1,
+    [DUALSCREEN_GAME_OPTION_FRAME] = WINDOW_FRAMES_COUNT,
+};
+static SDL_atomic_t sPendingGameOption[DUALSCREEN_GAME_OPTION_COUNT];
+static SDL_atomic_t sPendingGameOptionMask;
+
+static int ReadGameOption(int option)
+{
+    switch (option)
+    {
+    case DUALSCREEN_GAME_OPTION_TEXT_SPEED: return gSaveBlock2Ptr->optionsTextSpeed;
+    case DUALSCREEN_GAME_OPTION_BATTLE_SCENE: return gSaveBlock2Ptr->optionsBattleSceneOff;
+    case DUALSCREEN_GAME_OPTION_BATTLE_STYLE: return gSaveBlock2Ptr->optionsBattleStyle;
+    case DUALSCREEN_GAME_OPTION_SOUND: return gSaveBlock2Ptr->optionsSound;
+    case DUALSCREEN_GAME_OPTION_BUTTON_MODE: return gSaveBlock2Ptr->optionsButtonMode;
+    case DUALSCREEN_GAME_OPTION_FRAME: return gSaveBlock2Ptr->optionsWindowFrameType;
+    }
+    return 0;
+}
+
+static void ApplyPendingGameOptions(void)
+{
+    int mask = SDL_AtomicSet(&sPendingGameOptionMask, 0);
+    int option;
+
+    for (option = 0; option < DUALSCREEN_GAME_OPTION_COUNT; option++)
+    {
+        int value;
+        if (!(mask & (1 << option)))
+            continue;
+        value = SDL_AtomicGet(&sPendingGameOption[option]);
+        switch (option)
+        {
+        case DUALSCREEN_GAME_OPTION_TEXT_SPEED: gSaveBlock2Ptr->optionsTextSpeed = value; break;
+        case DUALSCREEN_GAME_OPTION_BATTLE_SCENE: gSaveBlock2Ptr->optionsBattleSceneOff = value; break;
+        case DUALSCREEN_GAME_OPTION_BATTLE_STYLE: gSaveBlock2Ptr->optionsBattleStyle = value; break;
+        case DUALSCREEN_GAME_OPTION_SOUND:
+            gSaveBlock2Ptr->optionsSound = value;
+            SetPokemonCryStereo(value);
+            break;
+        case DUALSCREEN_GAME_OPTION_BUTTON_MODE: gSaveBlock2Ptr->optionsButtonMode = value; break;
+        case DUALSCREEN_GAME_OPTION_FRAME:
+            gSaveBlock2Ptr->optionsWindowFrameType = value;
+            // The field keeps the user frame resident in VRAM; reload it so
+            // the next START menu wears the new frame. Other screens load it
+            // fresh when they open.
+            if (gMain.callback2 == CB2_Overworld)
+                LoadMessageBoxAndBorderGfx();
+            break;
+        }
+    }
+}
+
 void DualScreen_FrameHook(void)
 {
     int backBuffer;
@@ -1088,6 +1153,8 @@ void DualScreen_FrameHook(void)
         strcpy(sBuffers[0], "{\"v\":1,\"inGame\":0,\"inBattle\":0}");
         strcpy(sBuffers[1], sBuffers[0]);
     }
+
+    ApplyPendingGameOptions();
 
     // While the bottom screen owns the battle menus, keep the top screen's
     // textbox on the plain full-width message layout: the action/move menu
@@ -1222,6 +1289,31 @@ JNIEXPORT void JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_native
     (*env)->GetIntArrayRegion(env, masks, 0, length, buffer);
     for (i = 0; i < length; i++)
         QueueVirtualKeys((u16)buffer[i]);
+}
+
+// Returns a queued value until the game thread has written it, so the
+// bottom screen never shows a choice snapping back for a frame.
+JNIEXPORT jint JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_nativeGetGameOption(JNIEnv *env, jclass clazz, jint option)
+{
+    (void)env; (void)clazz;
+    if (option < 0 || option >= DUALSCREEN_GAME_OPTION_COUNT)
+        return 0;
+    if (SDL_AtomicGet(&sPendingGameOptionMask) & (1 << option))
+        return SDL_AtomicGet(&sPendingGameOption[option]);
+    return ReadGameOption(option);
+}
+
+JNIEXPORT void JNICALL Java_com_pokeemerald_experimental_DualScreenBridge_nativeSetGameOption(JNIEnv *env, jclass clazz, jint option, jint value)
+{
+    int mask;
+    (void)env; (void)clazz;
+    if (option < 0 || option >= DUALSCREEN_GAME_OPTION_COUNT
+     || value < 0 || value >= sGameOptionCount[option])
+        return;
+    SDL_AtomicSet(&sPendingGameOption[option], value);
+    do
+        mask = SDL_AtomicGet(&sPendingGameOptionMask);
+    while (!SDL_AtomicCAS(&sPendingGameOptionMask, mask, mask | (1 << option)));
 }
 
 // Arms (or, with mode 0, disarms) the battle bag/party takeover; called

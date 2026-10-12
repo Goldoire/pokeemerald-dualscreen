@@ -17,6 +17,18 @@ const char *DualScreen_GetSnapshotJson(void);
 void DualScreen_FillAssets(const char *prefPath);
 #endif
 
+// The game's own OPTION menu values, mirrored on the bottom-screen settings
+// page. The ids are shared with DualScreenBridge.java.
+enum {
+    DUALSCREEN_GAME_OPTION_TEXT_SPEED,
+    DUALSCREEN_GAME_OPTION_BATTLE_SCENE,
+    DUALSCREEN_GAME_OPTION_BATTLE_STYLE,
+    DUALSCREEN_GAME_OPTION_SOUND,
+    DUALSCREEN_GAME_OPTION_BUTTON_MODE,
+    DUALSCREEN_GAME_OPTION_FRAME,
+    DUALSCREEN_GAME_OPTION_COUNT,
+};
+
 // True when the bottom screen owns the battle menus: the top screen then
 // suppresses the action/move menu text and cursor, and input can arrive
 // through the virtual key queue.

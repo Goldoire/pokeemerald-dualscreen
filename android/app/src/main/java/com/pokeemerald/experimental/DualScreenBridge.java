@@ -150,6 +150,20 @@ public final class DualScreenBridge {
     /** Queues a validated change; the SDL render thread applies and persists it. */
     public static native void nativeSetPlatformSetting(int setting, int value);
 
+    // The game's own OPTION menu values (DUALSCREEN_GAME_OPTION_* in
+    // include/platform/dualscreen.h). They live in the save block.
+    public static final int GAME_OPTION_TEXT_SPEED = 0;
+    public static final int GAME_OPTION_BATTLE_SCENE = 1;
+    public static final int GAME_OPTION_BATTLE_STYLE = 2;
+    public static final int GAME_OPTION_SOUND = 3;
+    public static final int GAME_OPTION_BUTTON_MODE = 4;
+    public static final int GAME_OPTION_FRAME = 5;
+
+    public static native int nativeGetGameOption(int option);
+
+    /** Queues a value; the game thread writes it at the next frame. */
+    public static native void nativeSetGameOption(int option, int value);
+
     /**
      * Arms the bottom-screen battle takeover right before key-walking the
      * action cursor to BAG (mode 1) or POKéMON (mode 2): the player battle

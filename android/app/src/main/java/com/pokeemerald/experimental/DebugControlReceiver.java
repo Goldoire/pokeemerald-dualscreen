@@ -64,6 +64,11 @@ public final class DebugControlReceiver extends BroadcastReceiver {
                     settings.put(DualScreenBridge.nativeGetAppliedPlatformSetting(id));
                 }
                 snapshot.put("platformSettings", settings);
+                JSONArray options = new JSONArray();
+                for (int id = 0; id <= DualScreenBridge.GAME_OPTION_FRAME; id++) {
+                    options.put(DualScreenBridge.nativeGetGameOption(id));
+                }
+                snapshot.put("gameOptions", options);
                 snapshot.put("activeVoxelRenderer", DualScreenBridge.nativeGetActiveVoxelRenderer());
                 setResultData(snapshot.toString());
             } catch (JSONException error) {
