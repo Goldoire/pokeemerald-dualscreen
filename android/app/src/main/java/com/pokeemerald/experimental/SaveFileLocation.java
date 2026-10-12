@@ -39,6 +39,10 @@ final class SaveFileLocation {
             throw new IOException("Could not remember the folder.");
     }
 
+    static boolean isCustom(Context context) {
+        return prefs(context).getString("tree", null) != null;
+    }
+
     static void validateFolder(Context context) throws Exception {
         String error = prefs(context).getString("error", null);
         if (error != null) throw new IOException(error);

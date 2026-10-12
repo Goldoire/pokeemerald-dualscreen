@@ -666,24 +666,19 @@ public final class DualScreenView extends View {
             }
             return true;
         }
-        // Settings: scroll within the list, release on the same choice to apply.
+        // Settings: a release on the box that was pressed applies it.
         if (tab == TAB_SETTINGS && !state.inBattle) {
+            float slop = android.view.ViewConfiguration.get(getContext()).getScaledTouchSlop();
             switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 settingsTouchDownX = event.getX();
                 settingsTouchDownY = event.getY();
-                settingsScrollGesture = settingsInViewport(event.getX(), event.getY());
-                settingsScrollStart = settingsScroll;
                 settingsDragging = false;
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (settingsDragging || Math.abs(event.getY() - settingsTouchDownY) > android.view.ViewConfiguration.get(getContext()).getScaledTouchSlop()
-                        || Math.abs(event.getX() - settingsTouchDownX) > android.view.ViewConfiguration.get(getContext()).getScaledTouchSlop()) {
+                if (Math.abs(event.getY() - settingsTouchDownY) > slop
+                        || Math.abs(event.getX() - settingsTouchDownX) > slop) {
                     settingsDragging = true;
-                    if (settingsScrollGesture)
-                        settingsScroll = Math.max(0, Math.min(settingsMaxScroll(),
-                                settingsScrollStart + (settingsTouchDownY - event.getY())));
-                    invalidate();
                 }
                 return true;
             case MotionEvent.ACTION_UP:
@@ -2772,8 +2767,8 @@ public final class DualScreenView extends View {
         }
     }
 
-    private static final String[] SETTINGS_SECTIONS = {"DISPLAY", "PLAY", "AUDIO", "3D", "MORE"};
-    private static final int SETTINGS_MORE = 4;
+    private static final String[] SETTINGS_SECTIONS = {"GAME", "DISPLAY", "PLAY", "3D"};
+    private static final int SECTION_GAME = 0, SECTION_DISPLAY = 1, SECTION_PLAY = 2, SECTION_3D = 3;
     private int controllerFocus = -1;
     private String controllerPage = "";
     private final java.util.Map<String, Integer> controllerFocusByPage = new java.util.HashMap<>();
@@ -2833,15 +2828,15 @@ public final class DualScreenView extends View {
         java.util.List<ControllerTarget> targets = new java.util.ArrayList<>();
         if (tab == TAB_SETTINGS) {
             for (int i = 0; i < settingsSections.length; i++) addTapTarget(targets, 200 + i, settingsSections[i]);
-            if (settingsSection == SETTINGS_MORE) {
-                addTapTarget(targets, 0, moreControllerRect);
-                addTapTarget(targets, 1, changeSavePathRect);
-            } else {
-                int id = 0;
-                for (SettingRow row : settingRows) {
-                    if (row.section != settingsSection) continue;
-                    for (RectF choice : row.choices) addTapTarget(targets, id++, choice);
-                }
+            for (int i = 0; i < settingRows.length; i++) {
+                final int index = i;
+                SettingRow row = settingRows[i];
+                if (row.section != settingsSection) continue;
+                // Y steps the focused option forward, as a tap on its right half would.
+                addTarget(targets, i, row.rect, 0, () -> {
+                    settingsFocus = index;
+                    if (settingEnabled(settingRows[index])) stepSetting(settingRows[index], 1);
+                });
             }
         } else if (state.inGame && tab == TAB_PARTY) {
             if (detailMon >= 0) {
@@ -2874,18 +2869,17 @@ public final class DualScreenView extends View {
     }
 
     private float targetTop(ControllerTarget target) {
-        return target.scroll == 1 ? settingsViewportTop() : bagListTop;
+        return bagListTop;
     }
 
     private float targetBottom(ControllerTarget target) {
-        return target.scroll == 1 ? settingsViewportBottom() : bagListBottom;
+        return bagListBottom;
     }
 
     private void revealControllerTarget(ControllerTarget target) {
         if (target.scroll == 0) return;
         float delta = target.rect.top < targetTop(target) ? target.rect.top - targetTop(target)
                 : Math.max(0, target.rect.bottom - targetBottom(target));
-        if (target.scroll == 1) settingsScroll = Math.max(0, Math.min(settingsMaxScroll(), settingsScroll + delta));
         if (target.scroll == 2) bagScroll = Math.max(0, Math.min(bagMaxScroll(), bagScroll + delta));
         if (delta != 0) invalidate();
     }
@@ -2968,106 +2962,178 @@ public final class DualScreenView extends View {
     }
 
 
+    // ------------------------------------------------------------------
+    // OPTION: laid out like the game's own option menu. Each cell is a
+    // window with its name over the current choice in the menu's red,
+    // flanked by arrows; tapping the left or right half steps the choice.
+    // The game's own options sit beside the port's, so nothing needs the
+    // START menu.
+    // ------------------------------------------------------------------
+
+    private static final int KIND_PLATFORM = 0;   // port setting in pokeemerald.cfg
+    private static final int KIND_GAME = 1;       // the game's OPTION menu, saved with the game
+    private static final int KIND_CONTROLLER = 2; // bottom-screen stick navigation
+    private static final int KIND_SAVE_FOLDER = 3;
+
+    private static final int VALUE_RED = 0xFFE04838;
+    private static final int VALUE_RED_SHADOW = 0xFFF8C0B0;
+    private static final int VALUE_DISABLED = 0xFFA8A8A0;
+
     private static final class SettingRow {
-        final int section, setting, valueScale;
+        final int section, kind, id, valueScale;
         final String label, help;
         final String[] values;
-        final RectF[] choices;
+        final RectF rect = new RectF();
 
-        SettingRow(int section, String label, String help, int setting, int valueScale, String... values) {
+        SettingRow(int section, int kind, int id, int valueScale, String label, String help, String... values) {
             this.section = section;
+            this.kind = kind;
+            this.id = id;
+            this.valueScale = valueScale;
             this.label = label;
             this.help = help;
-            this.setting = setting;
-            this.valueScale = valueScale;
             this.values = values;
-            choices = new RectF[values.length];
-            for (int i = 0; i < values.length; i++) choices[i] = new RectF();
         }
     }
 
+    private static String[] frameNames() {
+        String[] names = new String[20];
+        for (int i = 0; i < names.length; i++) names[i] = "TYPE" + (i + 1);
+        return names;
+    }
+
     private final SettingRow[] settingRows = {
-        new SettingRow(0, "BACKGROUND", "Artwork around the game display.", DualScreenBridge.SETTING_BACKGROUND_MODE, 1, "ART", "BLACK", "WHITE"),
-        new SettingRow(0, "WIDESCREEN", "Show more of the overworld with square pixels.", DualScreenBridge.SETTING_WIDESCREEN, 1, "OFF", "ON"),
-        new SettingRow(0, "TOUCH CONTROLS", "Show the on-screen game buttons.", DualScreenBridge.SETTING_TOUCH_CONTROLS, 1, "OFF", "ON"),
-        new SettingRow(1, "BATTLE MENUS", "Choose which screen holds battle controls.", DualScreenBridge.SETTING_BATTLE_UI_TOP, 1, "BOTTOM", "TOP"),
-        new SettingRow(1, "BATTLE HINTS", "Show move effectiveness and weaknesses.", DualScreenBridge.SETTING_BATTLE_HINTS, 1, "OFF", "ON"),
-        new SettingRow(1, "FAST FORWARD", "R2 toggles the speed you choose here.", DualScreenBridge.SETTING_FAST_FORWARD, 1, "OFF", "2X", "3X", "4X"),
-        new SettingRow(2, "VOLUME", "Game audio volume; 0 is silent.", DualScreenBridge.SETTING_VOLUME, 2, "0", "2", "4", "6", "8", "10"),
-        new SettingRow(2, "FAST FORWARD MUSIC", "Keep normal tempo or speed up with the game.", DualScreenBridge.SETTING_FF_AUDIO, 1, "NORMAL", "SPED UP"),
-        new SettingRow(3, "VOXEL RENDERER", "Experimental 3D. Restart the app after changing.", DualScreenBridge.SETTING_VOXEL_RENDERER, 1, "OFF", "ON"),
-        new SettingRow(3, "CAMERA", "Play is close; Diorama frames more of the map.", DualScreenBridge.SETTING_VOXEL_CAMERA, 1, "PLAY", "DIORAMA"),
-        new SettingRow(3, "CAMERA ANGLE", "PRESET uses the angle of your chosen camera.", DualScreenBridge.SETTING_VOXEL_ANGLE, 1, "PRESET", "35", "40", "45", "55", "62"),
-        new SettingRow(3, "CAMERA ZOOM", "Change overworld framing without a restart.", DualScreenBridge.SETTING_VOXEL_ZOOM, 1, "90%", "100%", "110%", "120%"),
-        new SettingRow(3, "LIGHTING", "Fixed sun outdoors; ART keeps original shading.", DualScreenBridge.SETTING_VOXEL_LIGHTING, 1, "ART", "SUN"),
-        new SettingRow(3, "VOXEL BATTLES", "Stage supported battles on the 3D map.", DualScreenBridge.SETTING_VOXEL_BATTLES, 1, "OFF", "ON"),
+        new SettingRow(SECTION_GAME, KIND_GAME, DualScreenBridge.GAME_OPTION_TEXT_SPEED, 1, "TEXT SPEED",
+                "How fast messages print.", "SLOW", "MID", "FAST"),
+        new SettingRow(SECTION_GAME, KIND_GAME, DualScreenBridge.GAME_OPTION_BATTLE_SCENE, 1, "BATTLE SCENE",
+                "Play move animations in battle.", "ON", "OFF"),
+        new SettingRow(SECTION_GAME, KIND_GAME, DualScreenBridge.GAME_OPTION_BATTLE_STYLE, 1, "BATTLE STYLE",
+                "SHIFT offers a switch when a trainer's POKeMON faints.", "SHIFT", "SET"),
+        new SettingRow(SECTION_GAME, KIND_GAME, DualScreenBridge.GAME_OPTION_SOUND, 1, "SOUND",
+                "Mono or stereo game audio.", "MONO", "STEREO"),
+        new SettingRow(SECTION_GAME, KIND_GAME, DualScreenBridge.GAME_OPTION_BUTTON_MODE, 1, "BUTTON MODE",
+                "LR turns pages with L and R; L=A makes L act as A.", "NORMAL", "LR", "L=A"),
+        new SettingRow(SECTION_GAME, KIND_GAME, DualScreenBridge.GAME_OPTION_FRAME, 1, "FRAME",
+                "The border on menus and text boxes.", frameNames()),
+        new SettingRow(SECTION_GAME, KIND_PLATFORM, DualScreenBridge.SETTING_VOLUME, 2, "VOLUME",
+                "Game audio volume; 0 is silent.", "0", "2", "4", "6", "8", "10"),
+
+        new SettingRow(SECTION_DISPLAY, KIND_PLATFORM, DualScreenBridge.SETTING_WIDESCREEN, 1, "WIDESCREEN",
+                "Show more of the overworld in 16:9 with square pixels.", "OFF", "ON"),
+        new SettingRow(SECTION_DISPLAY, KIND_PLATFORM, DualScreenBridge.SETTING_BACKGROUND_MODE, 1, "BACKGROUND",
+                "What fills the space around the game screen.", "ART", "BLACK", "WHITE"),
+        new SettingRow(SECTION_DISPLAY, KIND_PLATFORM, DualScreenBridge.SETTING_TOUCH_CONTROLS, 1, "TOUCH PAD",
+                "Show on-screen buttons over the game.", "OFF", "ON"),
+
+        new SettingRow(SECTION_PLAY, KIND_PLATFORM, DualScreenBridge.SETTING_BATTLE_UI_TOP, 1, "BATTLE MENU",
+                "Which screen holds the battle commands.", "BOTTOM", "TOP"),
+        new SettingRow(SECTION_PLAY, KIND_PLATFORM, DualScreenBridge.SETTING_BATTLE_HINTS, 1, "BATTLE HINTS",
+                "Mark move effectiveness and the foe's weaknesses.", "OFF", "ON"),
+        new SettingRow(SECTION_PLAY, KIND_PLATFORM, DualScreenBridge.SETTING_FAST_FORWARD, 1, "FAST FORWARD",
+                "R2 toggles the speed you pick here.", "OFF", "2X", "3X", "4X"),
+        new SettingRow(SECTION_PLAY, KIND_PLATFORM, DualScreenBridge.SETTING_FF_AUDIO, 1, "FF MUSIC",
+                "Keep the music's tempo or speed it up too.", "NORMAL", "FAST"),
+        new SettingRow(SECTION_PLAY, KIND_CONTROLLER, 0, 1, "STICK NAV",
+                "L1/R1 switch tabs, the right stick moves, Y selects. Off in battle.", "OFF", "ON"),
+        new SettingRow(SECTION_PLAY, KIND_SAVE_FOLDER, 0, 1, "SAVE FOLDER",
+                "Tap to pick a folder, e.g. one Syncthing shares. Save, then restart the app.", "DEFAULT", "CUSTOM"),
+
+        new SettingRow(SECTION_3D, KIND_PLATFORM, DualScreenBridge.SETTING_VOXEL_RENDERER, 1, "VOXEL 3D",
+                "Experimental 3D overworld. Restart the app to switch.", "OFF", "ON"),
+        new SettingRow(SECTION_3D, KIND_PLATFORM, DualScreenBridge.SETTING_VOXEL_CAMERA, 1, "CAMERA",
+                "PLAY follows close; DIORAMA frames more of the map.", "PLAY", "DIORAMA"),
+        new SettingRow(SECTION_3D, KIND_PLATFORM, DualScreenBridge.SETTING_VOXEL_ANGLE, 1, "3D ANGLE",
+                "PRESET uses the camera's own angle.", "PRESET", "35", "40", "45", "55", "62"),
+        new SettingRow(SECTION_3D, KIND_PLATFORM, DualScreenBridge.SETTING_VOXEL_ZOOM, 1, "3D ZOOM",
+                "Higher brings the camera closer.", "90%", "100%", "110%", "120%"),
+        new SettingRow(SECTION_3D, KIND_PLATFORM, DualScreenBridge.SETTING_VOXEL_LIGHTING, 1, "LIGHTING",
+                "SUN adds a fixed sun and cast shadows outdoors.", "ART", "SUN"),
+        new SettingRow(SECTION_3D, KIND_PLATFORM, DualScreenBridge.SETTING_VOXEL_BATTLES, 1, "3D BATTLES",
+                "Stage supported battles on the 3D map.", "OFF", "ON"),
     };
+
+    private final RectF[] settingsSections = {new RectF(), new RectF(), new RectF(), new RectF()};
+    private int settingsSection;
+    private int settingsFocus = -1; // index into settingRows of the cell the help box describes
+    private float settingsTouchDownX, settingsTouchDownY;
+    private boolean settingsDragging;
+    private String settingsNotice;
     private Runnable changeSavePathListener;
-    private final RectF changeSavePathRect = new RectF();
-    private final RectF moreControllerRect = new RectF();
 
     public void setChangeSavePathListener(Runnable listener) {
         changeSavePathListener = listener;
     }
 
-    private final RectF[] settingsSections = {new RectF(), new RectF(), new RectF(), new RectF(), new RectF()};
-    private int settingsSection;
-    private float settingsScroll, settingsTouchDownX, settingsTouchDownY, settingsScrollStart;
-    private boolean settingsDragging, settingsScrollGesture;
-    private String settingsNotice = "Settings save automatically.";
-
     private float settingsScale() { return getWidth() / 440f; }
-    private float settingsRowHeight() { return GbaFont.LINE_HEIGHT * settingsScale() * 4.7f + getWidth() * 0.03f; }
-    private float settingsViewportTop() { return GbaFont.LINE_HEIGHT * settingsScale() * 3.3f + getWidth() * 0.06f; }
-    private float settingsViewportBottom() { return getHeight() - tabBarHeight() - GbaFont.LINE_HEIGHT * settingsScale() * 1.4f - getWidth() * 0.03f; }
 
-    private boolean settingsInViewport(float x, float y) {
-        return x >= 0 && x < getWidth() && y >= settingsViewportTop() && y < settingsViewportBottom();
+    private boolean settingEnabled(SettingRow row) {
+        if (row.kind == KIND_GAME) return state.inGame;
+        if (row.section == SECTION_3D && row.id != DualScreenBridge.SETTING_VOXEL_RENDERER)
+            return DualScreenBridge.nativeGetPlatformSetting(DualScreenBridge.SETTING_VOXEL_RENDERER) != 0;
+        return true;
+    }
+
+    private int settingValue(SettingRow row) {
+        int value;
+        switch (row.kind) {
+        case KIND_GAME: value = DualScreenBridge.nativeGetGameOption(row.id); break;
+        case KIND_CONTROLLER: value = moreControllerInputs() ? 1 : 0; break;
+        case KIND_SAVE_FOLDER: value = SaveFileLocation.isCustom(getContext()) ? 1 : 0; break;
+        default: value = DualScreenBridge.nativeGetPlatformSetting(row.id) / row.valueScale; break;
+        }
+        return Math.max(0, Math.min(row.values.length - 1, value));
+    }
+
+    private void stepSetting(SettingRow row, int step) {
+        if (row.kind == KIND_SAVE_FOLDER) {
+            if (changeSavePathListener != null) changeSavePathListener.run();
+            return;
+        }
+        int next = (settingValue(row) + step + row.values.length) % row.values.length;
+        switch (row.kind) {
+        case KIND_GAME:
+            DualScreenBridge.nativeSetGameOption(row.id, next);
+            settingsNotice = "Saved with your game the next time you save.";
+            break;
+        case KIND_CONTROLLER:
+            getContext().getSharedPreferences("controller_settings", Context.MODE_PRIVATE)
+                    .edit().putBoolean("more_inputs", next != 0).apply();
+            controllerFocus = -1;
+            settingsNotice = null;
+            break;
+        default:
+            DualScreenBridge.nativeSetPlatformSetting(row.id, next * row.valueScale);
+            settingsNotice = null;
+            if (settingsListener != null) settingsListener.run();
+            break;
+        }
+        invalidate();
     }
 
     private void handleSettingsTouch(float x, float y) {
         for (int i = 0; i < settingsSections.length; i++) {
             if (settingsSections[i].contains(x, y) && settingsSections[i].contains(settingsTouchDownX, settingsTouchDownY)) {
-                settingsSection = i;
-                settingsScroll = 0;
-                // Old section hit boxes must not remain live until the next draw.
-                for (SettingRow row : settingRows) for (RectF choice : row.choices) choice.setEmpty();
+                if (settingsSection != i) {
+                    settingsSection = i;
+                    settingsFocus = -1;
+                    settingsNotice = null;
+                    // Old section hit boxes must not stay live until the next draw.
+                    for (SettingRow row : settingRows) row.rect.setEmpty();
+                }
                 invalidate();
                 return;
             }
         }
-        if (!settingsInViewport(x, y) || !settingsInViewport(settingsTouchDownX, settingsTouchDownY)) return;
-        if (settingsSection == SETTINGS_MORE) {
-            if (moreControllerRect.contains(x, y)) {
-                getContext().getSharedPreferences("controller_settings", Context.MODE_PRIVATE)
-                        .edit().putBoolean("more_inputs", !moreControllerInputs()).apply();
-                controllerFocus = -1;
-                invalidate();
-            } else if (changeSavePathRect.contains(x, y) && changeSavePathListener != null) {
-                changeSavePathListener.run();
-            }
+        for (int i = 0; i < settingRows.length; i++) {
+            SettingRow row = settingRows[i];
+            if (row.section != settingsSection || !row.rect.contains(x, y)
+                    || !row.rect.contains(settingsTouchDownX, settingsTouchDownY)) continue;
+            if (settingsFocus != i) settingsNotice = null;
+            settingsFocus = i;
+            if (settingEnabled(row)) stepSetting(row, x < row.rect.centerX() ? -1 : 1);
+            invalidate();
             return;
         }
-        for (SettingRow row : settingRows) {
-            if (row.section != settingsSection) continue;
-            for (int i = 0; i < row.choices.length; i++) {
-                if (!row.choices[i].contains(x, y) || !row.choices[i].contains(settingsTouchDownX, settingsTouchDownY)) continue;
-                int next = i * row.valueScale;
-                if (DualScreenBridge.nativeGetPlatformSetting(row.setting) == next) return;
-                DualScreenBridge.nativeSetPlatformSetting(row.setting, next);
-                settingsNotice = "Saved. Changes apply immediately.";
-                if (settingsListener != null) settingsListener.run();
-                invalidate();
-                return;
-            }
-        }
-    }
-
-    private float settingsMaxScroll() {
-        int count = 0;
-        for (SettingRow row : settingRows) if (row.section == settingsSection) count++;
-        float step = settingsRowHeight() + getWidth() * 0.018f;
-        return Math.max(0, count * step - getWidth() * 0.018f - Math.max(0, settingsViewportBottom() - settingsViewportTop()));
     }
 
     @Override
@@ -3075,113 +3141,139 @@ public final class DualScreenView extends View {
         super.onSizeChanged(w, h, oldW, oldH);
         settingsDragging = true;
         for (RectF section : settingsSections) section.setEmpty();
-        moreControllerRect.setEmpty();
-        changeSavePathRect.setEmpty();
-        for (SettingRow row : settingRows) for (RectF choice : row.choices) choice.setEmpty();
+        for (SettingRow row : settingRows) row.rect.setEmpty();
     }
 
     private void drawSettings(Canvas canvas) {
         GbaFont f = font();
         if (f == null) return;
-        int activeRenderer = DualScreenBridge.nativeGetActiveVoxelRenderer();
-        boolean settingsRestartPending = activeRenderer >= 0
-                && DualScreenBridge.nativeGetPlatformSetting(DualScreenBridge.SETTING_VOXEL_RENDERER) != activeRenderer;
         float scale = settingsScale(), pad = getWidth() * 0.03f;
         float lineH = GbaFont.LINE_HEIGHT * scale;
-        drawHeader(canvas, "SETTINGS", scale);
-        float sectionTop = lineH * 1.6f + pad;
+        float pixel = Math.max(1, (float) Math.floor(tabBarHeight() / 36));
+        float contentBottom = getHeight() - tabBarHeight();
+        drawHeader(canvas, "OPTION", scale);
+
+        // Section tabs, framed like the tab bar so they read as the same kind of button.
+        float sectionTop = lineH * 1.6f + pad * 0.6f;
+        float sectionH = lineH * 1.75f;
         float sectionW = (getWidth() - pad * 2) / SETTINGS_SECTIONS.length;
         for (int i = 0; i < SETTINGS_SECTIONS.length; i++) {
             RectF r = settingsSections[i];
-            r.set(pad + i * sectionW, sectionTop, pad + (i + 1) * sectionW - pad * 0.2f, sectionTop + lineH * 1.7f);
-            drawBar(canvas, r, i == settingsSection, null, scale);
-            float textScale = scale * 0.85f;
+            r.set(pad + i * sectionW, sectionTop, pad + (i + 1) * sectionW - pad * 0.3f, sectionTop + sectionH);
+            boolean selected = i == settingsSection;
+            drawTabFrame(canvas, r, pixel, selected);
+            float textScale = scale * 0.9f;
             f.draw(canvas, SETTINGS_SECTIONS[i], r.centerX() - f.measure(SETTINGS_SECTIONS[i], textScale) / 2,
-                    r.centerY() - GbaFont.LINE_HEIGHT * textScale / 2, textScale, TEXT_DARK, TEXT_SHADOW);
+                    r.centerY() - GbaFont.LINE_HEIGHT * textScale / 2, textScale,
+                    selected ? TEXT_WHITE : TEXT_DARK, selected ? 0xFF204830 : TEXT_SHADOW);
         }
-        settingsScroll = Math.max(0, Math.min(settingsScroll, settingsMaxScroll()));
-        float viewportTop = settingsViewportTop(), viewportBottom = settingsViewportBottom();
-        float top = viewportTop - settingsScroll, rowH = settingsRowHeight();
-        for (SettingRow row : settingRows) for (RectF choice : row.choices) choice.setEmpty();
-        if (settingsSection == SETTINGS_MORE) {
-            drawMoreSettings(canvas, f, viewportTop, scale, pad);
-        } else if (viewportBottom > viewportTop) {
-            int saved = canvas.save();
-            canvas.clipRect(0, viewportTop, getWidth(), viewportBottom);
-            for (SettingRow row : settingRows) {
-                if (row.section != settingsSection) continue;
-                RectF r = new RectF(pad, top, getWidth() - pad, top + rowH);
-                top += rowH + pad * 0.6f;
-                if (r.bottom <= viewportTop || r.top >= viewportBottom) continue;
-                drawBar(canvas, r, false, null, scale);
-                float inset = pad * 0.65f;
-                f.draw(canvas, row.label, r.left + inset, r.top + inset, scale, TEXT_DARK, TEXT_SHADOW);
-                float helpScale = scale * 0.72f;
-                float helpY = r.top + inset + lineH * 1.15f;
-                int lines = 0;
-                int value = DualScreenBridge.nativeGetPlatformSetting(row.setting);
-                String help = row.setting == DualScreenBridge.SETTING_VOLUME ? "Game audio volume: " + value + "/10. 0 is silent." : row.help;
-                for (String line : wrapText(f, help, helpScale, r.width() - inset * 2)) {
-                    if (lines++ == 2) break;
-                    f.draw(canvas, line, r.left + inset, helpY, helpScale, TEXT_DARK, TEXT_SHADOW);
-                    helpY += GbaFont.LINE_HEIGHT * helpScale;
-                }
-                float choiceW = (r.width() - inset * 2) / row.values.length;
-                for (int i = 0; i < row.values.length; i++) {
-                    RectF chip = new RectF(r.left + inset + i * choiceW, r.bottom - inset - lineH * 1.6f,
-                            r.left + inset + (i + 1) * choiceW - pad * 0.2f, r.bottom - inset);
-                    boolean selected = i * row.valueScale == value;
-                    paint.setColor(selected ? HEADER_GREEN_DARK : PANEL_WHITE);
-                    canvas.drawRoundRect(chip, scale * 3, scale * 3, paint);
-                    float chipScale = Math.min(scale * 0.8f, (chip.width() - scale * 4) / Math.max(1, f.measure(row.values[i], 1)));
-                    f.draw(canvas, row.values[i], chip.centerX() - f.measure(row.values[i], chipScale) / 2,
-                            chip.centerY() - GbaFont.LINE_HEIGHT * chipScale / 2, chipScale,
-                            selected ? TEXT_WHITE : TEXT_DARK, selected ? TEXT_GREEN_SHADOW : TEXT_SHADOW);
-                    row.choices[i].set(chip);
-                    if (!row.choices[i].intersect(0, viewportTop, getWidth(), viewportBottom)) row.choices[i].setEmpty();
-                }
+
+        // Help window docked at the bottom, like the bag's description box.
+        float helpScale = scale * 0.8f;
+        RectF help = new RectF(pad, contentBottom - pad * 0.5f - lineH * 3.1f,
+                getWidth() - pad, contentBottom - pad * 0.5f);
+
+        // A two-column grid of option windows, four rows tall in every section
+        // so the cells keep one size as you page through them.
+        float gridTop = sectionTop + sectionH + pad * 0.6f;
+        float gridBottom = help.top - pad * 0.6f;
+        float gap = pad * 0.45f;
+        float cellW = (getWidth() - pad * 2 - gap) / 2;
+        float cellH = Math.min(lineH * 3.2f, (gridBottom - gridTop - gap * 3) / 4);
+        int slot = 0;
+        for (int i = 0; i < settingRows.length; i++) {
+            SettingRow row = settingRows[i];
+            if (row.section != settingsSection) {
+                row.rect.setEmpty();
+                continue;
             }
-            canvas.restoreToCount(saved);
+            float left = pad + (slot % 2) * (cellW + gap);
+            float top = gridTop + (slot / 2) * (cellH + gap);
+            slot++;
+            row.rect.set(left, top, left + cellW, top + cellH);
+            drawSettingCell(canvas, f, row, i == settingsFocus, scale, pixel);
         }
-        float noticeScale = scale * 0.7f;
-        f.draw(canvas, settingsRestartPending ? "Restart the app to apply the renderer." : settingsNotice,
-                pad, getHeight() - tabBarHeight() - lineH, noticeScale, TEXT_DARK, TEXT_SHADOW);
+
+        drawDescBox(canvas, help);
+        float inset = lineH * 0.45f;
+        SettingRow focused = settingsFocus >= 0 && settingRows[settingsFocus].section == settingsSection
+                ? settingRows[settingsFocus] : null;
+        String title = focused != null ? focused.label : SETTINGS_SECTIONS[settingsSection];
+        f.draw(canvas, title, help.left + inset, help.top + inset * 0.8f, helpScale,
+                descNameColor(), descShadowColor());
+        float lineY = help.top + inset * 0.8f + GbaFont.LINE_HEIGHT * helpScale * 1.1f;
+        for (String line : wrapText(f, settingsHelp(focused), helpScale, help.width() - inset * 2)) {
+            if (lineY + GbaFont.LINE_HEIGHT * helpScale > help.bottom - inset * 0.4f) break;
+            f.draw(canvas, line, help.left + inset, lineY, helpScale, descTextColor(), descShadowColor());
+            lineY += GbaFont.LINE_HEIGHT * helpScale;
+        }
     }
 
-    private void drawMoreSettings(Canvas canvas, GbaFont f, float top, float scale, float pad) {
-        float rowH = (getHeight() - tabBarHeight()) * 0.145f;
-        moreControllerRect.set(pad, top, getWidth() - pad, top + rowH);
-        changeSavePathRect.set(pad, moreControllerRect.bottom + pad * 0.6f,
-                getWidth() - pad, moreControllerRect.bottom + pad * 0.6f + rowH);
-        drawBar(canvas, moreControllerRect, false, null, scale);
-        float inset = rowH * 0.2f;
-        String value = moreControllerInputs() ? "ON" : "OFF";
-        float chipScale = scale * 0.9f;
-        float chipH = rowH * 0.62f;
-        float textW = f.measure(value, chipScale);
-        RectF chip = new RectF(moreControllerRect.right - inset - textW - chipH,
-                moreControllerRect.centerY() - chipH / 2, moreControllerRect.right - inset,
-                moreControllerRect.centerY() + chipH / 2);
-        String label = "MORE CONTROLLER INPUTS";
-        float labelScale = Math.min(scale,
-                (chip.left - moreControllerRect.left - inset * 2) / f.measure(label, 1));
-        f.draw(canvas, label, moreControllerRect.left + inset,
-                moreControllerRect.centerY() - GbaFont.LINE_HEIGHT * labelScale / 2,
-                labelScale, TEXT_DARK, TEXT_SHADOW);
-        paint.setColor(HEADER_GREEN);
-        canvas.drawRoundRect(chip, 8, 8, paint);
-        f.draw(canvas, value, chip.centerX() - textW / 2,
-                chip.centerY() - GbaFont.LINE_HEIGHT * chipScale / 2,
-                chipScale, TEXT_WHITE, TEXT_GREEN_SHADOW);
-        drawSettingsButton(canvas, changeSavePathRect, "CHANGE SAVE FILE PATH", scale);
+    private String settingsHelp(SettingRow focused) {
+        int activeRenderer = DualScreenBridge.nativeGetActiveVoxelRenderer();
+        if (activeRenderer >= 0 && DualScreenBridge.nativeGetPlatformSetting(
+                DualScreenBridge.SETTING_VOXEL_RENDERER) != activeRenderer)
+            return "Restart the app to switch the renderer.";
+        if (settingsNotice != null) return settingsNotice;
+        if (focused == null) {
+            switch (settingsSection) {
+            case SECTION_GAME:
+                return state.inGame ? "The game's own options. Tap the left or right of a box to change it."
+                        : "Continue your adventure to change the game's options.";
+            case SECTION_3D: return "Experimental. Start with VOXEL 3D, then restart the app.";
+            default: return "Tap the left or right of a box to change it. Saved automatically.";
+            }
+        }
+        if (!settingEnabled(focused))
+            return focused.kind == KIND_GAME ? "Continue your adventure to change this."
+                    : "Turn on VOXEL 3D first.";
+        return focused.help;
     }
 
-    private void drawSettingsButton(Canvas canvas, RectF rect, String label, float scale) {
-        drawBar(canvas, rect, false, null, scale);
-        float textScale = Math.min(scale, (rect.width() * 0.9f) / font().measure(label, 1));
-        font().draw(canvas, label, rect.centerX() - font().measure(label, textScale) / 2,
-                rect.centerY() - GbaFont.LINE_HEIGHT * textScale / 2,
-                textScale, TEXT_DARK, TEXT_SHADOW);
+    private void drawSettingCell(Canvas canvas, GbaFont f, SettingRow row, boolean focused,
+                                 float scale, float pixel) {
+        RectF r = row.rect;
+        drawTabFrame(canvas, r, pixel, false);
+        boolean enabled = settingEnabled(row);
+        float labelScale = Math.min(scale * 0.8f, (r.width() - pixel * 8) / Math.max(1, f.measure(row.label, 1)));
+        float labelH = GbaFont.LINE_HEIGHT * labelScale;
+        float valueScale = scale;
+        float valueH = GbaFont.LINE_HEIGHT * valueScale;
+        float blockTop = r.centerY() - (labelH + valueH * 1.05f) / 2;
+        f.draw(canvas, row.label, r.centerX() - f.measure(row.label, labelScale) / 2, blockTop,
+                labelScale, enabled ? TEXT_DARK : VALUE_DISABLED, TEXT_SHADOW);
+
+        String value = row.values[settingValue(row)];
+        float valueY = blockTop + labelH * 1.05f;
+        float arrowSize = valueH * 0.42f;
+        float arrowInset = r.width() * 0.09f;
+        float room = r.width() - (arrowInset + arrowSize) * 2 - pixel * 6;
+        valueScale = Math.min(valueScale, room / Math.max(1, f.measure(value, 1)));
+        f.draw(canvas, value, r.centerX() - f.measure(value, valueScale) / 2,
+                valueY + (valueH - GbaFont.LINE_HEIGHT * valueScale) / 2, valueScale,
+                enabled ? VALUE_RED : VALUE_DISABLED, enabled ? VALUE_RED_SHADOW : TEXT_SHADOW);
+        if (enabled && row.kind != KIND_SAVE_FOLDER) {
+            float cy = valueY + valueH / 2;
+            paint.setColor(focused ? VALUE_RED : TEXT_DARK);
+            android.graphics.Path arrow = new android.graphics.Path();
+            float lx = r.left + arrowInset;
+            arrow.moveTo(lx, cy);
+            arrow.lineTo(lx + arrowSize, cy - arrowSize);
+            arrow.lineTo(lx + arrowSize, cy + arrowSize);
+            arrow.close();
+            float rx = r.right - arrowInset;
+            arrow.moveTo(rx, cy);
+            arrow.lineTo(rx - arrowSize, cy - arrowSize);
+            arrow.lineTo(rx - arrowSize, cy + arrowSize);
+            arrow.close();
+            canvas.drawPath(arrow, paint);
+        }
+        if (focused) {
+            // The game marks the row being edited; a thin red rule under the
+            // window does the same here without covering its frame.
+            paint.setColor(VALUE_RED);
+            canvas.drawRect(r.left + pixel * 3, r.bottom - pixel * 4, r.right - pixel * 3, r.bottom - pixel * 2, paint);
+        }
     }
 
     private Bitmap[] badgeSprites;

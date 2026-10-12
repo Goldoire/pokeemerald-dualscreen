@@ -2,8 +2,9 @@
 """Touch/lifecycle regression pass on the dedicated 1240×1080 emulator bottom screen.
 
 Launch a debug APK and continue a copied save before running. This changes only
-AVD preferences, then restores them; it never saves the game or touches a device.
-Screenshots are evidence for a visual review, not an automatic appearance check.
+AVD preferences and steps game options back to where they were; it never saves
+the game or touches a device. Screenshots are evidence for a visual review,
+not an automatic appearance check.
 """
 import argparse
 import json
@@ -11,6 +12,27 @@ from pathlib import Path
 import time
 
 import emulator as emu
+
+# Bottom-screen geometry, mirroring DualScreenView.drawSettings().
+W, H = 1240, 1080
+SCALE = W / 440
+PAD = W * 0.03
+LINE_H = 15 * SCALE
+TAB_BAR = H * 0.105
+SECTION_TOP = LINE_H * 1.6 + PAD * 0.6
+SECTION_H = LINE_H * 1.75
+SECTION_W = (W - PAD * 2) / 4
+HELP_TOP = H - TAB_BAR - PAD * 0.5 - LINE_H * 3.1
+GRID_TOP = SECTION_TOP + SECTION_H + PAD * 0.6
+GAP = PAD * 0.45
+CELL_W = (W - PAD * 2 - GAP) / 2
+CELL_H = min(LINE_H * 3.2, (HELP_TOP - PAD * 0.6 - GRID_TOP - GAP * 3) / 4)
+
+GAME, DISPLAY, PLAY, THREE_D = range(4)
+# Slots within each section, in settingRows order.
+TEXT_SPEED, FRAME = 0, 5
+WIDESCREEN = 0
+VOXEL, CAMERA, ANGLE, ZOOM, LIGHTING, BATTLES = range(6)
 
 
 def wait_for(predicate, description, timeout=20):
@@ -24,11 +46,31 @@ def wait_for(predicate, description, timeout=20):
 
 
 def tap(x, y):
-    emu.adb("shell", "input", "-d", emu.bottom_id(), "tap", str(x), str(y))
+    emu.adb("shell", "input", "-d", emu.bottom_id(), "tap", str(int(x)), str(int(y)))
 
 
 def swipe(x1, y1, x2, y2):
-    emu.adb("shell", "input", "-d", emu.bottom_id(), "swipe", str(x1), str(y1), str(x2), str(y2), "600")
+    emu.adb("shell", "input", "-d", emu.bottom_id(), "swipe",
+            str(int(x1)), str(int(y1)), str(int(x2)), str(int(y2)), "600")
+
+
+def open_option_tab():
+    tap(W * 4.5 / 5, H - TAB_BAR / 2)
+
+
+def open_section(index):
+    tap(PAD + index * SECTION_W + (SECTION_W - PAD * 0.3) / 2, SECTION_TOP + SECTION_H / 2)
+
+
+def cell_center(slot):
+    left = PAD + (slot % 2) * (CELL_W + GAP)
+    top = GRID_TOP + (slot // 2) * (CELL_H + GAP)
+    return left, top
+
+
+def step(slot, direction=1):
+    left, top = cell_center(slot)
+    tap(left + CELL_W * (0.8 if direction > 0 else 0.2), top + CELL_H / 2)
 
 
 def main():
@@ -39,6 +81,7 @@ def main():
     original = emu.snapshot()
     assert original.get("inGame") == 1 and original.get("inBattle") == 0, "Continue a copied save first"
     initial = original["platformSettings"]
+    initial_options = original["gameOptions"]
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     checks = []
@@ -48,52 +91,71 @@ def main():
         assert state["inGame"] == 1
         checks.append(description)
 
+    def option(index, value, description):
+        wait_for(lambda s: s["gameOptions"][index] == value, description)
+        checks.append(description)
+
     def unchanged(before, description):
         time.sleep(0.5)
         assert emu.snapshot()["platformSettings"] == before, description
         checks.append(description)
 
     try:
-        tap(1120, 1020)  # Settings
-        tap(180, 140)    # Display
+        open_option_tab()
+        open_section(GAME)
+        step(TEXT_SPEED, 1)
+        option(0, (initial_options[0] + 1) % 3, "TEXT SPEED steps forward from the bottom screen")
+        step(TEXT_SPEED, -1)
+        option(0, initial_options[0], "TEXT SPEED steps back")
+        step(FRAME, 1)
+        option(5, (initial_options[5] + 1) % 20, "FRAME steps forward and the field reloads it")
+        emu.capture(output / "game")
+        step(FRAME, -1)
+        option(5, initial_options[5], "FRAME steps back")
+
+        open_section(DISPLAY)
         new_wide = 1 - initial[7]
-        tap(900 if new_wide else 330, 650)
+        step(WIDESCREEN, 1)
         changed(7, new_wide, "Widescreen touch choice reaches the native renderer")
         emu.capture(output / "display")
 
-        tap(1050, 140)   # 3D
+        open_section(THREE_D)
+        if initial[11] == 0:
+            before = emu.snapshot()["platformSettings"]
+            step(CAMERA, 1)
+            unchanged(before, "3D options stay locked while VOXEL 3D is off")
+            emu.capture(output / "voxel-gated")
         renderer = 1 - initial[11]
-        tap(900 if renderer else 330, 392)
+        step(VOXEL, 1)
         changed(11, renderer, "Renderer choice saves without restarting the live engine")
         assert emu.snapshot()["activeVoxelRenderer"] == original["activeVoxelRenderer"]
         checks.append("Pending renderer choice leaves the active renderer unchanged")
+        if renderer == 0:
+            # Turning it off locks the rest; turn it back on to exercise them.
+            step(VOXEL, 1)
+            changed(11, 1, "Renderer choice turns back on")
         camera = 1 - initial[14]
-        tap(900 if camera else 330, 650)
+        step(CAMERA, 1)
         changed(14, camera, "Camera preset applies through touch")
         emu.capture(output / "restart-reminder")
 
         before = emu.snapshot()["platformSettings"]
-        swipe(900, 780, 900, 300)
-        unchanged(before, "Dragging across choice chips scrolls without changing a setting")
-        emu.capture(output / "angle-zoom")
-        # A row hidden behind the section header must not receive this tap.
-        tap(900, 80)
-        unchanged(before, "Clipped rows cannot be activated through the header")
-        tap(710, 445)
-        changed(15, 3, "45-degree camera angle applies through touch")
-        tap(755, 705)
-        changed(16, 2, "110-percent camera zoom applies through touch")
-        emu.capture(output / "live-camera")
-        # Scroll to the final two rows; distance deliberately reaches the clamp.
-        swipe(900, 780, 900, 300)
-        swipe(900, 780, 900, 300)
+        left, top = cell_center(ANGLE)
+        swipe(left + CELL_W * 0.8, top + CELL_H / 2, left + CELL_W * 0.8, top - CELL_H * 1.5)
+        unchanged(before, "Dragging across option boxes does not change a setting")
+        tap(W / 2, LINE_H * 0.8)
+        unchanged(before, "The header does not activate anything")
+        step(ANGLE, 1)
+        changed(15, (initial[15] + 1) % 6, "Camera angle steps through touch")
+        step(ZOOM, -1)
+        changed(16, (initial[16] + 3) % 4, "Camera zoom steps back through touch")
         lighting = 1 - initial[18]
-        tap(900 if lighting else 330, 550)
+        step(LIGHTING, 1)
         changed(18, lighting, "Lighting choice applies through touch")
         battles = 1 - initial[17]
-        tap(900 if battles else 330, 810)
+        step(BATTLES, 1)
         changed(17, battles, "Voxel battle choice applies through touch")
-        emu.capture(output / "lighting-battles")
+        emu.capture(output / "three-d")
         before = emu.snapshot()["platformSettings"]
 
         # Foreground/background recreates Presentation on the same display.
@@ -102,8 +164,7 @@ def main():
         emu.launch()
         unchanged(before, "Background and resume retain the selected native preferences")
         time.sleep(1)
-        tap(1120, 1020)
-        tap(1050, 140)
+        open_option_tab()
         assert emu.snapshot()["activeVoxelRenderer"] == original["activeVoxelRenderer"]
         emu.capture(output / "resumed")
 
@@ -123,9 +184,9 @@ def main():
         # laid out. Allow its first frame before tapping its fresh hit boxes.
         time.sleep(1)
         emu.capture(output / "display-recreated-ready")
-        tap(1120, 1020)
-        tap(180, 140)
-        tap(900 if initial[7] else 330, 650)
+        open_option_tab()
+        open_section(DISPLAY)
+        step(WIDESCREEN, 1)
         changed(7, initial[7], "Touch works after presentation display recreation")
         emu.capture(output / "display-recreated")
 
@@ -144,7 +205,8 @@ def main():
 
     result = {"checks": checks, "initialSettings": initial,
               "finalSettings": emu.snapshot()["platformSettings"],
-              "map": original["player"]["mapName"], "bottomResolution": [1240, 1080]}
+              "gameOptions": emu.snapshot()["gameOptions"],
+              "map": original["player"]["mapName"], "bottomResolution": [W, H]}
     (output / "result.json").write_text(json.dumps(result, indent=2) + "\n")
     print(f"PASS: {len(checks)} integration checks; screenshots and result: {output}")
 
