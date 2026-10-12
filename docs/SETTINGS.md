@@ -1,61 +1,76 @@
-# Settings in development builds
+# Settings
 
-The lower-screen settings page has Display, Play, Audio and 3D sections.
-Tap an individual choice to select it. Scrolling or cancelling a gesture
-does not apply a choice, and hidden rows cannot receive taps through the
-header or tab bar. Settings keep the game's font and menu colors.
+Open the **OPTION** tab on the bottom screen. Options are laid out like the
+game's own option menu: each box shows its name over the current choice. Tap
+the right half of a box to step forward, the left half to step back. The box
+you last touched is described in the window at the bottom.
 
-Changes are saved to the existing port config. Android sends validated
-setting requests to the SDL render thread, which applies display changes
-and writes the config. Repeated requests before its next iteration are
-coalesced. Neither these options nor their layout change the save format.
+## GAME
 
-The experimental 3D section provides:
+The game's own START → OPTION settings, so you never need the START menu for
+them. They live in your save: a change takes effect at once and is kept the
+next time you save in game. They unlock once you continue your adventure.
 
-- **Voxel renderer:** applies when the app restarts. The restart reminder
-  remains visible after changing other options, until the original renderer
-  choice is restored or the app restarts.
-- **Camera:** Play retains the close 55-degree camera; Diorama retains the
-  wider 36-degree camera.
-- **Camera angle:** Preset keeps that camera's original angle. Individual
-  choices are 35, 40, 45, 55 or 62 degrees.
-- **Camera zoom:** 90, 100, 110 or 120 percent. Higher zoom brings the camera
-  closer. Angle and zoom update during overworld play; they do not change
-  the fitted battle cameras.
-- **Voxel battles:** permits battles staged on the map. Off retains the
-  original battle scenery while keeping the voxel overworld.
-- **Lighting:** ART retains original shading. SUN uses a fixed northwest
-  light outdoors, geometry-cast terrain shadows and terrain-clipped character
-  silhouette shadows. This remains opt-in while device performance is checked.
+| Option | Choices |
+| --- | --- |
+| TEXT SPEED | SLOW, MID, FAST |
+| BATTLE SCENE | ON, OFF (move animations) |
+| BATTLE STYLE | SHIFT, SET |
+| SOUND | MONO, STEREO |
+| BUTTON MODE | NORMAL, LR, L=A |
+| FRAME | TYPE1 to TYPE20, the border on menus and text boxes |
+| VOLUME | 0 to 10 (a port setting, saved with the others below) |
 
-Existing configs default to Preset, 100% zoom and voxel battles enabled,
-matching previous behavior. New settings are appended after the existing
-IDs, and malformed/out-of-range JNI values are rejected.
+## DISPLAY
 
-Run the portable camera, lighting, shadow clipping and caster checks with:
+| Option | Choices |
+| --- | --- |
+| WIDESCREEN | 16:9 overworld with square pixels |
+| BACKGROUND | ART, BLACK or WHITE around the game screen |
+| TOUCH PAD | On-screen buttons over the game |
 
-```sh
-python3 tools/research/run_voxel_tests.py
-python3 tools/research/run_voxel_tests.py --sanitize
-```
+## PLAY
 
-The settings Java and native changes have been compiled in an Android debug
-APK. Portable tests cover original camera presets, invalid choices, zoom
-direction and repeated-frame stability. Linux runtime checks exercise live
-angle/zoom, lighting changes, indoor/outdoor transitions, rejected invalid
-settings and unchanged world geometry. See [lighting validation](VOXEL_LIGHTING.md).
-The [PC Android emulator pass](EMULATOR.md) exercises real bottom-screen choices,
-scrolling, clipping, background/resume and display recreation. Renderer reminders
-compare the requested setting with the active native renderer, so recreating a
-Presentation retains a pending restart notice.
-Touch layout, camera occlusion, lifecycle restoration and battle entry/return
-still need handheld verification before a release.
+| Option | Choices |
+| --- | --- |
+| BATTLE MENU | BOTTOM (DS style, touch) or TOP (classic) |
+| BATTLE HINTS | Move effectiveness and the foe's weaknesses |
+| FAST FORWARD | OFF, 2X, 3X, 4X; R2 toggles it |
+| FF MUSIC | NORMAL keeps the tempo, FAST speeds it up too |
+| STICK NAV | Controller navigation for the bottom screen, see [below](#more-controller-inputs) |
+| SAVE FOLDER | Tap to choose a folder, see [below](#save-folder) |
 
-The **MORE** section of the settings page holds the save folder and controller options.
+## 3D
+
+The voxel overworld is **experimental and off by default**. Turn on
+**VOXEL 3D**, then fully close and reopen the app; the help window reminds you
+until you do. The other 3D options stay locked while it is off.
+
+| Option | Choices |
+| --- | --- |
+| VOXEL 3D | OFF, ON (applies after a restart) |
+| CAMERA | PLAY follows close at 55°; DIORAMA frames more of the map at 36° |
+| 3D ANGLE | PRESET (the camera's own), 35, 40, 45, 55 or 62 degrees |
+| 3D ZOOM | 90, 100, 110 or 120 percent; higher is closer |
+| LIGHTING | ART keeps the original shading; SUN adds a fixed sun and cast shadows outdoors |
+| 3D BATTLES | Stage supported battles on the 3D map |
+
+Angle and zoom change live in the overworld; they do not change the fitted
+battle cameras.
+
+## How settings are stored
+
+Port settings (everything except GAME) are written to `pokeemerald.cfg`
+straight away. Android queues each validated request for the SDL render
+thread, which applies it and writes the file; repeated requests before its next
+frame are coalesced. GAME options are queued the same way and written into the
+save block by the game thread. Out-of-range values are rejected on the native
+side. Developers can run the [emulator pass](EMULATOR.md#regression-pass) to
+exercise every section by touch.
 
 ## Save folder
 
-**CHANGE SAVE FILE PATH** opens Android's folder picker. Select a folder with persistent read/write access. A local folder is recommended: stream-only cloud providers cannot provide the seekable file required by the game's flash storage.
+**SAVE FOLDER** opens Android's folder picker. Select a folder with persistent read/write access. A local folder is recommended: stream-only cloud providers cannot provide the seekable file required by the game's flash storage.
 
 1. Back up an existing save before importing or moving it.
 2. Select the destination folder. The running game continues using its current save until the next process start.
@@ -81,13 +96,13 @@ Without a custom folder, the default is `Android/data/com.pokeemerald.dualscreen
 
 ## Using a Syncthing folder
 
-Syncthing compatibility is the main reason for the custom-folder and `.srm` changes. Choose the local folder used by your Syncthing setup through **CHANGE SAVE FILE PATH**. If sharing a raw `.srm` save with another device, the app keeps that filename and updates it directly.
+Syncthing compatibility is the main reason for the custom-folder and `.srm` changes. Choose the local folder used by your Syncthing setup through **SAVE FOLDER**. If sharing a raw `.srm` save with another device, the app keeps that filename and updates it directly.
 
 The app does not run Syncthing, merge conflicting saves, or reload a file while the game is running. Save in-game and fully close the app before switching devices, allow synchronization to finish, then launch on the other device. Avoid playing the same shared save on two devices at once, and keep backups. Apply the folder-selection rules above if the synchronized folder contains more than one game's save.
 
 ## More controller inputs
 
-**MORE CONTROLLER INPUTS** is off by default. Turn it on to navigate the secondary-screen UI with a controller:
+**STICK NAV** (OPTION → PLAY) is off by default. Turn it on to navigate the secondary-screen UI with a controller:
 
 | Input | Action outside battle |
 | --- | --- |

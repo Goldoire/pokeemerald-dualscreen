@@ -57,9 +57,12 @@ No ROM or copyrighted assets are included. Provide your own Pokémon Emerald (US
 | Map | The Hoenn Pokénav map with your live position and the name of where you are. |
 | Bag | All five pockets with live quantities. |
 | Trainer card | Badges, money and playtime, based on the in-game card. |
-| 3D mode | A voxel renderer for the overworld, with camera and lighting options. |
+| Option menu | Every setting on the bottom screen in the game's own option-menu style, including text speed, battle scene and frame, so you never open START → OPTION. |
+| Your save folder | Keep your save in any folder, such as one Syncthing shares with your PC. RetroArch `.srm` saves load and update in place. |
+| Controller navigation | Optionally drive the bottom screen with L1/R1, the right stick and Y. |
+| 3D mode | An experimental voxel renderer for the overworld, with camera and lighting options. Off by default. |
 
-3D mode is experimental. Open **OPTION → 3D** to change the renderer and camera. The [settings guide](docs/SETTINGS.md) explains the options.
+To try 3D mode, turn on **OPTION → 3D → VOXEL 3D** and restart the app. The [settings guide](docs/SETTINGS.md) explains every option.
 
 ## Getting started
 
@@ -67,7 +70,7 @@ No ROM or copyrighted assets are included. Provide your own Pokémon Emerald (US
 2. Launch the app and tap **Select ROM** when asked, then pick your Pokémon Emerald (USA/Europe) ROM.
 3. That's it. The app restores the game data once and boots straight into the game. Future launches skip this step.
 
-You can bring an existing save with you. Any ordinary **128 KB GBA flash save**, the same file an emulator or a cartridge dumper writes, can be imported. This doesn't include savestates or other formats. See [install and saves](docs/INSTALLATION.md) for the steps.
+You can bring an existing save with you. Any ordinary **128 KB GBA flash save** (`.sav` or `.srm`), the same file an emulator or a cartridge dumper writes, can be imported. This doesn't include savestates or other formats. See [install and saves](docs/INSTALLATION.md) for the steps.
 
 ## Documentation
 

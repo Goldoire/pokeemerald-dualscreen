@@ -45,8 +45,18 @@ Emulator savestates are a different format and cannot be imported.
 4. Launch the app and select **Continue**.
 
 The save filename must match exactly, even if the source emulator gave it
-another name. Access to this folder has the same Android file-manager
-limitations described above.
+another name. A raw `pokeemerald.srm` (the RetroArch name for the same 128 KB
+data) also works and is used when no `pokeemerald.sav` is present. Access to
+this folder has the same Android file-manager limitations described above.
+
+## Keep saves in your own folder
+
+**OPTION → PLAY → SAVE FOLDER** picks any folder through Android's folder
+picker, such as one Syncthing shares with your PC or another handheld. Save in
+game, then fully close and reopen the app to switch. An existing `.sav` or
+`.srm` in that folder is loaded and updated in place; an empty folder gets a
+copy of your current save. The [settings guide](SETTINGS.md#save-folder) has
+the exact rules.
 
 ## Back up or transfer a save
 
