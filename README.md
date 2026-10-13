@@ -4,13 +4,24 @@
 
 A dual-screen mod of the [Pokémon Emerald decompilation](https://github.com/pret/pokeemerald) for the AYN Thor and other dual-screen Android devices. The game runs natively, no emulator involved. 
 
-No ROM or copyrighted assets are included. Provide your own rom to get the game up and running.  
+This fork builds on [Goldoire/pokeemerald-dualscreen](https://github.com/Goldoire/pokeemerald-dualscreen). It was created to support the second analog stick and, primarily, make saves easier to share through Syncthing.
+
+The changes focus on three things:
+
+- **More controller inputs:** navigate the bottom screen with L1/R1, the right analog stick, and Y.
+- **`.srm` save support:** load and update raw `.srm` saves alongside the existing `.sav` support.
+- **Custom save paths:** choose a save folder, including a local folder you synchronize with Syncthing.
+
+Syncthing handles synchronization separately; this app reads and writes the selected local save file. See the [settings and synchronization guide](docs/SETTINGS.md) and [Android build guide](docs/ANDROID.md).
+
+The packaged APK uses your own Pokémon Emerald ROM to restore game assets on first launch. Development APKs skip that step; use the release-packaging workflow before distributing a build.
   
-As a result, currently no ROM hacks are supported. This is meant to be a vanilla dual screen experience at the moment, with more support coming soon.
+ROM hacks are not supported; this fork keeps the vanilla Emerald experience.
 
 ## Instructions
 
-1. Install the APK from the [releases page](https://github.com/Goldoire/pokeemerald-dualscreen/releases).
+1. Build and package this fork's APK using the [Android build guide](docs/ANDROID.md), then install it.
+  The [upstream releases](https://github.com/Goldoire/pokeemerald-dualscreen/releases) contain the original mod, without this fork's additions.
   Android will warn about an unknown developer.
 2. Launch the app and tap "Select ROM" when asked, then pick your
   Pokémon Emerald (USA/Europe) ROM. It is checked against SHA-1
@@ -18,13 +29,15 @@ As a result, currently no ROM hacks are supported. This is meant to be a vanilla
    (You can also drop the ROM at `Android/data/com.pokeemerald.dualscreen/files/baserom.gba`
    beforehand to skip the picker.)
 3. That's it. The app restores the game data once and boots straight into
-  the game. Future launches skip this step
+  the game. Future launches skip this step.
 
 ## Saves
 
-You can bring an existing save with you. Any ordinary 128 KB GBA flash save, the same file an emulator or a cart dumper writes, n can be put at `Android/data/com.pokeemerald.dualscreen/files/pokeemerald.sav`. 
+You can bring an existing ordinary 128 KB GBA flash save from an emulator or cartridge dump. Supported filenames end in `.sav` or `.srm`; savestates are not supported.
 
-Copy yours there and it loads on the next launch, or copy it out to transfer your save elsewhere. This doesn't include savestates or other formats.
+The default location is `Android/data/com.pokeemerald.dualscreen/files/pokeemerald.sav`. If that file is absent, `pokeemerald.srm` in the same directory is loaded and updated instead.
+
+To use another folder, open the bottom-screen settings → **SUPER SECRET SETTINGS** → **CHANGE SAVE FILE PATH**. Save your game, then fully close and reopen the app to activate the new folder. Existing saves are loaded from that folder; an empty folder receives a copy of the previous save. See [save selection and recovery](docs/SETTINGS.md#save-folder) before moving files.
 
 ## Features
 
@@ -39,9 +52,16 @@ and the foe's weaknesses on its card.
 where you are.
 - **Bag**: all five pockets with live quantities.
 - **Trainer card**: badges, money, playtime, based on the in-game card
+- **Custom save folder**: choose a writable folder using Android's folder picker; load and update raw `.sav` or `.srm` files there.
+- **Optional bottom-screen controller navigation**: L1/R1 change tabs, the right stick moves a dark-gray focus outline, and Y activates the selected option. Extra navigation pauses during battles and resumes afterward.
+
+## Development
+
+See [Android setup and packaging](docs/ANDROID.md) for a build from source and the [device verification checklist](docs/ANDROID.md#device-verification). [INSTALL.md](INSTALL.md) retains the upstream GBA ROM build instructions.
 
 ## Credits
 
+- [Goldoire/pokeemerald-dualscreen](https://github.com/Goldoire/pokeemerald-dualscreen): the original dual-screen mod and UI this fork extends.
 - [pret/pokeemerald](https://github.com/pret/pokeemerald): the decompilation
 this is built on.
 - [gradenGnostic/pokeemerald-multiplatform](https://github.com/gradenGnostic/pokeemerald-multiplatform):
@@ -54,5 +74,4 @@ The dual-screen mod was made with the help of Claude Code and other AI
 coding tools.
 
 This project builds on a decompilation of a copyrighted game. Play it with
-your own legally obtained copy; nothing proprietary ships in this
-repository.
+your own legally obtained copy. Do not commit ROMs, personal saves, or signing keys.

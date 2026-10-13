@@ -674,7 +674,7 @@ public final class DualScreenView extends View {
                 settingsDragging = false;
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (settingsDragging || Math.abs(event.getY() - settingsTouchDownY) > 24) {
+                if (!secretSettings && (settingsDragging || Math.abs(event.getY() - settingsTouchDownY) > 24)) {
                     settingsDragging = true;
                     settingsScroll = Math.max(0, Math.min(settingsMaxScroll(),
                             settingsScrollStart + (settingsTouchDownY - event.getY())));
@@ -1337,6 +1337,12 @@ public final class DualScreenView extends View {
     // ------------------------------------------------------------------
     // Tabs
     // ------------------------------------------------------------------
+
+    @Override
+    public void draw(Canvas canvas) {
+        super.draw(canvas);
+        drawControllerFocus(canvas);
+    }
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -2707,6 +2713,200 @@ public final class DualScreenView extends View {
         }
     }
 
+    private int controllerFocus = -1;
+    private String controllerPage = "";
+    private final java.util.Map<String, Integer> controllerFocusByPage = new java.util.HashMap<>();
+    private final Paint controllerOutlinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+    public boolean extraControllerAvailable() {
+        return moreControllerInputs() && !state.inBattle;
+    }
+
+    private boolean moreControllerInputs() {
+        return getContext().getSharedPreferences("controller_settings", Context.MODE_PRIVATE)
+                .getBoolean("more_inputs", false);
+    }
+
+    private static final class ControllerTarget {
+        final int id, scroll;
+        final RectF rect;
+        final Runnable activate;
+        ControllerTarget(int id, RectF rect, int scroll, Runnable activate) {
+            this.id = id;
+            this.rect = new RectF(rect);
+            this.scroll = scroll;
+            this.activate = activate;
+        }
+    }
+
+    private void addTarget(java.util.List<ControllerTarget> targets, int id, RectF rect,
+                           int scroll, Runnable activate) {
+        if (!rect.isEmpty()) targets.add(new ControllerTarget(id, rect, scroll, activate));
+    }
+
+    private void addTapTarget(java.util.List<ControllerTarget> targets, int id, RectF rect) {
+        final float x = rect.centerX(), y = rect.centerY();
+        addTarget(targets, id, rect, 0, () -> {
+            if (tab == TAB_SETTINGS) handleSettingsTouch(x, y);
+            else if (tab == TAB_BAG) handleBagTouch(x, y);
+        });
+    }
+
+    private java.util.List<ControllerTarget> controllerTargets() {
+        // Pocket buttons belong to one bag page: activating BERRIES must keep
+        // focus on BERRIES. Party details have their own focus, separate from
+        // the party list, so returning restores the Pokémon that opened them.
+        String page = tab + ":" + state.inGame
+                + (tab == TAB_SETTINGS ? ":" + secretSettings : "")
+                + (tab == TAB_PARTY ? ":" + (detailMon >= 0 ? "detail" : "list") : "");
+        if (!page.equals(controllerPage)) {
+            controllerFocusByPage.put(controllerPage, controllerFocus);
+            controllerPage = page;
+            Integer remembered = controllerFocusByPage.get(page);
+            controllerFocus = remembered == null ? -1 : remembered;
+        }
+        java.util.List<ControllerTarget> targets = new java.util.ArrayList<>();
+        if (tab == TAB_SETTINGS) {
+            if (secretSettings) {
+                addTapTarget(targets, 0, moreControllerRect);
+                addTapTarget(targets, 1, changeSavePathRect);
+                addTapTarget(targets, 2, settingsBackRect);
+            } else {
+                for (int i = 0; i <= settingRows.length; i++) {
+                    final int index = i;
+                    RectF rect = i == settingRows.length ? secretSettingsRect : settingRows[i].rect;
+                    addTarget(targets, i, rect, 1, () -> {
+                        RectF current = index == settingRows.length ? secretSettingsRect : settingRows[index].rect;
+                        handleSettingsTouch(current.centerX(), current.centerY());
+                    });
+                }
+            }
+        } else if (state.inGame && tab == TAB_PARTY) {
+            if (detailMon >= 0) {
+                addTarget(targets, 0, new RectF(0, 0, getWidth(), getHeight() - tabBarHeight()), 0,
+                        () -> { detailMon = -1; invalidate(); });
+            } else {
+                for (int i = 0; i < Math.min(state.party.size(), partyCards.length); i++) {
+                    final int index = i;
+                    addTarget(targets, i, partyCards[i], 0, () -> { detailMon = index; invalidate(); });
+                }
+            }
+        } else if (state.inGame && tab == TAB_BAG) {
+            for (int i = 0; i < POCKET_NAMES.length; i++) addTapTarget(targets, i, pocketRect(i));
+            for (int i = 0; i < bagItems().size(); i++) {
+                final int index = i;
+                float y = bagListTop + i * bagRowH - bagScroll;
+                addTarget(targets, 100 + i, new RectF(getWidth() * .032f, y,
+                        getWidth() * .968f, y + bagRowH), 2,
+                        () -> { bagSelected[bagPocket] = index; invalidate(); });
+            }
+        }
+        return targets;
+    }
+
+    public void switchControllerTab(int step) {
+        if (!moreControllerInputs() || state.inBattle) return;
+        tab = (tab + step + TAB_NAMES.length) % TAB_NAMES.length;
+        detailMon = -1;
+        invalidate();
+    }
+
+    private float targetTop(ControllerTarget target) {
+        return target.scroll == 1 ? GbaFont.LINE_HEIGHT * (getWidth() / 440f) * 1.6f
+                : bagListTop;
+    }
+
+    private float targetBottom(ControllerTarget target) {
+        return target.scroll == 1 ? getHeight() - tabBarHeight()
+                : bagListBottom;
+    }
+
+    private void revealControllerTarget(ControllerTarget target) {
+        if (target.scroll == 0) return;
+        float delta = target.rect.top < targetTop(target) ? target.rect.top - targetTop(target)
+                : Math.max(0, target.rect.bottom - targetBottom(target));
+        if (target.scroll == 1) settingsScroll = Math.max(0, Math.min(settingsMaxScroll(), settingsScroll + delta));
+        if (target.scroll == 2) bagScroll = Math.max(0, Math.min(bagMaxScroll(), bagScroll + delta));
+        if (delta != 0) invalidate();
+    }
+
+    private ControllerTarget focusedTarget(java.util.List<ControllerTarget> targets) {
+        for (ControllerTarget target : targets) if (target.id == controllerFocus) return target;
+        for (ControllerTarget target : targets) {
+            if (target.scroll == 0 || (target.rect.top >= targetTop(target)
+                    && target.rect.bottom <= targetBottom(target))) {
+                controllerFocus = target.id;
+                return target;
+            }
+        }
+        if (targets.isEmpty()) return null;
+        controllerFocus = targets.get(0).id;
+        return targets.get(0);
+    }
+
+    public void navigateExtra(int action) {
+        if (!extraControllerAvailable()) return;
+        java.util.List<ControllerTarget> targets = controllerTargets();
+        ControllerTarget from = focusedTarget(targets);
+        if (from == null) return;
+        if (action == NAV_CONFIRM) {
+            from.activate.run();
+            invalidate();
+            return;
+        }
+        ControllerTarget best = null;
+        float score = Float.MAX_VALUE;
+        boolean vertical = action == NAV_UP || action == NAV_DOWN;
+        // Walk scrolling rows in order, including those outside the viewport.
+        if (vertical && from.scroll != 0) {
+            int next = from.id + (action == NAV_DOWN ? 1 : -1);
+            for (ControllerTarget to : targets)
+                if (to.scroll == from.scroll && to.id == next) best = to;
+        }
+        if (best == null) for (ControllerTarget to : targets) {
+            if (to == from) continue;
+            if (to.scroll != 0 && (to.rect.centerY() < targetTop(to)
+                    || to.rect.centerY() > targetBottom(to))) continue;
+            float dx = to.rect.centerX() - from.rect.centerX();
+            float dy = to.rect.centerY() - from.rect.centerY();
+            boolean ahead = action == NAV_UP ? dy < -1 : action == NAV_DOWN ? dy > 1
+                    : action == NAV_LEFT ? dx < -1 : dx > 1;
+            float distance = Math.abs(vertical ? dy : dx) + 2 * Math.abs(vertical ? dx : dy);
+            if (ahead && distance < score) { best = to; score = distance; }
+        }
+        if (best != null) {
+            controllerFocus = best.id;
+            revealControllerTarget(best);
+            invalidate();
+        }
+    }
+
+    private void drawControllerFocus(Canvas canvas) {
+        if (!extraControllerAvailable()) return;
+        // Details use a full-page return target without a focus outline.
+        if (tab == TAB_PARTY && detailMon >= 0) return;
+        ControllerTarget target = focusedTarget(controllerTargets());
+        if (target == null) return;
+        canvas.save();
+        if (target.scroll != 0) canvas.clipRect(0, targetTop(target), getWidth(), targetBottom(target));
+        float strokeWidth = (tab == TAB_PARTY || tab == TAB_BAG ? 4f : 3f)
+                * getResources().getDisplayMetrics().density;
+        controllerOutlinePaint.setStyle(Paint.Style.STROKE);
+        controllerOutlinePaint.setStrokeWidth(strokeWidth);
+        controllerOutlinePaint.setColor(0xFF303030); // Opaque darker gray.
+        RectF highlight = new RectF(target.rect);
+        if (tab == TAB_PARTY) {
+            // Trim one artwork pixel on top, two on the right, and four on the bottom.
+            highlight.top += target.rect.height() / 56f;
+            highlight.right -= 2f * target.rect.width() / 80f;
+            highlight.bottom -= 4f * target.rect.height() / 56f;
+        }
+        // Keep the stroke inside the previously adjusted highlight bounds.
+        highlight.inset(strokeWidth / 2f, strokeWidth / 2f);
+        canvas.drawRoundRect(highlight, 8, 8, controllerOutlinePaint);
+        canvas.restore();
+    }
+
     private static final class SettingRow {
         final String label;
         final int setting;
@@ -2732,12 +2932,44 @@ public final class DualScreenView extends View {
         new SettingRow("VOLUME", DualScreenBridge.SETTING_VOLUME, 2, "0", "2", "4", "6", "8", "10"),
         new SettingRow("HINTS", DualScreenBridge.SETTING_BATTLE_HINTS, 1, "OFF", "ON"),
     };
+    private boolean secretSettings;
+    private Runnable changeSavePathListener;
+    private final RectF secretSettingsRect = new RectF();
+    private final RectF changeSavePathRect = new RectF();
+    private final RectF moreControllerRect = new RectF();
+    private final RectF settingsBackRect = new RectF();
+
+    public void setChangeSavePathListener(Runnable listener) {
+        changeSavePathListener = listener;
+    }
+
     private float settingsScroll;
     private float settingsTouchDownY;
     private float settingsScrollStart;
     private boolean settingsDragging;
 
     private void handleSettingsTouch(float x, float y) {
+        float headerBottom = GbaFont.LINE_HEIGHT * (getWidth() / 440f) * 1.6f;
+        if (y < headerBottom || y >= getHeight() - tabBarHeight()) return;
+        if (secretSettings) {
+            if (moreControllerRect.contains(x, y)) {
+                getContext().getSharedPreferences("controller_settings", Context.MODE_PRIVATE)
+                        .edit().putBoolean("more_inputs", !moreControllerInputs()).apply();
+                controllerFocus = -1;
+                invalidate();
+            } else if (settingsBackRect.contains(x, y)) {
+                secretSettings = false;
+                invalidate();
+            } else if (changeSavePathRect.contains(x, y) && changeSavePathListener != null) {
+                changeSavePathListener.run();
+            }
+            return;
+        }
+        if (secretSettingsRect.contains(x, y)) {
+            secretSettings = true;
+            invalidate();
+            return;
+        }
         for (SettingRow row : settingRows) {
             if (row.rect.contains(x, y)) {
                 int index = DualScreenBridge.nativeGetPlatformSetting(row.setting) / row.valueScale;
@@ -2758,7 +2990,7 @@ public final class DualScreenView extends View {
         float scale = getWidth() / 440f;
         float headerBottom = GbaFont.LINE_HEIGHT * scale * 1.6f;
         float rowH = contentHeight * 0.145f;
-        float total = settingRows.length * (rowH + pad * 0.6f);
+        float total = (settingRows.length + 1) * (rowH + pad * 0.6f);
         return Math.max(0, total + pad - (contentHeight - headerBottom));
     }
 
@@ -2773,6 +3005,40 @@ public final class DualScreenView extends View {
         float headerBottom = GbaFont.LINE_HEIGHT * scale * 1.6f;
         float rowH = contentHeight * 0.145f;
 
+        if (secretSettings) {
+            settingsBackRect.set(pad, contentHeight - pad - rowH, getWidth() - pad, contentHeight - pad);
+            changeSavePathRect.set(pad, settingsBackRect.top - pad - rowH,
+                    getWidth() - pad, settingsBackRect.top - pad);
+            moreControllerRect.set(pad, changeSavePathRect.top - pad - rowH,
+                    getWidth() - pad, changeSavePathRect.top - pad);
+            drawBar(canvas, moreControllerRect, false, null, scale);
+            float inset = rowH * 0.2f;
+            String value = moreControllerInputs() ? "ON" : "OFF";
+            float chipScale = scale * 0.9f;
+            float chipH = rowH * 0.62f;
+            float textW = f.measure(value, chipScale);
+            RectF chip = new RectF(moreControllerRect.right - inset - textW - chipH,
+                    moreControllerRect.centerY() - chipH / 2, moreControllerRect.right - inset,
+                    moreControllerRect.centerY() + chipH / 2);
+            String label = "MORE CONTROLLER INPUTS";
+            float labelScale = Math.min(scale,
+                    (chip.left - moreControllerRect.left - inset * 2) / f.measure(label, 1));
+            f.draw(canvas, label, moreControllerRect.left + inset,
+                    moreControllerRect.centerY() - GbaFont.LINE_HEIGHT * labelScale / 2,
+                    labelScale, TEXT_DARK, TEXT_SHADOW);
+            paint.setColor(HEADER_GREEN);
+            canvas.drawRoundRect(chip, 8, 8, paint);
+            f.draw(canvas, value, chip.centerX() - textW / 2,
+                    chip.centerY() - GbaFont.LINE_HEIGHT * chipScale / 2,
+                    chipScale, TEXT_WHITE, TEXT_GREEN_SHADOW);
+            drawSettingsButton(canvas, changeSavePathRect, "CHANGE SAVE FILE PATH", scale);
+            drawSettingsButton(canvas, settingsBackRect, "BACK", scale);
+            drawHeader(canvas, "SUPER SECRET SETTINGS", scale);
+            return;
+        }
+
+        canvas.save();
+        canvas.clipRect(0, headerBottom, getWidth(), contentHeight);
         float top = headerBottom + pad - settingsScroll;
         for (SettingRow row : settingRows) {
             RectF r = new RectF(pad, top, getWidth() - pad, top + rowH);
@@ -2799,8 +3065,20 @@ public final class DualScreenView extends View {
             top += rowH + pad * 0.6f;
         }
 
+        secretSettingsRect.set(pad, top, getWidth() - pad, top + rowH);
+        drawSettingsButton(canvas, secretSettingsRect, "SUPER SECRET SETTINGS", scale);
+        canvas.restore();
+
         // Header drawn last so rows scroll underneath it.
         drawHeader(canvas, "SETTINGS", scale);
+    }
+
+    private void drawSettingsButton(Canvas canvas, RectF rect, String label, float scale) {
+        drawBar(canvas, rect, false, null, scale);
+        float textScale = Math.min(scale, (rect.width() * 0.9f) / font().measure(label, 1));
+        font().draw(canvas, label, rect.centerX() - font().measure(label, textScale) / 2,
+                rect.centerY() - GbaFont.LINE_HEIGHT * textScale / 2,
+                textScale, TEXT_DARK, TEXT_SHADOW);
     }
 
     private Bitmap[] badgeSprites;

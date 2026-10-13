@@ -10,6 +10,12 @@ import android.view.ViewGroup;
 public final class DualScreenPresentation extends Presentation {
     private DualScreenView view;
     private Runnable settingsListener;
+    private Runnable changeSavePathListener;
+
+    public void setChangeSavePathListener(Runnable listener) {
+        changeSavePathListener = listener;
+        if (view != null) view.setChangeSavePathListener(listener);
+    }
 
     public DualScreenPresentation(Context context, Display display) {
         super(context, display);
@@ -29,6 +35,7 @@ public final class DualScreenPresentation extends Presentation {
         // controller input while the bottom screen is touched.
         getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
         view = new DualScreenView(getContext());
+        view.setChangeSavePathListener(changeSavePathListener);
         view.setSettingsListener(settingsListener);
         setContentView(view, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -41,7 +48,20 @@ public final class DualScreenPresentation extends Presentation {
         }
     }
 
-    /** Routes one button press from the game activity to the bottom screen. */
+    /** Cycles the bottom-screen tabs when extra controller input is enabled. */
+    public void switchTab(int step) {
+        if (view != null) view.switchControllerTab(step);
+    }
+
+    public boolean extraControllerAvailable() {
+        return view != null && view.extraControllerAvailable();
+    }
+
+    public void navigateExtra(int action) {
+        if (view != null) view.navigateExtra(action);
+    }
+
+    /** Routes the existing battle-navigation controls to the bottom screen. */
     public void navigate(int action) {
         if (view != null) {
             view.navigate(action);

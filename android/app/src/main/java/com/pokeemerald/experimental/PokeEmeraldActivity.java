@@ -19,9 +19,138 @@ import java.util.Arrays;
 import org.libsdl.app.SDLActivity;
 
 public class PokeEmeraldActivity extends SDLActivity {
+    private int rightStickDirection = -1;
+    private int rightStickDeviceId = -1;
+    private final java.util.Set<Integer> bottomKeys = new java.util.HashSet<>();
+    private final Handler controllerHandler = new Handler(Looper.getMainLooper());
+    private final Runnable stickRepeat = new Runnable() {
+        @Override public void run() {
+            if (rightStickDirection < 0 || !bottomControllerEnabled()
+                    || android.view.InputDevice.getDevice(rightStickDeviceId) == null) {
+                stopRightStick();
+                return;
+            }
+            presentation.navigateExtra(rightStickDirection);
+            controllerHandler.postDelayed(this, 140);
+        }
+    };
+
+    private boolean bottomControllerEnabled() {
+        return presentation != null && presentation.isShowing()
+                && presentation.extraControllerAvailable();
+    }
+
+    private void stopRightStick() {
+        rightStickDirection = -1;
+        controllerHandler.removeCallbacks(stickRepeat);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(android.view.KeyEvent event) {
+        int key = event.getKeyCode();
+        boolean mapped = key == android.view.KeyEvent.KEYCODE_BUTTON_L1
+                || key == android.view.KeyEvent.KEYCODE_BUTTON_R1
+                || key == android.view.KeyEvent.KEYCODE_BUTTON_Y;
+        if (event.getAction() == android.view.KeyEvent.ACTION_UP && bottomKeys.remove(key)) return true;
+        // Finish consuming a UI-owned press even if battle starts while held.
+        if (event.getAction() == android.view.KeyEvent.ACTION_DOWN && bottomKeys.contains(key)) return true;
+        if (mapped && bottomControllerEnabled()
+                && event.getAction() == android.view.KeyEvent.ACTION_DOWN
+                && event.getRepeatCount() == 0) {
+            bottomKeys.add(key);
+            if (key == android.view.KeyEvent.KEYCODE_BUTTON_Y)
+                presentation.navigateExtra(DualScreenView.NAV_CONFIRM);
+            else presentation.switchTab(key == android.view.KeyEvent.KEYCODE_BUTTON_R1 ? 1 : -1);
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public boolean dispatchGenericMotionEvent(android.view.MotionEvent event) {
+        if (event.getActionMasked() != android.view.MotionEvent.ACTION_MOVE)
+            return super.dispatchGenericMotionEvent(event);
+        if ((event.getSource() & android.view.InputDevice.SOURCE_JOYSTICK)
+                == android.view.InputDevice.SOURCE_JOYSTICK && bottomControllerEnabled()) {
+            android.view.InputDevice device = event.getDevice();
+            int xAxis = android.view.MotionEvent.AXIS_Z;
+            int yAxis = android.view.MotionEvent.AXIS_RZ;
+            if (device != null && (device.getMotionRange(xAxis, event.getSource()) == null
+                    || device.getMotionRange(yAxis, event.getSource()) == null)) {
+                xAxis = android.view.MotionEvent.AXIS_RX;
+                yAxis = android.view.MotionEvent.AXIS_RY;
+            }
+            float x = event.getAxisValue(xAxis), y = event.getAxisValue(yAxis);
+            float deadzone = rightStickDirection < 0 ? 0.55f : 0.35f;
+            int direction = Math.max(Math.abs(x), Math.abs(y)) < deadzone ? -1
+                    : Math.abs(x) > Math.abs(y)
+                    ? (x < 0 ? DualScreenView.NAV_LEFT : DualScreenView.NAV_RIGHT)
+                    : (y < 0 ? DualScreenView.NAV_UP : DualScreenView.NAV_DOWN);
+            if (direction != rightStickDirection) {
+                stopRightStick();
+                rightStickDirection = direction;
+                rightStickDeviceId = event.getDeviceId();
+                if (direction >= 0) {
+                    presentation.navigateExtra(direction);
+                    controllerHandler.postDelayed(stickRepeat, 350);
+                }
+            }
+        } else stopRightStick();
+        // SDL still needs the left stick, hat and triggers in this same motion event.
+        return super.dispatchGenericMotionEvent(event);
+    }
+
     private static final long SNAPSHOT_INTERVAL_MS = 120;
 
+    private static final int PICK_SAVE_FOLDER = 42;
     private DualScreenPresentation presentation;
+
+    private void chooseSaveFolder() {
+        android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_OPEN_DOCUMENT_TREE);
+        intent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                | android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                | android.content.Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        try {
+            startActivityForResult(intent, PICK_SAVE_FOLDER);
+        } catch (android.content.ActivityNotFoundException e) {
+            new android.app.AlertDialog.Builder(this).setMessage("No folder picker is available on this device.")
+                    .setPositiveButton("OK", null).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, android.content.Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != PICK_SAVE_FOLDER || resultCode != RESULT_OK || data == null || data.getData() == null) return;
+        try {
+            SaveFileLocation.selectFolder(this, data.getData(), data.getFlags());
+            new android.app.AlertDialog.Builder(this)
+                    .setMessage("Save folder selected. Save your game, then fully close and reopen the app. "
+                            + "An existing .sav or .srm in that folder will be loaded and updated. "
+                            + "pokeemerald.sav takes priority over pokeemerald.srm when both exist. "
+                            + "If no save exists, your previous save will be copied there.")
+                    .setPositiveButton("OK", null).show();
+        } catch (Exception e) {
+            new android.app.AlertDialog.Builder(this).setTitle("Could not select save folder")
+                    .setMessage(e.getMessage()).setPositiveButton("OK", null).show();
+        }
+    }
+
+    // Called by SDL on its startup thread, before the game reads flash memory.
+    public int openCustomSaveFile(String defaultPath) {
+        try {
+            return SaveFileLocation.open(this, defaultPath);
+        } catch (Exception e) {
+            SaveFileLocation.recordError(this, e);
+            android.util.Log.e("SaveFileLocation", "Cannot open selected save", e);
+            runOnUiThread(() -> android.widget.Toast.makeText(this,
+                    "Cannot open selected save folder: " + e.getMessage()
+                            + ". Reopen the app to choose another folder.",
+                    android.widget.Toast.LENGTH_LONG).show());
+            return -2;
+        }
+    }
+
     private final Handler snapshotHandler = new Handler(Looper.getMainLooper());
     private final Runnable snapshotPump = new Runnable() {
         @Override
@@ -35,6 +164,7 @@ public class PokeEmeraldActivity extends SDLActivity {
             if (presentation != null && presentation.isShowing()) {
                 String json = DualScreenBridge.nativeGetSnapshotJson();
                 presentation.updateState(DualScreenState.parse(json));
+                if (!bottomControllerEnabled()) stopRightStick();
             }
             // The overlay paints letterbox bars from the live setting. On a
             // release cold start DualScreen_FillAssets runs before the config
@@ -91,6 +221,8 @@ public class PokeEmeraldActivity extends SDLActivity {
 
     @Override
     protected void onPause() {
+        stopRightStick();
+        bottomKeys.clear();
         snapshotHandler.removeCallbacks(snapshotPump);
         navHandler.removeCallbacks(navPump);
         dismissBottomScreen();
@@ -132,6 +264,7 @@ public class PokeEmeraldActivity extends SDLActivity {
             return; // Single-display device; game stays fullscreen.
         }
         presentation = new DualScreenPresentation(this, displays[0]);
+        presentation.setChangeSavePathListener(this::chooseSaveFolder);
         presentation.setSettingsListener(() -> {
             if (controls != null) {
                 controls.postInvalidate();
@@ -161,6 +294,7 @@ public class PokeEmeraldActivity extends SDLActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (!hasFocus) {
+            stopRightStick();
             return;
         }
 

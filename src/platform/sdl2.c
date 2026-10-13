@@ -11,6 +11,7 @@
 
 #ifdef __ANDROID__
 #include <jni.h>
+#include <unistd.h>
 #include <SDL.h>
 #else
 #include <SDL2/SDL.h>
@@ -118,6 +119,39 @@ static void MigrateFile(const char *from, const char *to);
 static FILE *ReclaimSaveFile(const char *path);
 #endif
 
+#ifdef __ANDROID__
+// -1 keeps the default path; -2 aborts startup instead of using the wrong save.
+static jint OpenAndroidSaveFile(void)
+{
+    JNIEnv *env = SDL_AndroidGetJNIEnv();
+    if (env == NULL) return -2;
+    jobject activity = SDL_AndroidGetActivity();
+    jclass activityClass = NULL;
+    jstring defaultPath = NULL;
+    jint fd = -2;
+    if (activity == NULL) goto cleanup;
+    activityClass = (*env)->GetObjectClass(env, activity);
+    if (activityClass == NULL) goto cleanup;
+    jmethodID openSave = (*env)->GetMethodID(env, activityClass,
+                                          "openCustomSaveFile", "(Ljava/lang/String;)I");
+    if (openSave == NULL) goto cleanup;
+    defaultPath = (*env)->NewStringUTF(env, sSavePath);
+    if (defaultPath == NULL) goto cleanup;
+    fd = (*env)->CallIntMethod(env, activity, openSave, defaultPath);
+cleanup:
+    if ((*env)->ExceptionCheck(env))
+    {
+        (*env)->ExceptionDescribe(env);
+        (*env)->ExceptionClear(env);
+        fd = -2;
+    }
+    if (defaultPath != NULL) (*env)->DeleteLocalRef(env, defaultPath);
+    if (activityClass != NULL) (*env)->DeleteLocalRef(env, activityClass);
+    if (activity != NULL) (*env)->DeleteLocalRef(env, activity);
+    return fd;
+}
+#endif
+
 int main(int argc, char **argv)
 {
     // Open an output console on Windows
@@ -210,6 +244,29 @@ int main(int argc, char **argv)
             SDL_snprintf(sConfigPath, sizeof(sConfigPath), "%spokeemerald.cfg", prefPath);
         }
         SDL_free(prefPath);
+    }
+#endif
+#ifdef __ANDROID__
+    // Also accept RetroArch-style raw SRAM saves in the original app directory.
+    // Keep writing to that filename; an existing .sav retains priority.
+    if (access(sSavePath, F_OK) != 0)
+    {
+        char srmPath[sizeof(sSavePath)];
+        SDL_strlcpy(srmPath, sSavePath, sizeof(srmPath));
+        char *extension = strrchr(srmPath, '.');
+        if (extension != NULL)
+        {
+            SDL_strlcpy(extension, ".srm", sizeof(srmPath) - (extension - srmPath));
+            if (access(srmPath, F_OK) == 0)
+                SDL_strlcpy(sSavePath, srmPath, sizeof(sSavePath));
+        }
+    }
+    // Android SAF grants access through a descriptor; a content URI cannot be fopen'ed.
+    jint saveFd = OpenAndroidSaveFile();
+    if (saveFd == -2) return 1; // Never silently load or overwrite a different save.
+    if (saveFd >= 0) {
+        sSaveFile = fdopen(saveFd, "r+b");
+        if (sSaveFile == NULL) { close(saveFd); return 1; }
     }
 #endif
     ReadSaveFile(sSavePath);
@@ -764,7 +821,8 @@ static FILE *ReclaimSaveFile(const char *path)
 static void ReadSaveFile(const char *path)
 {
     // Check whether the saveFile exists, and create it if not
-    sSaveFile = fopen(path, "r+b");
+    if (sSaveFile == NULL)
+        sSaveFile = fopen(path, "r+b");
 #ifdef __ANDROID__
     if (sSaveFile == NULL)
     {
@@ -933,6 +991,7 @@ static void StoreSaveFile()
     {
         fseek(sSaveFile, 0, SEEK_SET);
         fwrite(FLASH_BASE, 1, sizeof(FLASH_BASE), sSaveFile);
+        fflush(sSaveFile);
     }
 }
 
@@ -944,23 +1003,13 @@ void Platform_StoreSaveFile(void)
 void Platform_ReadFlash(u16 sectorNum, u32 offset, u8 *dest, u32 size)
 {
     DBGPRINTF("ReadFlash(sectorNum=0x%04X,offset=0x%08X,size=0x%02X)\n",sectorNum,offset,size);
-    FILE * savefile = fopen(sSavePath, "r+b");
-    if (savefile == NULL)
-    {
-        puts("Error opening save file.");
+    // Use the same stream for filesystem saves and Android document descriptors.
+    if (sSaveFile == NULL) return;
+    fflush(sSaveFile);
+    if (fseek(sSaveFile, (sectorNum << gFlash->sector.shift) + offset, SEEK_SET) != 0)
         return;
-    }
-    if (fseek(savefile, (sectorNum << gFlash->sector.shift) + offset, SEEK_SET))
-    {
-        fclose(savefile);
-        return;
-    }
-    if (fread(dest, 1, size, savefile) != size)
-    {
-        fclose(savefile);
-        return;
-    }
-    fclose(savefile);
+    if (fread(dest, 1, size, sSaveFile) != size)
+        SDL_Log("Unable to read save sector %u", sectorNum);
 }
 
 bool32 Platform_SkipAudioFrame(void)
