@@ -49,4 +49,13 @@ prefabs.json
 /pc-border-template-1280x720.png
 /pokeemerald.cfg
 /.cache/
+
+# Local Android outputs, signing keys, saves, and packaging environment.
+*.apk
+*.aab
+*.idsig
+*.keystore
+*.jks
+*.srm
+.venv/
 __pycache__/

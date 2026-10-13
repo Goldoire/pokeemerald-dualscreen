@@ -30,6 +30,7 @@ import java.util.Arrays;
  */
 public final class RomGateActivity extends Activity {
     private static final int PICK_ROM = 1;
+    private static final int PICK_SAVE_FOLDER = 2;
     private static final int ROM_SIZE = 16 * 1024 * 1024;
 
     private byte[] manifest;
@@ -106,6 +107,14 @@ public final class RomGateActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_SAVE_FOLDER) {
+            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                try { SaveFileLocation.selectFolder(this, data.getData(), data.getFlags()); }
+                catch (Exception e) { SaveFileLocation.recordError(this, e); }
+            }
+            launchGame();
+            return;
+        }
         if (requestCode != PICK_ROM || resultCode != RESULT_OK || data == null) {
             return;
         }
@@ -181,6 +190,27 @@ public final class RomGateActivity extends Activity {
     }
 
     private void launchGame() {
+        try {
+            SaveFileLocation.validateFolder(this);
+        } catch (Exception e) {
+            new android.app.AlertDialog.Builder(this).setTitle("Save folder unavailable")
+                    .setMessage(e.getMessage() + "\nChoose the folder again, or use the original app save location.")
+                    .setCancelable(false)
+                    .setPositiveButton("Choose folder", (dialog, which) -> {
+                        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                                | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                        try { startActivityForResult(intent, PICK_SAVE_FOLDER); }
+                        catch (android.content.ActivityNotFoundException missing) { launchGame(); }
+                    })
+                    .setNeutralButton("Original location", (dialog, which) -> {
+                        SaveFileLocation.useDefault(this);
+                        launchGame();
+                    })
+                    .setNegativeButton("Close", (dialog, which) -> finish()).show();
+            return;
+        }
         startActivity(new Intent(this, PokeEmeraldActivity.class));
         finish();
     }
