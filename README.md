@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/branding/pokemon-emerald-dual-screen.png" alt="Pokémon Emerald Dual Screen" width="520">
+  <img src="docs/branding/emerald-dual-screen.png" alt="Emerald Dual Screen" width="520">
 </p>
 
 <h1 align="center">Pokémon Emerald Dual Screen</h1>

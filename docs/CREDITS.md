@@ -8,8 +8,8 @@
 - [ZallaxDev/pokeemerald-3Ds-dualscreen](https://github.com/ZallaxDev/pokeemerald-3Ds-dualscreen): README, navigation-icon and option-menu layout inspiration, plus fixed-sun lighting adapted for the voxel renderer. Attribution and the preserved license are in the [voxel notice](../src/platform/voxel/NOTICE.md).
 
 Claude Code and other AI coding tools assisted with development. The header
-logo was generated using Emerald's title-screen lettering as a reference;
-see its [generation notes](branding/GENERATION.md).
+logo is original pixel art made for this project; see its
+[notes](branding/GENERATION.md).
 
 This is an unofficial fan project, unaffiliated with Nintendo, Game Freak,
 Creatures or The Pokémon Company. Pokémon and Pokémon Emerald belong to
